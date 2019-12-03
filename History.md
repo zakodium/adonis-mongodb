@@ -1,3 +1,12 @@
+## [0.1.1](https://github.com/zakodium/adonis-mongodb/compare/v0.1.0...v0.1.1) (2019-12-03)
+
+
+### Bug Fixes
+
+* correctly refer to template directory ([dab86ad](https://github.com/zakodium/adonis-mongodb/commit/dab86ad199d5a7c9b9dc825035dad2875410b0d7))
+
+
+
 # 0.1.0 (2019-12-03)
 
 
