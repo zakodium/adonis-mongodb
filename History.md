@@ -1,3 +1,12 @@
+## [0.1.2](https://github.com/zakodium/adonis-mongodb/compare/v0.1.1...v0.1.2) (2019-12-03)
+
+
+### Bug Fixes
+
+* really correctly read templates ([ad4c812](https://github.com/zakodium/adonis-mongodb/commit/ad4c81217b8b51196aa8da72f11f35e7a0d02f02))
+
+
+
 ## [0.1.1](https://github.com/zakodium/adonis-mongodb/compare/v0.1.0...v0.1.1) (2019-12-03)
 
 
