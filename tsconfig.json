@@ -7,7 +7,7 @@
     "outDir": "./lib",
     "sourceMap": true,
     "strict": true,
-    "target": "esnext",
+    "target": "es2019",
     "types": ["@adonisjs/core"],
     "strictFunctionTypes": false,
     "experimentalDecorators": true,
