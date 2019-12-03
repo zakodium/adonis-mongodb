@@ -20,6 +20,7 @@
   "license": "MIT",
   "adonisjs": {
     "templates": {
+      "basePath": "./templates",
       "config": [
         "config/mongodb.txt"
       ]
