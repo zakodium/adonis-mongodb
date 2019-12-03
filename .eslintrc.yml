@@ -1,0 +1,5 @@
+extends: cheminfo-typescript
+parserOptions:
+  project: tsconfig.lint.json
+rules:
+  import/no-unresolved: off

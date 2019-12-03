@@ -1,0 +1,9 @@
+import BaseMigration from '@ioc:Mongodb/Migration';
+
+export default class ${className} extends BaseMigration {
+  public up(): void {
+    // Write your migration here.
+    // For example:
+    // this.createCollection('my_coll');
+  }
+}
