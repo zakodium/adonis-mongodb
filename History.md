@@ -1,3 +1,12 @@
+## [0.1.4](https://github.com/zakodium/adonis-mongodb/compare/v0.1.3...v0.1.4) (2019-12-03)
+
+
+### Bug Fixes
+
+* enable emitDecoratorMetadata ([407554e](https://github.com/zakodium/adonis-mongodb/commit/407554e579197b52f16621ddd062668840407f07))
+
+
+
 ## [0.1.3](https://github.com/zakodium/adonis-mongodb/compare/v0.1.2...v0.1.3) (2019-12-03)
 
 
