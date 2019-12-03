@@ -1,3 +1,12 @@
+## [0.1.3](https://github.com/zakodium/adonis-mongodb/compare/v0.1.2...v0.1.3) (2019-12-03)
+
+
+### Bug Fixes
+
+* transpile optional properties ([d22d8d1](https://github.com/zakodium/adonis-mongodb/commit/d22d8d15981a33eb9c0928574e7f0c36e18a9c6b))
+
+
+
 ## [0.1.2](https://github.com/zakodium/adonis-mongodb/compare/v0.1.1...v0.1.2) (2019-12-03)
 
 
