@@ -5,7 +5,8 @@
   "main": "./lib/providers/MongodbProvider.js",
   "types": "./lib/src/types.d.ts",
   "files": [
-    "lib"
+    "lib",
+    "templates"
   ],
   "keywords": [
     "adonisjs",
@@ -39,7 +40,7 @@
     "clean": "rimraf lib",
     "eslint": "eslint commands providers src --ext ts --cache",
     "eslint-fix": "npm run eslint -- --fix",
-    "prepublishOnly": "npm run tsc && copyfiles \"templates/**/*.txt\" lib",
+    "prepublishOnly": "npm run tsc",
     "test": "npm run eslint",
     "test-coverage": "npm run test-only -- --coverage",
     "test-only": "jest",
@@ -80,7 +81,6 @@
     "@types/pluralize": "0.0.29",
     "@typescript-eslint/eslint-plugin": "^2.9.0",
     "@typescript-eslint/parser": "^2.9.0",
-    "copyfiles": "^2.1.1",
     "eslint": "^6.7.1",
     "eslint-config-cheminfo": "^2.0.4",
     "eslint-config-cheminfo-typescript": "^4.1.2",

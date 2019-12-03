@@ -44,7 +44,7 @@ export default class MongodbMakeMigration extends BaseCommand {
 
     const folder = 'mongodb/migrations';
 
-    const stub = join(__dirname, '..', 'templates/migrations/migration.txt');
+    const stub = join(__dirname, '../../templates/migrations/migration.txt');
 
     this.generator
       .addFile(name, { prefix: String(Date.now()), pattern: 'snakecase' })
