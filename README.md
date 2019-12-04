@@ -1,4 +1,4 @@
-# adonis-mongodb
+# Adonis MongoDB
 
 [![NPM version][npm-image]][npm-url]
 [![build status][ci-image]][ci-url]
@@ -25,9 +25,9 @@ TODO
 
 [MIT](./LICENSE)
 
-[npm-image]: https://img.shields.io/npm/v/adonis-apollo.svg
-[npm-url]: https://www.npmjs.com/package/adonis-apollo
-[ci-image]: https://github.com/zakodium/adonis-datadrive/workflows/Node.js%20CI/badge.svg?branch=master
-[ci-url]: https://github.com/zakodium/adonis-datadrive/actions?query=workflow%3A%22Node.js+CI%22
-[download-image]: https://img.shields.io/npm/dm/adonis-apollo.svg
-[download-url]: https://www.npmjs.com/package/adonis-apollo
+[npm-image]: https://img.shields.io/npm/v/@zakodium/adonis-mongodb.svg
+[npm-url]: https://www.npmjs.com/package/@zakodium/adonis-mongodb
+[ci-image]: https://github.com/zakodium/adonis-mongodb/workflows/Node.js%20CI/badge.svg?branch=master
+[ci-url]: https://github.com/zakodium/adonis-mongodb/actions?query=workflow%3A%22Node.js+CI%22
+[download-image]: https://img.shields.io/npm/dm/@zakodium/adonis-mongodb.svg
+[download-url]: https://www.npmjs.com/package/@zakodium/adonis-mongodb
