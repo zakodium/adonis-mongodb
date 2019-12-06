@@ -24,7 +24,7 @@ interface CreateIndexOperation {
 type MigrationOperation = CreateCollectionOperation | CreateIndexOperation;
 
 export default function createMigration(Database: Mongodb): any {
-  return class Migration {
+  abstract class Migration {
     private $operations: MigrationOperation[] = [];
     private $connection: ConnectionContract;
     private $logger: Logger;
@@ -61,6 +61,7 @@ export default function createMigration(Database: Mongodb): any {
     }
 
     public async execUp(): Promise<void> {
+      this.up();
       await this._createCollections();
       await this._createIndexes();
     }
@@ -80,7 +81,11 @@ export default function createMigration(Database: Mongodb): any {
         await db.createIndex(op.name, op.index, op.options);
       }
     }
-  };
+
+    public abstract up(): void;
+  }
+
+  return Migration;
 }
 
 function isCreateCollection(
