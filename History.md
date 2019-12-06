@@ -1,3 +1,12 @@
+## [0.1.5](https://github.com/zakodium/adonis-mongodb/compare/v0.1.4...v0.1.5) (2019-12-06)
+
+
+### Bug Fixes
+
+* actually execute the up() method ([3d8740f](https://github.com/zakodium/adonis-mongodb/commit/3d8740f4c380086818c5fe888d2bbeb1f01d4e8a))
+
+
+
 ## [0.1.4](https://github.com/zakodium/adonis-mongodb/compare/v0.1.3...v0.1.4) (2019-12-03)
 
 
