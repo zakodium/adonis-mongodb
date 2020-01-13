@@ -12,7 +12,8 @@
     "strictFunctionTypes": false,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "strictPropertyInitialization": false
+    "strictPropertyInitialization": false,
+    "skipLibCheck": true
   },
   "include": ["./commands/**/*", "./src/**/*", "./providers/**/*"],
   "exclude": ["./src/**/__tests__"]
