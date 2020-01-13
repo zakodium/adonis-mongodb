@@ -4,7 +4,6 @@ import { readdir } from 'fs-extra';
 import { BaseCommand, flags } from '@adonisjs/ace';
 import { inject } from '@adonisjs/fold';
 import { Logger } from '@poppinss/fancy-logs';
-import { ApplicationContract } from '@ioc:Adonis/Core/Application';
 import { MongodbContract } from '@ioc:Mongodb/Database';
 import BaseMigration from '@ioc:Mongodb/Migration';
 
@@ -17,7 +16,6 @@ interface MigrationModule {
   ) => BaseMigration;
 }
 
-@inject([null, 'Mongodb/Database'])
 export default class MongodbMigrate extends BaseCommand {
   public static commandName = 'mongodb:migrate';
   public static description = 'Execute pending migrations';
@@ -28,14 +26,7 @@ export default class MongodbMigrate extends BaseCommand {
   @flags.string({ description: 'Database connection to migrate' })
   public connection: string;
 
-  private $db: MongodbContract;
-
-  public constructor(app: ApplicationContract, db: MongodbContract) {
-    super(app);
-    this.$db = db;
-  }
-
-  private async _executeMigration(): Promise<void> {
+  private async _executeMigration(db: MongodbContract): Promise<void> {
     const folder = 'mongodb/migrations';
     const migrationsPath = join(this.application.appRoot, folder);
     const migrationNames = (await readdir(migrationsPath)).sort((a, b) =>
@@ -57,7 +48,7 @@ export default class MongodbMigrate extends BaseCommand {
     }
 
     const connectionName = this.connection || undefined;
-    const connection = this.$db.connection(connectionName);
+    const connection = db.connection(connectionName);
 
     const migrationColl = await connection.collection('__adonis_mongodb');
 
@@ -77,7 +68,7 @@ export default class MongodbMigrate extends BaseCommand {
     if (lock.matchedCount === 0 && lock.upsertedCount === 0) {
       this.logger.error('A migration is already running');
       process.exitCode = 1;
-      await this.$db.closeConnections();
+      await db.closeConnections();
       return;
     }
 
@@ -155,8 +146,9 @@ export default class MongodbMigrate extends BaseCommand {
     }
   }
 
-  public async handle(): Promise<void> {
-    if (this.connection && !this.$db.hasConnection(this.connection)) {
+  @inject(['Mongodb/Database'])
+  public async handle(db: MongodbContract): Promise<void> {
+    if (this.connection && !db.hasConnection(this.connection)) {
       this.logger.error(
         `No MongoDB connection registered with name "${this.connection}"`,
       );
@@ -164,7 +156,7 @@ export default class MongodbMigrate extends BaseCommand {
       return;
     }
 
-    await this._executeMigration();
-    await this.$db.closeConnections();
+    await this._executeMigration(db);
+    await db.closeConnections();
   }
 }

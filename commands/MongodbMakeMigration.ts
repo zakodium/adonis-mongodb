@@ -2,10 +2,8 @@ import { join } from 'path';
 
 import { BaseCommand, args, flags } from '@adonisjs/ace';
 import { inject } from '@adonisjs/fold';
-import { ApplicationContract } from '@ioc:Adonis/Core/Application';
 import { MongodbContract } from '@ioc:Mongodb/Database';
 
-@inject([null, 'Mongodb/Database'])
 export default class MongodbMakeMigration extends BaseCommand {
   public static commandName = 'mongodb:make:migration';
   public static description = 'Make a new migration file';
@@ -19,14 +17,8 @@ export default class MongodbMakeMigration extends BaseCommand {
   @flags.string({ description: 'Database connection to use for the migration' })
   public connection: string;
 
-  private $db: MongodbContract;
-
-  public constructor(app: ApplicationContract, db: MongodbContract) {
-    super(app);
-    this.$db = db;
-  }
-
-  public async handle(): Promise<void> {
+  @inject(['Mongodb/Database'])
+  public async handle(db: MongodbContract): Promise<void> {
     const { name } = this;
     if (name.includes('/')) {
       this.logger.error('name argument should not contain any slash');
@@ -34,7 +26,7 @@ export default class MongodbMakeMigration extends BaseCommand {
       return;
     }
 
-    if (this.connection && !this.$db.hasConnection(this.connection)) {
+    if (this.connection && !db.hasConnection(this.connection)) {
       this.logger.error(
         `no MongoDB connection registered with name "${this.connection}"`,
       );
