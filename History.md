@@ -1,3 +1,13 @@
+## [0.1.6](https://github.com/zakodium/adonis-mongodb/compare/v0.1.5...v0.1.6) (2020-01-13)
+
+
+### Bug Fixes
+
+* skip lib checks ([7fd8507](https://github.com/zakodium/adonis-mongodb/commit/7fd8507c85c45c2c2bdbe1e6ac9be5b0114dc233))
+* **commands:** inject db in handle method ([303fdf1](https://github.com/zakodium/adonis-mongodb/commit/303fdf17b6381050859380ba473ebfab49903528))
+
+
+
 ## [0.1.5](https://github.com/zakodium/adonis-mongodb/compare/v0.1.4...v0.1.5) (2019-12-06)
 
 
