@@ -1,3 +1,4 @@
+import { cloneDeep, isEqual, pickBy, snakeCase } from 'lodash';
 import {
   FilterQuery,
   Collection,
@@ -7,7 +8,6 @@ import {
   UpdateOneOptions,
   CommonOptions,
 } from 'mongodb';
-import { cloneDeep, isEqual, pickBy, snakeCase } from 'lodash';
 import pluralize from 'pluralize';
 
 import { Mongodb } from '../Mongodb';

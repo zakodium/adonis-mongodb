@@ -1,9 +1,9 @@
 import { IocContract } from '@adonisjs/fold';
 import { ObjectId } from 'mongodb';
 
-import { Mongodb } from '../src/Mongodb';
-import Model from '../src/Model/Model';
 import createMigration from '../src/Migration';
+import Model from '../src/Model/Model';
+import { Mongodb } from '../src/Mongodb';
 
 export default class MongodbProvider {
   private $container: IocContract;

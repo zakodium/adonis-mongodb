@@ -1,6 +1,6 @@
-import { IndexOptions } from 'mongodb';
-import { Logger } from '@poppinss/fancy-logs';
 import { ConnectionContract } from '@ioc:Mongodb/Database';
+import { Logger } from '@poppinss/fancy-logs';
+import { IndexOptions } from 'mongodb';
 
 import { Mongodb } from './Mongodb';
 

@@ -42,7 +42,7 @@ export default class MongodbMakeMigration extends BaseCommand {
       .addFile(name, { prefix: String(Date.now()), pattern: 'snakecase' })
       .stub(stub)
       .destinationDir(folder)
-      .appRoot(this.application.cliCwd || this.application.appRoot)
+      .appRoot(this.application.makePathFromCwd())
       .apply({
         className: `${name[0].toUpperCase()}${name.slice(1)}Migration`,
       });

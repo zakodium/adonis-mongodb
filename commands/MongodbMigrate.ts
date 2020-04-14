@@ -1,11 +1,11 @@
+import { promises as fs } from 'fs';
 import { join } from 'path';
 
-import { readdir } from 'fs-extra';
 import { BaseCommand, flags } from '@adonisjs/ace';
 import { inject } from '@adonisjs/fold';
-import { Logger } from '@poppinss/fancy-logs';
 import { MongodbContract } from '@ioc:Mongodb/Database';
 import BaseMigration from '@ioc:Mongodb/Migration';
+import { Logger } from '@poppinss/fancy-logs';
 
 const matchTimestamp = /^(?<timestamp>\d+)_.*$/;
 
@@ -29,7 +29,7 @@ export default class MongodbMigrate extends BaseCommand {
   private async _executeMigration(db: MongodbContract): Promise<void> {
     const folder = 'mongodb/migrations';
     const migrationsPath = join(this.application.appRoot, folder);
-    const migrationNames = (await readdir(migrationsPath)).sort((a, b) =>
+    const migrationNames = (await fs.readdir(migrationsPath)).sort((a, b) =>
       a.localeCompare(b),
     );
 

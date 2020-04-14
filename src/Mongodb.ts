@@ -1,6 +1,6 @@
 import { LoggerContract } from '@ioc:Adonis/Core/Logger';
-import { Exception } from '@poppinss/utils';
 import { MongodbContract, MongodbConfig } from '@ioc:Mongodb/Database';
+import { Exception } from '@poppinss/utils';
 
 import { Connection } from './Connection';
 
