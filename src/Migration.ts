@@ -1,5 +1,5 @@
 import { Logger } from '@poppinss/fancy-logs';
-import { IndexOptions } from 'mongodb';
+import { IndexOptions, ClientSession } from 'mongodb';
 
 import { ConnectionContract } from '@ioc:Mongodb/Database';
 
@@ -29,10 +29,16 @@ export default function createMigration(Database: Mongodb): any {
     private $operations: MigrationOperation[] = [];
     private $connection: ConnectionContract;
     private $logger: Logger;
+    private $session?: ClientSession;
 
-    public constructor(connection: string | undefined, logger: Logger) {
+    public constructor(
+      connection: string | undefined,
+      logger: Logger,
+      session?: ClientSession,
+    ) {
       this.$connection = Database.connection(connection);
       this.$logger = logger;
+      this.$session = session;
     }
 
     public createCollections(collectionNames: string[]): void {
@@ -79,7 +85,10 @@ export default function createMigration(Database: Mongodb): any {
       const db = await this.$connection.database();
       for (const op of this.$operations.filter(isCreateIndex)) {
         this.$logger.info(`Creating index on ${op.name}`);
-        await db.createIndex(op.name, op.index, op.options);
+        await db.createIndex(op.name, op.index, {
+          ...op.options,
+          session: this.$session,
+        });
       }
     }
 

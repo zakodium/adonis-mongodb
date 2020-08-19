@@ -2,14 +2,17 @@ import { Exception } from '@poppinss/utils';
 import { MongoClient, Db, Collection, ClientSession } from 'mongodb';
 
 import { LoggerContract } from '@ioc:Adonis/Core/Logger';
-import { MongodbConnectionConfig } from '@ioc:Mongodb/Database';
+import {
+  MongodbConnectionConfig,
+  ConnectionContract,
+} from '@ioc:Mongodb/Database';
 
 enum ConnectionStatus {
   CONNECTED,
   DISCONNECTED,
 }
 
-export class Connection {
+export class Connection implements ConnectionContract {
   private $name: string;
   private $config: MongodbConnectionConfig;
   private $logger: LoggerContract;
