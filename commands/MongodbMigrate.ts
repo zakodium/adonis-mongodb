@@ -107,7 +107,7 @@ export default class MongodbMigrate extends BaseCommand {
 
         let newBatch = 1;
         if (value.length === 1) {
-          newBatch = value[0].maxBatch;
+          newBatch = value[0].maxBatch + 1;
         }
 
         for (const migrationName of migrationNames) {
