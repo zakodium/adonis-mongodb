@@ -6,6 +6,12 @@
 
 MongoDB provider for AdonisJs.
 
+## Prerequisites
+
+We recommend using mongodb 4.4, because creation of collections and indices in migrations will be transactional and will be properly rolled back in case of error.
+
+If you use a version < 4.4, you might run into issues with partially applied migrations.
+
 ## Installation
 
 ```console
