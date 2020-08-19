@@ -7,6 +7,7 @@ import { Logger } from '@poppinss/fancy-logs';
 
 import { MongodbContract } from '@ioc:Mongodb/Database';
 import BaseMigration from '@ioc:Mongodb/Migration';
+import { ClientSession } from 'mongodb';
 
 const matchTimestamp = /^(?<timestamp>\d+)_.*$/;
 
@@ -14,6 +15,7 @@ interface MigrationModule {
   default: new (
     connection: string | undefined,
     logger: Logger,
+    session: ClientSession,
   ) => BaseMigration;
 }
 
@@ -30,19 +32,23 @@ export default class MongodbMigrate extends BaseCommand {
   private async _executeMigration(db: MongodbContract): Promise<void> {
     const folder = 'mongodb/migrations';
     const migrationsPath = join(this.application.appRoot, folder);
-    const migrationNames = (await fs.readdir(migrationsPath)).sort((a, b) =>
+    let migrationNames = (await fs.readdir(migrationsPath)).sort((a, b) =>
       a.localeCompare(b),
     );
 
+    // Check migration file names
     let hadBadName = false;
-    migrationNames.forEach((migration) => {
-      if (!migration.match(matchTimestamp)) {
-        this.logger.error(
-          `Invalid migration file: ${migration}. Name must start with a timestamp.`,
-        );
+    migrationNames.forEach((migrationName) => {
+      const match = matchTimestamp.exec(migrationName);
+      const timestamp = Number(match?.groups?.timestamp);
+      if (Number.isNaN(timestamp) || timestamp === 0) {
         hadBadName = true;
+        this.logger.error(
+          `Invalid migration file: ${migrationName}. Name must start with a timestamp`,
+        );
       }
     });
+
     if (hadBadName) {
       process.exitCode = 1;
       return;
@@ -51,100 +57,109 @@ export default class MongodbMigrate extends BaseCommand {
     const connectionName = this.connection || undefined;
     const connection = db.connection(connectionName);
 
-    const migrationColl = await connection.collection('__adonis_mongodb');
+    await connection.transaction(async (session) => {
+      const migrationColl = await connection.collection('__adonis_mongodb');
+      const migrationLockColl = await connection.collection(
+        '__adonis_mongdb_lock',
+      );
 
-    const lock = await migrationColl.updateOne(
-      {
-        _id: 'migration_lock',
-        running: false,
-      },
-      {
-        $set: { running: true },
-      },
-      {
-        upsert: true,
-      },
-    );
-
-    if (lock.matchedCount === 0 && lock.upsertedCount === 0) {
-      this.logger.error('A migration is already running');
-      process.exitCode = 1;
-      await db.closeConnections();
-      return;
-    }
-
-    try {
-      let migrationDoc = await migrationColl.findOne({
-        _id: 'migration_last',
-      });
-
-      if (!migrationDoc) {
-        migrationDoc = {
-          _id: 'migration_last',
-          last: 0,
-          date: new Date(),
-        };
-        await migrationColl.insertOne(migrationDoc);
-      }
-
-      let executed = 0;
-
-      for (const migrationName of migrationNames) {
-        const match = matchTimestamp.exec(migrationName);
-        const timestamp = Number(match?.groups?.timestamp);
-        if (Number.isNaN(timestamp) || timestamp === 0) {
-          throw new Error('unexpected: no timestamp in migration filename');
-        }
-
-        if (timestamp <= migrationDoc.last) {
-          continue;
-        }
-
-        const filePath = join(migrationsPath, migrationName);
-        const module: MigrationModule = await import(filePath);
-        const { default: Migration } = module;
-        if (!Migration || typeof Migration !== 'function') {
-          this.logger.error(
-            `Migration in ${migrationName} must export a default class`,
-          );
-          process.exitCode = 1;
-          return;
-        }
-        this.logger.info(`Executing migration: ${migrationName}`);
-        const migration = new Migration(connectionName, this.logger);
-        await migration.execUp();
-
-        await migrationColl.updateOne(
-          {
-            _id: 'migration_last',
-          },
-          {
-            $set: {
-              last: timestamp,
-              date: new Date(),
-            },
-          },
-        );
-
-        executed++;
-      }
-
-      if (executed > 0) {
-        this.logger.info(`Executed ${executed} migrations`);
-      } else {
-        this.logger.info('No pending migration');
-      }
-    } finally {
-      await migrationColl.updateOne(
+      const lock = await migrationLockColl.updateOne(
         {
           _id: 'migration_lock',
-          running: true,
+          running: false,
         },
         {
-          $set: { running: false },
+          $set: { running: true },
+        },
+        {
+          upsert: true,
         },
       );
-    }
+
+      if (lock.matchedCount === 0 && lock.upsertedCount === 0) {
+        this.logger.error('A migration is already running');
+        process.exitCode = 1;
+        await db.closeConnections();
+        return;
+      }
+
+      try {
+        let migrationDocsCursor = migrationColl.find({});
+        const migrationDocs = await migrationDocsCursor.toArray();
+        const dbMigrationNames = migrationDocs.map((m) => m.name);
+        // Keep migrations that are not yet registered
+
+        migrationNames = migrationNames.filter(
+          (name) => !dbMigrationNames.includes(name),
+        );
+
+        let executed = 0;
+
+        const value = await migrationColl
+          .aggregate([
+            {
+              $project: {
+                maxBatch: { $max: '$batch' },
+              },
+            },
+          ])
+          .toArray();
+
+        let newBatch = 1;
+        if (value.length === 1) {
+          newBatch = value[0].maxBatch;
+        }
+
+        for (const migrationName of migrationNames) {
+          const filePath = join(migrationsPath, migrationName);
+          const module: MigrationModule = await import(filePath);
+          const { default: Migration } = module;
+          if (!Migration || typeof Migration !== 'function') {
+            this.logger.error(
+              `Migration in ${migrationName} must export a default class`,
+            );
+            process.exitCode = 1;
+            return;
+          }
+          this.logger.info(`Executing migration::: ${migrationName}`);
+          const migration = new Migration(connectionName, this.logger, session);
+          await migration.execUp();
+          executed++;
+        }
+
+        if (migrationNames.length > 0) {
+          await migrationColl.insertMany(
+            migrationNames.map(
+              (migrationName) => ({
+                name: migrationName,
+                date: new Date(),
+                batch: newBatch,
+              }),
+              {
+                session,
+              },
+            ),
+          );
+        }
+
+        if (executed > 0) {
+          this.logger.info(`Executed ${executed} migrations`);
+        } else {
+          this.logger.info('No pending migration');
+        }
+      } finally {
+        // session.endSession();
+        await migrationLockColl.updateOne(
+          {
+            _id: 'migration_lock',
+            running: true,
+          },
+          {
+            $set: { running: false },
+          },
+        );
+      }
+    });
   }
 
   @inject(['Mongodb/Database'])
@@ -157,7 +172,10 @@ export default class MongodbMigrate extends BaseCommand {
       return;
     }
 
-    await this._executeMigration(db);
-    await db.closeConnections();
+    try {
+      await this._executeMigration(db);
+    } finally {
+      await db.closeConnections();
+    }
   }
 }
