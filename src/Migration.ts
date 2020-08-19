@@ -1,5 +1,5 @@
 import { Logger } from '@poppinss/fancy-logs';
-import { IndexOptions, ClientSession } from 'mongodb';
+import { IndexOptions, ClientSession, Db } from 'mongodb';
 
 import { ConnectionContract } from '@ioc:Mongodb/Database';
 
@@ -8,6 +8,7 @@ import { Mongodb } from './Mongodb';
 enum MigrationType {
   CreateCollection,
   CreateIndex,
+  Custom,
 }
 
 interface CreateCollectionOperation {
@@ -22,7 +23,15 @@ interface CreateIndexOperation {
   options?: IndexOptions;
 }
 
-type MigrationOperation = CreateCollectionOperation | CreateIndexOperation;
+interface CustomOperation {
+  type: MigrationType.Custom;
+  callback: (db: Db, session?: ClientSession) => Promise<void>;
+}
+
+type MigrationOperation =
+  | CreateCollectionOperation
+  | CreateIndexOperation
+  | CustomOperation;
 
 export default function createMigration(Database: Mongodb): any {
   abstract class Migration {
@@ -67,10 +76,18 @@ export default function createMigration(Database: Mongodb): any {
       });
     }
 
+    public defer(callback: (db: Db, session: ClientSession) => Promise<void>) {
+      this.$operations.push({
+        type: MigrationType.Custom,
+        callback,
+      });
+    }
+
     public async execUp(): Promise<void> {
       this.up();
       await this._createCollections();
       await this._createIndexes();
+      await this._executeDefered();
     }
 
     private async _createCollections(): Promise<void> {
@@ -78,6 +95,13 @@ export default function createMigration(Database: Mongodb): any {
       for (const op of this.$operations.filter(isCreateCollection)) {
         this.$logger.info(`Creating collection ${op.name}`);
         await db.createCollection(op.name);
+      }
+    }
+
+    private async _executeDefered(): Promise<void> {
+      const db = await this.$connection.database();
+      for (const op of this.$operations.filter(isCustom)) {
+        await op.callback(db, this.$session);
       }
     }
 
@@ -106,4 +130,8 @@ function isCreateCollection(
 
 function isCreateIndex(op: MigrationOperation): op is CreateIndexOperation {
   return op.type === MigrationType.CreateIndex;
+}
+
+function isCustom(op: MigrationOperation): op is CustomOperation {
+  return op.type === MigrationType.Custom;
 }

@@ -1,11 +1,5 @@
 declare module '@ioc:Mongodb/Database' {
-  import {
-    MongoClientOptions,
-    Collection,
-    Db,
-    ClientSession,
-    UpdateOneOptions,
-  } from 'mongodb';
+  import { MongoClientOptions, Collection, Db, ClientSession } from 'mongodb';
 
   export interface MongodbConnections {
     [key: string]: MongodbConnectionConfig;
@@ -186,7 +180,7 @@ declare module '@ioc:Mongodb/ObjectId' {
 }
 
 declare module '@ioc:Mongodb/Migration' {
-  import { IndexOptions } from 'mongodb';
+  import { IndexOptions, Db, ClientSession } from 'mongodb';
 
   export default abstract class Migration {
     public createCollections(collectionNames: string[]): void;
@@ -195,6 +189,9 @@ declare module '@ioc:Mongodb/Migration' {
       collectionName: string,
       index: string | object,
       options?: IndexOptions,
+    ): void;
+    public defer(
+      callabck: (db: Db, session?: ClientSession) => Promise<void>,
     ): void;
     public abstract up(): void;
     public execUp(): Promise<void>;
