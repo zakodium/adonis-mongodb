@@ -1,7 +1,8 @@
-import { LoggerContract } from '@ioc:Adonis/Core/Logger';
-import { MongodbConnectionConfig } from '@ioc:Mongodb/Database';
 import { Exception } from '@poppinss/utils';
 import { MongoClient, Db, Collection, ClientSession } from 'mongodb';
+
+import { LoggerContract } from '@ioc:Adonis/Core/Logger';
+import { MongodbConnectionConfig } from '@ioc:Mongodb/Database';
 
 enum ConnectionStatus {
   CONNECTED,

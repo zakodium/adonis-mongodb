@@ -67,22 +67,22 @@ declare module '@ioc:Mongodb/Model' {
     findOne<T extends Model<IdType>>(
       this: Constructor<T>,
       filter: FilterQuery<T>,
-      options?: FindOneOptions,
+      options?: FindOneOptions<T>,
     ): Promise<T | null>;
     find<T extends Model<IdType>>(
       this: Constructor<T>,
       filter: FilterQuery<T>,
-      options?: FindOneOptions,
+      options?: FindOneOptions<T>,
     ): Promise<FindResult<T>>;
     findById<T extends Model<IdType>>(
       this: Constructor<T>,
       id: IdType,
-      options?: FindOneOptions,
+      options?: FindOneOptions<T>,
     ): Promise<T | null>;
     findByIdOrThrow<T extends Model<IdType>>(
       this: Constructor<T>,
       id: IdType,
-      options?: FindOneOptions,
+      options?: FindOneOptions<T>,
     ): Promise<T>;
     getCollection<T extends Model<IdType>>(
       this: Constructor<T>,
@@ -113,7 +113,7 @@ declare module '@ioc:Mongodb/Model' {
     public static findOne<T extends Model<any>>(
       this: Constructor<T>,
       filter: FilterQuery<T>,
-      options?: FindOneOptions,
+      options?: FindOneOptions<T>,
     ): Promise<T | null>;
 
     /**
@@ -122,7 +122,7 @@ declare module '@ioc:Mongodb/Model' {
     public static find<T extends Model<any>>(
       this: Constructor<T>,
       filter: FilterQuery<T>,
-      options?: FindOneOptions,
+      options?: FindOneOptions<T>,
     ): Promise<FindResult<T>>;
 
     /**
@@ -131,7 +131,7 @@ declare module '@ioc:Mongodb/Model' {
     public static findById<T extends Model<any>>(
       this: Constructor<T>,
       id: unknown,
-      options?: FindOneOptions,
+      options?: FindOneOptions<T>,
     ): Promise<T | null>;
 
     /**
@@ -141,7 +141,7 @@ declare module '@ioc:Mongodb/Model' {
     public static findByIdOrThrow<T extends Model<any>>(
       this: Constructor<T>,
       id: unknown,
-      options?: FindOneOptions,
+      options?: FindOneOptions<T>,
     ): Promise<T>;
 
     /**

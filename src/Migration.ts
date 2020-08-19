@@ -1,6 +1,7 @@
-import { ConnectionContract } from '@ioc:Mongodb/Database';
 import { Logger } from '@poppinss/fancy-logs';
 import { IndexOptions } from 'mongodb';
+
+import { ConnectionContract } from '@ioc:Mongodb/Database';
 
 import { Mongodb } from './Mongodb';
 
@@ -17,7 +18,7 @@ interface CreateCollectionOperation {
 interface CreateIndexOperation {
   type: MigrationType.CreateIndex;
   name: string;
-  index: string | object;
+  index: string | Record<string, unknown>;
   options?: IndexOptions;
 }
 
@@ -49,7 +50,7 @@ export default function createMigration(Database: Mongodb): any {
 
     public createIndex(
       collectionName: string,
-      index: string | object,
+      index: string | Record<string, unknown>,
       options?: IndexOptions,
     ): void {
       this.$operations.push({

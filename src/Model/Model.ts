@@ -27,14 +27,14 @@ interface IModelOptions {
 
 class FindResult<T> {
   private $filter: FilterQuery<T>;
-  private $options: FindOneOptions | undefined;
+  private $options: FindOneOptions<T> | undefined;
   private $cursor: Cursor<T>;
   private $collection: Collection<T>;
   private $constructor: ModelConstructor<T>;
 
   public constructor(
     filter: FilterQuery<T>,
-    options: FindOneOptions | undefined,
+    options: FindOneOptions<T> | undefined,
     cursor: Cursor<T>,
     collection: Collection<T>,
     constructor: ModelConstructor<T>,
@@ -86,7 +86,7 @@ export default class Model {
   private $currentData: any;
   private $isDeleted: boolean;
 
-  private constructor(dbObj: object, options: IModelOptions) {
+  private constructor(dbObj: Record<string, unknown>, options: IModelOptions) {
     this.$collection = options.collection;
     this.$originalData = cloneDeep(dbObj);
     this.$currentData = dbObj;
@@ -137,7 +137,7 @@ export default class Model {
   public static async findOne<T extends Model>(
     this: ModelConstructor<T>,
     filter: FilterQuery<T>,
-    options?: FindOneOptions,
+    options?: FindOneOptions<T>,
   ): Promise<T | null> {
     const collection = await this.getCollection();
     const result = await collection.findOne(filter, options);
@@ -148,7 +148,7 @@ export default class Model {
   public static async find<T extends Model>(
     this: ModelConstructor<T>,
     filter: FilterQuery<T>,
-    options?: FindOneOptions,
+    options?: FindOneOptions<T>,
   ): Promise<FindResult<T>> {
     const collection = await this.getCollection();
     const cursor = collection.find(filter, options);
@@ -158,7 +158,7 @@ export default class Model {
   public static async findById<T extends Model>(
     this: ModelConstructor<T>,
     id: unknown,
-    options?: FindOneOptions,
+    options?: FindOneOptions<T>,
   ): Promise<T | null> {
     const collection = await this.getCollection();
     const result = await collection.findOne({ _id: id }, options);
@@ -169,7 +169,7 @@ export default class Model {
   public static async findByIdOrThrow<T extends Model>(
     this: ModelConstructor<T>,
     id: unknown,
-    options?: FindOneOptions,
+    options?: FindOneOptions<T>,
   ): Promise<T> {
     const collection = await this.getCollection();
     const result = await collection.findOne({ _id: id }, options);
