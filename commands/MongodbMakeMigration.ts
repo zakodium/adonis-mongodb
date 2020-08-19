@@ -2,6 +2,7 @@ import { join } from 'path';
 
 import { BaseCommand, args, flags } from '@adonisjs/ace';
 import { inject } from '@adonisjs/fold';
+
 import { MongodbContract } from '@ioc:Mongodb/Database';
 
 export default class MongodbMakeMigration extends BaseCommand {

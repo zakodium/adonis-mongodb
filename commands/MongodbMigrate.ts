@@ -3,9 +3,10 @@ import { join } from 'path';
 
 import { BaseCommand, flags } from '@adonisjs/ace';
 import { inject } from '@adonisjs/fold';
+import { Logger } from '@poppinss/fancy-logs';
+
 import { MongodbContract } from '@ioc:Mongodb/Database';
 import BaseMigration from '@ioc:Mongodb/Migration';
-import { Logger } from '@poppinss/fancy-logs';
 
 const matchTimestamp = /^(?<timestamp>\d+)_.*$/;
 

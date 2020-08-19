@@ -1,4 +1,4 @@
-extends: cheminfo-typescript
+extends: '@zakodium/eslint-config/adonis'
 parserOptions:
   project: tsconfig.lint.json
 rules:
