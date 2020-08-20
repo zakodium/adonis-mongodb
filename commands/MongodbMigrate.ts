@@ -17,6 +17,7 @@ interface MigrationModule {
     logger: Logger,
     session: ClientSession,
   ) => BaseMigration;
+  description?: string;
 }
 
 export default class MongodbMigrate extends BaseCommand {
@@ -113,7 +114,7 @@ export default class MongodbMigrate extends BaseCommand {
         for (const migrationName of migrationNames) {
           const filePath = join(migrationsPath, migrationName);
           const module: MigrationModule = await import(filePath);
-          const { default: Migration } = module;
+          const { default: Migration, description } = module;
           if (!Migration || typeof Migration !== 'function') {
             this.logger.error(
               `Migration in ${migrationName} must export a default class`,
@@ -121,7 +122,11 @@ export default class MongodbMigrate extends BaseCommand {
             process.exitCode = 1;
             return;
           }
-          this.logger.info(`Executing migration::: ${migrationName}`);
+          this.logger.info(
+            `Executing migration: ${migrationName}${
+              description ? ` - ${description}` : ''
+            }`,
+          );
           const migration = new Migration(connectionName, this.logger, session);
           await migration.execUp();
           executed++;
