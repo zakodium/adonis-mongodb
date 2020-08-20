@@ -1,67 +1,32 @@
-import { promises as fs } from 'fs';
-import { join } from 'path';
-
-import { BaseCommand, flags } from '@adonisjs/ace';
 import { inject } from '@adonisjs/fold';
-import { Logger } from '@poppinss/fancy-logs';
 
 import { MongodbContract } from '@ioc:Mongodb/Database';
-import BaseMigration from '@ioc:Mongodb/Migration';
-import { ClientSession } from 'mongodb';
+import MigrationCommand, {
+  migrationCollectionName,
+  migrationLockCollectionName,
+} from './util/MigrationCommand';
 
 const matchTimestamp = /^(?<timestamp>\d+)_.*$/;
 
-interface MigrationModule {
-  default: new (
-    connection: string | undefined,
-    logger: Logger,
-    session: ClientSession,
-  ) => BaseMigration;
-  description?: string;
-}
-
-export default class MongodbMigrate extends BaseCommand {
+export default class MongodbMigrate extends MigrationCommand {
   public static commandName = 'mongodb:migrate';
   public static description = 'Execute pending migrations';
   public static settings = {
     loadApp: true,
   };
 
-  @flags.string({ description: 'Database connection to migrate' })
-  public connection: string;
-
   private async _executeMigration(db: MongodbContract): Promise<void> {
-    const folder = 'mongodb/migrations';
-    const migrationsPath = join(this.application.appRoot, folder);
-    let migrationNames = (await fs.readdir(migrationsPath)).sort((a, b) =>
-      a.localeCompare(b),
-    );
-
-    // Check migration file names
-    let hadBadName = false;
-    migrationNames.forEach((migrationName) => {
-      const match = matchTimestamp.exec(migrationName);
-      const timestamp = Number(match?.groups?.timestamp);
-      if (Number.isNaN(timestamp) || timestamp === 0) {
-        hadBadName = true;
-        this.logger.error(
-          `Invalid migration file: ${migrationName}. Name must start with a timestamp`,
-        );
-      }
-    });
-
-    if (hadBadName) {
-      process.exitCode = 1;
-      return;
-    }
-
+    let migrationFiles = await this.getMigrationFiles();
     const connectionName = this.connection || undefined;
     const connection = db.connection(connectionName);
 
     await connection.transaction(async (session) => {
-      const migrationColl = await connection.collection('__adonis_mongodb');
       const migrationLockColl = await connection.collection(
-        '__adonis_mongdb_lock',
+        migrationLockCollectionName,
+      );
+
+      const migrationColl = await connection.collection(
+        migrationCollectionName,
       );
 
       const lock = await migrationLockColl.updateOne(
@@ -88,14 +53,15 @@ export default class MongodbMigrate extends BaseCommand {
         let migrationDocsCursor = migrationColl.find({});
         const migrationDocs = await migrationDocsCursor.toArray();
         const dbMigrationNames = migrationDocs.map((m) => m.name);
-        // Keep migrations that are not yet registered
 
-        migrationNames = migrationNames.filter(
+        // Keep migrations that are not yet registered
+        migrationFiles = migrationFiles.filter(
           (name) => !dbMigrationNames.includes(name),
         );
 
         let executed = 0;
 
+        // Get the next incremental batch value
         const value = await migrationColl
           .aggregate([
             {
@@ -111,30 +77,27 @@ export default class MongodbMigrate extends BaseCommand {
           newBatch = value[0].maxBatch + 1;
         }
 
-        for (const migrationName of migrationNames) {
-          const filePath = join(migrationsPath, migrationName);
-          const module: MigrationModule = await import(filePath);
-          const { default: Migration, description } = module;
-          if (!Migration || typeof Migration !== 'function') {
-            this.logger.error(
-              `Migration in ${migrationName} must export a default class`,
-            );
-            process.exitCode = 1;
-            return;
-          }
+        for (const migrationName of migrationFiles) {
+          const { Migration, description } = await this.importMigration(
+            migrationName,
+          );
+
           this.logger.info(
             `Executing migration: ${migrationName}${
               description ? ` - ${description}` : ''
             }`,
           );
+          if (description) {
+            this.logger.info(description);
+          }
           const migration = new Migration(connectionName, this.logger, session);
           await migration.execUp();
           executed++;
         }
 
-        if (migrationNames.length > 0) {
+        if (migrationFiles.length > 0) {
           await migrationColl.insertMany(
-            migrationNames.map(
+            migrationFiles.map(
               (migrationName) => ({
                 name: migrationName,
                 date: new Date(),
