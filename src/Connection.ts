@@ -91,7 +91,7 @@ export class Connection implements ConnectionContract {
     const db = await this._ensureDb();
     let result: TResult;
     await this.$client.withSession(async (session) => {
-      return session.withTransaction(async () => {
+      return session.withTransaction(async (session) => {
         result = await handler(session, db);
       });
     });
