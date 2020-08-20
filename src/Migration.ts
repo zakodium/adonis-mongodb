@@ -39,6 +39,7 @@ export default function createMigration(Database: Mongodb): any {
     private $connection: ConnectionContract;
     private $logger: Logger;
     private $session?: ClientSession;
+    private $collectionList: string[];
 
     public constructor(
       connection: string | undefined,
@@ -90,11 +91,22 @@ export default function createMigration(Database: Mongodb): any {
       await this._executeDefered();
     }
 
+    private async _listCollections() {
+      if (this.$collectionList) return this.$collectionList;
+      const db = await this.$connection.database();
+      const cursor = db.listCollections(undefined, {
+        nameOnly: true,
+      });
+      const list = await cursor.toArray();
+      this.$collectionList = list.map((element) => element.name);
+      return this.$collectionList;
+    }
+
     private async _createCollections(): Promise<void> {
       const db = await this.$connection.database();
       for (const op of this.$operations.filter(isCreateCollection)) {
         this.$logger.info(`Creating collection ${op.name}`);
-        await db.createCollection(op.name);
+        await db.createCollection(op.name, { session: this.$session });
       }
     }
 
@@ -107,11 +119,13 @@ export default function createMigration(Database: Mongodb): any {
 
     private async _createIndexes(): Promise<void> {
       const db = await this.$connection.database();
+      const collections = await this._listCollections();
       for (const op of this.$operations.filter(isCreateIndex)) {
         this.$logger.info(`Creating index on ${op.name}`);
         await db.createIndex(op.name, op.index, {
           ...op.options,
-          session: this.$session,
+          // index creation will fail if collection pre-exists the transaction
+          session: collections.includes(op.name) ? undefined : this.$session,
         });
       }
     }
