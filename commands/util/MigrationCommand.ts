@@ -1,8 +1,10 @@
-import { join } from 'path';
 import fs from 'fs/promises';
+import { join } from 'path';
+
 import { BaseCommand, flags } from '@adonisjs/ace';
 import { Logger } from '@poppinss/fancy-logs';
 import { ClientSession } from 'mongodb';
+
 import BaseMigration from '@ioc:Mongodb/Migration';
 
 const matchTimestamp = /^(?<timestamp>\d+)_.*$/;

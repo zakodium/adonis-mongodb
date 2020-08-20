@@ -1,6 +1,6 @@
-import MigrationCommand from './util/MigrationCommand';
 import CliTable from 'cli-table3';
-const matchTimestamp = /^(?<timestamp>\d+)_.*$/;
+
+import MigrationCommand from './util/MigrationCommand';
 
 export default class MongodbListMigrations extends MigrationCommand {
   public static commandName = 'mongodb:migration:status';
@@ -28,6 +28,7 @@ export default class MongodbListMigrations extends MigrationCommand {
       ] as any);
     });
 
+    // eslint-disable-next-line no-console
     console.log(table.toString());
   }
 }

@@ -1,12 +1,11 @@
 import { inject } from '@adonisjs/fold';
 
 import { MongodbContract } from '@ioc:Mongodb/Database';
+
 import MigrationCommand, {
   migrationCollectionName,
   migrationLockCollectionName,
 } from './util/MigrationCommand';
-
-const matchTimestamp = /^(?<timestamp>\d+)_.*$/;
 
 export default class MongodbMigrate extends MigrationCommand {
   public static commandName = 'mongodb:migration:run';
