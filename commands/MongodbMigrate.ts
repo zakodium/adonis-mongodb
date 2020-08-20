@@ -9,7 +9,7 @@ import MigrationCommand, {
 const matchTimestamp = /^(?<timestamp>\d+)_.*$/;
 
 export default class MongodbMigrate extends MigrationCommand {
-  public static commandName = 'mongodb:migrate';
+  public static commandName = 'mongodb:migration:run';
   public static description = 'Execute pending migrations';
   public static settings = {
     loadApp: true,
