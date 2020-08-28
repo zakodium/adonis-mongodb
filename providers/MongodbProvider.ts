@@ -2,7 +2,7 @@ import { IocContract } from '@adonisjs/fold';
 import { ObjectId } from 'mongodb';
 
 import createMigration from '../src/Migration';
-import Model from '../src/Model/Model';
+import { Model, AutoIncrementModel } from '../src/Model/Model';
 import { Mongodb } from '../src/Mongodb';
 
 export default class MongodbProvider {
@@ -22,8 +22,11 @@ export default class MongodbProvider {
     });
     this.$container.singleton('Mongodb/Model', () => {
       Model.$setDatabase(this.$container.use('Mongodb/Database'));
-      return Model;
+      AutoIncrementModel.$setDatabase(this.$container.use('Mongodb/Database'));
+
+      return { Model, AutoIncrementModel };
     });
+
     this.$container.singleton('Mongodb/Migration', () => {
       return createMigration(this.$container.use('Mongodb/Database'));
     });
