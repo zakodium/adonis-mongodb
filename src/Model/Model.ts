@@ -78,15 +78,18 @@ function computeCollectionName(constructorName: string): string {
   return snakeCase(pluralize(constructorName));
 }
 
-export default class Model {
-  private static $database: Mongodb;
+export class Model {
+  protected static $database: Mongodb;
 
-  private $collection: Collection;
-  private $originalData: any;
-  private $currentData: any;
-  private $isDeleted: boolean;
+  protected $collection: Collection;
+  protected $originalData: any;
+  protected $currentData: any;
+  protected $isDeleted: boolean;
 
-  private constructor(dbObj: Record<string, unknown>, options: IModelOptions) {
+  protected constructor(
+    dbObj: Record<string, unknown>,
+    options: IModelOptions,
+  ) {
     this.$collection = options.collection;
     this.$originalData = cloneDeep(dbObj);
     this.$currentData = dbObj;
@@ -98,7 +101,7 @@ export default class Model {
     this.$database = database;
   }
 
-  private static _computeCollectionName(): string {
+  protected static _computeCollectionName(): string {
     // @ts-ignore
     if (this.collectionName) {
       // @ts-ignore
@@ -181,7 +184,7 @@ export default class Model {
     return new this(result, { collection });
   }
 
-  private [Symbol.for('nodejs.util.inspect.custom')](): any {
+  protected [Symbol.for('nodejs.util.inspect.custom')](): any {
     return {
       model: this.constructor.name,
       originalData: this.$originalData,
@@ -190,7 +193,7 @@ export default class Model {
     };
   }
 
-  private $dirty(): Record<string, any> {
+  protected $dirty(): Record<string, any> {
     return pickBy(this.$currentData, (value, key) => {
       return (
         this.$originalData[key] === undefined ||
@@ -199,7 +202,7 @@ export default class Model {
     });
   }
 
-  private $ensureNotDeleted(): void {
+  protected $ensureNotDeleted(): void {
     if (this.$isDeleted) {
       throw new Error('this entry was deleted from the database');
     }
@@ -249,5 +252,43 @@ export default class Model {
     );
     this.$isDeleted = true;
     return result.deletedCount === 1;
+  }
+}
+
+export class AutoIncrementModel extends Model {
+  private constructor(dbObj: Record<string, unknown>, options: IModelOptions) {
+    super(dbObj, options);
+  }
+  public static async create<T extends Model>(
+    this: ModelConstructor<T>,
+    value: Omit<T, 'id'>,
+    options?: CollectionInsertOneOptions,
+  ): Promise<T> {
+    const collectionName = this._computeCollectionName();
+    const connection = this.$database.connection();
+    const counterCollection = await connection.collection(
+      '__adonis_mongodb_counters',
+    );
+
+    await counterCollection.updateOne(
+      { _id: collectionName },
+      { $inc: { count: 1 } },
+      { session: options?.session, upsert: true },
+    );
+    const countDoc = await counterCollection.findOne(
+      { _id: collectionName },
+      { session: options?.session },
+    );
+
+    const collection = await this.getCollection();
+    const now = new Date();
+    const toInsert = {
+      _id: countDoc.count,
+      createdAt: now,
+      updatedAt: now,
+      ...value,
+    };
+    await collection.insertOne(toInsert, options);
+    return new this(toInsert, { collection });
   }
 }
