@@ -112,7 +112,6 @@ export default class MongodbMigrate extends MigrationCommand {
           this.logger.info('No pending migration');
         }
       } finally {
-        // session.endSession();
         await migrationLockColl.updateOne(
           {
             _id: 'migration_lock',
