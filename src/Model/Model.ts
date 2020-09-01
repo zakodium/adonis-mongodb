@@ -270,20 +270,16 @@ export class AutoIncrementModel extends Model {
       '__adonis_mongodb_counters',
     );
 
-    await counterCollection.updateOne(
+    const doc = await counterCollection.findOneAndUpdate(
       { _id: collectionName },
       { $inc: { count: 1 } },
       { session: options?.session, upsert: true },
-    );
-    const countDoc = await counterCollection.findOne(
-      { _id: collectionName },
-      { session: options?.session },
     );
 
     const collection = await this.getCollection();
     const now = new Date();
     const toInsert = {
-      _id: countDoc.count,
+      _id: doc.value.count,
       createdAt: now,
       updatedAt: now,
       ...value,
