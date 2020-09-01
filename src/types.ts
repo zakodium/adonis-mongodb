@@ -191,7 +191,7 @@ declare module '@ioc:Mongodb/Migration' {
       options?: IndexOptions,
     ): void;
     public defer(
-      callabck: (db: Db, session?: ClientSession) => Promise<void>,
+      callback: (db: Db, session: ClientSession) => Promise<void>,
     ): void;
     public abstract up(): void;
     public execUp(): Promise<void>;
