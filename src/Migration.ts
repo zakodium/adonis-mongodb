@@ -88,7 +88,7 @@ export default function createMigration(Database: Mongodb): any {
       this.up();
       await this._createCollections();
       await this._createIndexes();
-      await this._executeDefered();
+      await this._executeDeferred();
     }
 
     private async _listCollections() {
