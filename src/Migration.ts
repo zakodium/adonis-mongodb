@@ -110,7 +110,7 @@ export default function createMigration(Database: Mongodb): any {
       }
     }
 
-    private async _executeDefered(): Promise<void> {
+    private async _executeDeferred(): Promise<void> {
       const db = await this.$connection.database();
       for (const op of this.$operations.filter(isCustom)) {
         await op.callback(db, this.$session);
