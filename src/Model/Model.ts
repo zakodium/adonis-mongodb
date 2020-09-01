@@ -208,8 +208,8 @@ export class Model {
     }
   }
 
-  public get id(): string {
-    return String(this.$currentData._id);
+  public get id() {
+    return this.$currentData._id;
   }
 
   public get isDirty(): boolean {
