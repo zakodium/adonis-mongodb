@@ -86,9 +86,6 @@ export default class MongodbMigrate extends MigrationCommand {
               description ? ` - ${description}` : ''
             }`,
           );
-          if (description) {
-            this.logger.info(description);
-          }
           const migration = new Migration(connectionName, this.logger, session);
           await migration.execUp();
           executed++;
