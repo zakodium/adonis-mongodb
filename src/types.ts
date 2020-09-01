@@ -147,10 +147,7 @@ declare module '@ioc:Mongodb/Model' {
 
     public readonly _id: IdType;
 
-    /**
-     * _id field converted to string.
-     */
-    public get id(): string;
+    public get id(): IdType;
 
     public readonly createdAt: Date;
     public readonly updatedAt: Date;
@@ -173,87 +170,7 @@ declare module '@ioc:Mongodb/Model' {
     public delete(options?: CommonOptions): Promise<boolean>;
   }
 
-  class AutoIncrementModel {
-    /**
-     * Create one document and return it.
-     */
-    public static create<T extends Model<number>, ValueType = any>(
-      this: Constructor<T>,
-      value: ValueType,
-      options?: ModelCreateOptions,
-    ): Promise<T>;
-
-    /**
-     * Find one document and return it.
-     */
-    public static findOne<T extends Model<number>>(
-      this: Constructor<T>,
-      filter: FilterQuery<T>,
-      options?: FindOneOptions<T>,
-    ): Promise<T | null>;
-
-    /**
-     * Find multiple documents.
-     */
-    public static find<T extends Model<number>>(
-      this: Constructor<T>,
-      filter: FilterQuery<T>,
-      options?: FindOneOptions<T>,
-    ): Promise<FindResult<T>>;
-
-    /**
-     * Find a single document with its id.
-     */
-    public static findById<T extends Model<number>>(
-      this: Constructor<T>,
-      id: unknown,
-      options?: FindOneOptions<T>,
-    ): Promise<T | null>;
-
-    /**
-     * Find a single document with its id.
-     * Throws an error if no document was found.
-     */
-    public static findByIdOrThrow<T extends Model<number>>(
-      this: Constructor<T>,
-      id: unknown,
-      options?: FindOneOptions<T>,
-    ): Promise<T>;
-
-    /**
-     * Get the Collection object from the mongodb driver.
-     */
-    public static getCollection<T extends Model<number>>(
-      this: Constructor<T>,
-    ): Promise<Collection<T>>;
-
-    public readonly _id: number;
-
-    /**
-     * _id field converted to string.
-     */
-    public get id(): string;
-
-    public readonly createdAt: Date;
-    public readonly updatedAt: Date;
-
-    /**
-     * `true` if the entry has unsaved modifications.
-     */
-    public get isDirty(): boolean;
-
-    /**
-     * Save the entry to the database.
-     * @returns - whether the entry was changed.
-     */
-    public save(options?: UpdateOneOptions): Promise<boolean>;
-
-    /**
-     * Delete the entry from the database.
-     * @returns - whether the entry was deleted.
-     */
-    public delete(options?: CommonOptions): Promise<boolean>;
-  }
+  class AutoIncrementModel extends Model<number> {}
 }
 
 declare module '@ioc:Mongodb/ObjectId' {
