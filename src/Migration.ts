@@ -25,7 +25,7 @@ interface CreateIndexOperation {
 
 interface CustomOperation {
   type: MigrationType.Custom;
-  callback: (db: Db, session?: ClientSession) => Promise<void>;
+  callback: (db: Db, session: ClientSession) => Promise<void>;
 }
 
 type MigrationOperation =
@@ -38,13 +38,13 @@ export default function createMigration(Database: Mongodb): any {
     private $operations: MigrationOperation[] = [];
     private $connection: ConnectionContract;
     private $logger: Logger;
-    private $session?: ClientSession;
+    private $session: ClientSession;
     private $collectionList: string[];
 
     public constructor(
       connection: string | undefined,
       logger: Logger,
-      session?: ClientSession,
+      session: ClientSession,
     ) {
       this.$connection = Database.connection(connection);
       this.$logger = logger;
