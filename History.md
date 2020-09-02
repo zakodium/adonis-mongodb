@@ -1,3 +1,34 @@
+# [0.2.0](https://github.com/zakodium/adonis-mongodb/compare/v0.1.7...v0.2.0) (2020-09-02)
+
+
+### Bug Fixes
+
+* correct migration batch number ([66af888](https://github.com/zakodium/adonis-mongodb/commit/66af8882011ec0b14e7567d66231ab14f4b7f50e))
+* don't log description twice ([923048f](https://github.com/zakodium/adonis-mongodb/commit/923048f0963d1dc5f80c1dc9cca7760331a6bcea))
+* only use transaction when creating indexes if collection does not exist ([94fa3fb](https://github.com/zakodium/adonis-mongodb/commit/94fa3fb7b69cf079f372f51813a5dbaf08b0bde0))
+* use original type on id getter ([78317c1](https://github.com/zakodium/adonis-mongodb/commit/78317c12ea25c624e85b7deb094966c1e2f852c7))
+
+
+### Features
+
+* add command show migration status ([0ef66d2](https://github.com/zakodium/adonis-mongodb/commit/0ef66d2a31e5c9782f80383dd48ec72276b4eac1))
+* add defer method to migration module ([ff7c60a](https://github.com/zakodium/adonis-mongodb/commit/ff7c60a89d0c92cedaba4c4e918fcfab6ee3e0a6))
+* add incremental model ([e7574f6](https://github.com/zakodium/adonis-mongodb/commit/e7574f6bcd2b3840f1cd3c8f6d195d3ccd781e64))
+* allow to add description to migration ([7c075e7](https://github.com/zakodium/adonis-mongodb/commit/7c075e77dde28a2c3337b27e7abbc7833a6af793))
+* execute all pending migrations in one transaction ([1581854](https://github.com/zakodium/adonis-mongodb/commit/1581854a4b95dd285d6f3ac86002cf293511b2da))
+
+
+* rename migrate command ([c6ce51b](https://github.com/zakodium/adonis-mongodb/commit/c6ce51bb281b408d3a6afde4ae2245ad96f6c5b9))
+
+
+### BREAKING CHANGES
+
+* do not convert to string in id getter
+* Model is no longer a default export but a named export
+* renamed the migrate command to match how lucid names migration commands
+
+
+
 ## [0.1.7](https://github.com/zakodium/adonis-mongodb/compare/v0.1.6...v0.1.7) (2020-04-14)
 
 
