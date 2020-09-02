@@ -1,3 +1,7 @@
+## [0.2.1](https://github.com/zakodium/adonis-mongodb/compare/v0.2.0...v0.2.1) (2020-09-02)
+
+
+
 # [0.2.0](https://github.com/zakodium/adonis-mongodb/compare/v0.1.7...v0.2.0) (2020-09-02)
 
 
