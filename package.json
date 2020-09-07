@@ -22,7 +22,7 @@
     "templates": {
       "basePath": "./templates",
       "config": [
-        "config/mongodb.txt"
+        "mongodb.txt"
       ]
     },
     "env": {
