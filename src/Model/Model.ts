@@ -276,10 +276,11 @@ export class AutoIncrementModel extends Model {
       { session: options?.session, upsert: true },
     );
 
+    const newCount = doc.value ? doc.value.count + 1 : 1;
     const collection = await this.getCollection();
     const now = new Date();
     const toInsert = {
-      _id: doc.value.count,
+      _id: newCount,
       createdAt: now,
       updatedAt: now,
       ...value,
