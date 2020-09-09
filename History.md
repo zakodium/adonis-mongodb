@@ -1,3 +1,14 @@
+## [0.2.2](https://github.com/zakodium/adonis-mongodb/compare/v0.2.1...v0.2.2) (2020-09-09)
+
+
+### Bug Fixes
+
+* correct incremental id in AutoIncrementModel ([8a20201](https://github.com/zakodium/adonis-mongodb/commit/8a20201c1d86618c2f068304c2b109b5a86a33d6))
+* do not create a config subfolder ([#4](https://github.com/zakodium/adonis-mongodb/issues/4)) ([a86e79b](https://github.com/zakodium/adonis-mongodb/commit/a86e79b4df34b97084e23204423d012e393432d0))
+* show accurate information in status command ([6580db9](https://github.com/zakodium/adonis-mongodb/commit/6580db92bfa7a4c752cf39c2c084ad2d8b67b500))
+
+
+
 ## [0.2.1](https://github.com/zakodium/adonis-mongodb/compare/v0.2.0...v0.2.1) (2020-09-02)
 
 
