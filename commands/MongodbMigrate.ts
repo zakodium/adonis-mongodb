@@ -7,7 +7,6 @@ import MigrationCommand, {
   migrationLockCollectionName,
 } from './util/MigrationCommand';
 
-
 export default class MongodbMigrate extends MigrationCommand {
   public static commandName = 'mongodb:migration:run';
   public static description = 'Execute pending migrations';
