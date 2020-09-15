@@ -33,7 +33,7 @@ declare module '@ioc:Mongodb/Database' {
     transaction<TResult>(
       handler: (session: ClientSession, db: Db) => Promise<TResult>,
     ): Promise<TResult>;
-    $config: MongodbConnectionConfig;
+    config: MongodbConnectionConfig;
   }
 
   const mongodb: MongodbContract;
