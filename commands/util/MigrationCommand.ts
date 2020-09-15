@@ -5,8 +5,8 @@ import { BaseCommand, flags } from '@adonisjs/ace';
 import { Logger } from '@poppinss/fancy-logs';
 import { ClientSession } from 'mongodb';
 
+import { MongodbConnectionConfig } from '@ioc:Mongodb/Database';
 import BaseMigration from '@ioc:Mongodb/Migration';
-import { MongodbConfig, MongodbConnectionConfig } from '@ioc:Mongodb/Database';
 
 const matchTimestamp = /^(?<timestamp>\d+)_.*$/;
 const folder = 'mongodb/migrations';
