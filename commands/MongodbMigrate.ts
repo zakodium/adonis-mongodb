@@ -15,7 +15,7 @@ export default class MongodbMigrate extends MigrationCommand {
   };
 
   private async _executeMigration(db: MongodbContract): Promise<void> {
-    let migrationFiles = await this.getMigrationFiles();
+    let migrationFiles = await this.getMigrationFiles(db.connection().$config);
     const connectionName = this.connection || undefined;
     const connection = db.connection(connectionName);
 

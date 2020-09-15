@@ -14,7 +14,7 @@ enum ConnectionStatus {
 
 export class Connection implements ConnectionContract {
   private $name: string;
-  private $config: MongodbConnectionConfig;
+  public $config: MongodbConnectionConfig;
   private $logger: LoggerContract;
   private $status: ConnectionStatus;
   private $client: MongoClient;

@@ -24,7 +24,9 @@ export default class MongodbListMigrations extends MigrationCommand {
     try {
       const database = await db.connection().database();
       const coll = database.collection('__adonis_mongodb');
-      const migrationNames = await this.getMigrationFiles();
+      const migrationNames = await this.getMigrationFiles(
+        db.connection().$config,
+      );
 
       const migrationDocuments = await coll.find({}).toArray();
 
