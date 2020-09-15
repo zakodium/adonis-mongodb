@@ -39,7 +39,7 @@ export default abstract class MongodbMakeMigration extends BaseCommand {
   ): Promise<string[]> {
     const folders =
       config.migrations && config.migrations.length > 0
-        ? [folder, ...config.migrations]
+        ? config.migrations
         : [folder];
 
     const migrationFiles: string[] = (
