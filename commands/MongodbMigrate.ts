@@ -1,11 +1,12 @@
 import { inject } from '@adonisjs/fold';
 
-import { MongodbContract } from '@ioc:Mongodb/Database';
+import { Mongodb } from '../src/Mongodb';
 
 import MigrationCommand, {
   migrationCollectionName,
   migrationLockCollectionName,
 } from './util/MigrationCommand';
+
 
 export default class MongodbMigrate extends MigrationCommand {
   public static commandName = 'mongodb:migration:run';
@@ -14,7 +15,7 @@ export default class MongodbMigrate extends MigrationCommand {
     loadApp: true,
   };
 
-  private async _executeMigration(db: MongodbContract): Promise<void> {
+  private async _executeMigration(db: Mongodb): Promise<void> {
     let migrationFiles = await this.getMigrationFiles(db.connection().config);
     const connectionName = this.connection || undefined;
     const connection = db.connection(connectionName);
@@ -126,7 +127,7 @@ export default class MongodbMigrate extends MigrationCommand {
   }
 
   @inject(['Mongodb/Database'])
-  public async handle(db: MongodbContract): Promise<void> {
+  public async handle(db: Mongodb): Promise<void> {
     if (this.connection && !db.hasConnection(this.connection)) {
       this.logger.error(
         `No MongoDB connection registered with name "${this.connection}"`,

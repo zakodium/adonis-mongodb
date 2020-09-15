@@ -1,7 +1,7 @@
 import { inject } from '@adonisjs/fold';
 import CliTable from 'cli-table3';
 
-import { MongodbContract } from '@ioc:Mongodb/Database';
+import { Mongodb } from '../src/Mongodb';
 
 import MigrationCommand from './util/MigrationCommand';
 
@@ -13,7 +13,7 @@ export default class MongodbListMigrations extends MigrationCommand {
   };
 
   @inject(['Mongodb/Database'])
-  public async handle(db: MongodbContract): Promise<void> {
+  public async handle(db: Mongodb): Promise<void> {
     if (this.connection && !db.hasConnection(this.connection)) {
       this.logger.error(
         `No MongoDB connection registered with name "${this.connection}"`,
