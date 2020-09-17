@@ -14,6 +14,7 @@ declare module '@ioc:Mongodb/Database' {
     url: string;
     database: string;
     clientOptions?: MongoClientOptions;
+    migrations?: string[];
   }
 
   export interface MongodbContract {

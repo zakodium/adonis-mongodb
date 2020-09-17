@@ -14,11 +14,12 @@ enum ConnectionStatus {
 
 export class Connection implements ConnectionContract {
   private $name: string;
-  private $config: MongodbConnectionConfig;
   private $logger: LoggerContract;
   private $status: ConnectionStatus;
   private $client: MongoClient;
   private $connectPromise: Promise<Db> | null;
+
+  public config: MongodbConnectionConfig;
 
   public constructor(
     name: string,
@@ -26,13 +27,13 @@ export class Connection implements ConnectionContract {
     logger: LoggerContract,
   ) {
     this.$name = name;
-    this.$config = config;
+    this.config = config;
     this.$logger = logger;
     this.$status = ConnectionStatus.DISCONNECTED;
-    this.$client = new MongoClient(this.$config.url, {
+    this.$client = new MongoClient(this.config.url, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
-      ...this.$config.clientOptions,
+      ...this.config.clientOptions,
     });
     this.$connectPromise = null;
   }
@@ -56,7 +57,7 @@ export class Connection implements ConnectionContract {
     this.$status = ConnectionStatus.CONNECTED;
     this.$connectPromise = this.$client
       .connect()
-      .then((client) => client.db(this.$config.database));
+      .then((client) => client.db(this.config.database));
     this.$connectPromise.catch((error) => {
       this.$logger.fatal(
         `could not connect to database "${this.$name}"`,
