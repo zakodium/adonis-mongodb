@@ -1,5 +1,5 @@
 import fs from 'fs/promises';
-import { join, basename } from 'path';
+import { join, basename, extname } from 'path';
 
 import { BaseCommand, flags } from '@adonisjs/ace';
 import { Logger } from '@poppinss/fancy-logs';
@@ -49,7 +49,9 @@ export default abstract class MongodbMakeMigration extends BaseCommand {
           .map(async (migrationsPath) => {
             try {
               const files = await fs.readdir(migrationsPath);
-              return files.map((file) => join(migrationsPath, file));
+              return files
+                .filter((file) => extname(file) === '.js')
+                .map((file) => join(migrationsPath, file));
             } catch {
               return null;
             }
@@ -62,7 +64,7 @@ export default abstract class MongodbMakeMigration extends BaseCommand {
     let migrationNames = migrationFiles.sort((a, b) =>
       basename(a, '.js').localeCompare(basename(b, '.js')),
     );
-
+    console.log(migrationNames);
     // Check migration file names
     let hadBadName = false;
     migrationNames
