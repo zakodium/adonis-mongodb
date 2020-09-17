@@ -15,5 +15,6 @@
     "strictPropertyInitialization": false,
     "skipLibCheck": true
   },
-  "include": ["./commands/**/*", "./src/**/*", "./providers/**/*"]
+  "include": ["./commands/**/*", "./src/**/*", "./providers/**/*"],
+  "exclude": ["**/__tests__/**"]
 }
