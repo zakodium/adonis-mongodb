@@ -64,7 +64,6 @@ export default abstract class MongodbMakeMigration extends BaseCommand {
     let migrationNames = migrationFiles.sort((a, b) =>
       basename(a, '.js').localeCompare(basename(b, '.js')),
     );
-    console.log(migrationNames);
     // Check migration file names
     let hadBadName = false;
     migrationNames
