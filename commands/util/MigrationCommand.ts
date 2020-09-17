@@ -87,8 +87,7 @@ export default abstract class MongodbMakeMigration extends BaseCommand {
   protected async importMigration(
     name: string,
   ): Promise<{ Migration: MigrationModule['default']; description?: string }> {
-    const filePath = name;
-    const module: MigrationModule = await import(filePath);
+    const module: MigrationModule = await import(name);
     const { default: Migration, description } = module;
     if (!Migration || typeof Migration !== 'function') {
       throw new Error(`Migration in ${name} must export a default class`);
