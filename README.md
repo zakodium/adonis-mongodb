@@ -27,6 +27,16 @@ TODO
 
 TODO
 
+## Tests
+
+To run tests locally:
+
+```bash
+$ docker-compose up -d
+$ npm test
+$ docker-compose down
+```
+
 ## License
 
 [MIT](./LICENSE)
