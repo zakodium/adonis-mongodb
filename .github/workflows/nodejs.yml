@@ -20,6 +20,7 @@ jobs:
         env:
           CI: true
   test:
+    timeout-minutes: 30
     runs-on: ubuntu-latest
     strategy:
       matrix:
