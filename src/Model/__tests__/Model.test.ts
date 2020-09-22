@@ -72,7 +72,7 @@ test('find by id should work', async () => {
     password: 'root',
   });
   const secondUser = await User.findById(user.id);
-  expect(secondUser.id).toStrictEqual(user.id);
+  expect(secondUser).not.toBeNull();
 });
 
 test("find by id should throw when doesn't exists", async () => {
