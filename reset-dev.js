@@ -8,9 +8,9 @@ try {
     [
       '-f',
       'docker-compose.yml',
+      'exec',
       // Do not try to allocate a TTY so it works in GitHub actions too.
       '-T',
-      'exec',
       'mongodb',
       'mongo',
       '--eval',
