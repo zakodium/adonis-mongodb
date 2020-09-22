@@ -44,6 +44,7 @@
     "prepublishOnly": "npm run tsc",
     "test-only": "jest",
     "test-coverage": "jest --coverage",
+    "pretest": "node reset-dev",
     "test": "npm run test-only && npm run eslint",
     "tsc": "npm run clean && npm run tsc-cjs",
     "tsc-cjs": "tsc"
