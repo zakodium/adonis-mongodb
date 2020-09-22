@@ -21,6 +21,10 @@ const loggerConfig = {
 
 const db = new Mongodb(mongoConfig, new Logger(loggerConfig));
 
+afterAll(async () => {
+  await db.connection('mongo').close();
+});
+
 test("hasConnection should return false if connection doesn't exist", () => {
   expect(db.hasConnection('idontexist')).toBe(false);
 });

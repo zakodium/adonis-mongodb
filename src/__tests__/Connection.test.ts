@@ -20,6 +20,10 @@ const connectionConfig = {
 const logger = new FakeLogger(loggerConfig);
 const connection = new Connection('mongo', connectionConfig, logger);
 
+afterAll(async () => {
+  await connection.close();
+});
+
 test('try to connect with good config', async () => {
   connection.connect();
   await sleep(500);
