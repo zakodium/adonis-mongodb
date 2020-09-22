@@ -42,13 +42,6 @@ afterAll(async () => {
   await db.connection('mongo').close();
 });
 
-test('get the collection before executing the migration should throw', async () => {
-  const collections = await (await db.connection('mongo').database())
-    .listCollections()
-    .toArray();
-  expect(collections).toHaveLength(0);
-});
-
 test('runs a migration correctly edit database', async () => {
   await db.connection('mongo').transaction(async (session) => {
     const migration = new TestMigration('mongo', logger, session);
