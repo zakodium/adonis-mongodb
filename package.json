@@ -42,8 +42,9 @@
     "eslint": "eslint commands providers src --ext ts --cache",
     "eslint-fix": "npm run eslint -- --fix",
     "prepublishOnly": "npm run tsc",
-    "test": "jest",
+    "test-only": "jest",
     "test-coverage": "jest --coverage",
+    "test": "npm run test-only && npm run eslint",
     "tsc": "npm run clean && npm run tsc-cjs",
     "tsc-cjs": "tsc"
   },
