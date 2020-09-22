@@ -36,8 +36,10 @@ jobs:
       - name: Install dependencies
         run: npm install
       - name: Initialize MongoDB
+        env:
+          COMPOSE_INTERACTIVE_NO_CLI: 'true'
         run: |
-          docker exec adonis-mongodb_mongodb_1 mongo --eval 'rs.initiate({ _id: "rs0", members: [{ _id: 0, host: "127.0.0.1:27017" }] })'
+          docker-compose exec mongodb mongo --eval 'rs.initiate({ _id: "rs0", members: [{ _id: 0, host: "127.0.0.1:27017" }] })'
       - name: Run tests
         run: npm run test-only
       - name: Teardown docker
