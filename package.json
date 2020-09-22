@@ -46,7 +46,7 @@
     "test-coverage": "jest --coverage",
     "test": "npm run test-only && npm run eslint",
     "tsc": "npm run clean && npm run tsc-cjs",
-    "tsc-cjs": "tsc"
+    "tsc-cjs": "tsc --project tsconfig.prod.json"
   },
   "repository": {
     "type": "git",

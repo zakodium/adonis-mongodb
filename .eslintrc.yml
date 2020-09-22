@@ -1,3 +1,1 @@
 extends: '@zakodium/eslint-config/adonis'
-parserOptions:
-  project: tsconfig.lint.json
