@@ -36,6 +36,6 @@ test('get collection', async () => {
 });
 
 test('get database', async () => {
-  const database = await connection.database();
-  expect(database).toBeDefined();
+  const db = await connection.database();
+  expect(db).toBeDefined();
 });
