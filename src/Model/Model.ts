@@ -25,6 +25,8 @@ interface IModelOptions {
   collection: Collection;
 }
 
+type ModelReadonlyFields = 'isDirty' | 'save' | 'delete';
+
 class FindResult<T> {
   private $filter: FilterQuery<T>;
   private $options: FindOneOptions<T> | undefined;
@@ -79,21 +81,20 @@ function computeCollectionName(constructorName: string): string {
 }
 
 export class Model {
-  protected static $database: Mongodb;
+  public static $database: Mongodb;
+  public static collectionName?: string;
 
   protected $collection: Collection;
   protected $originalData: any;
   protected $currentData: any;
   protected $isDeleted: boolean;
 
-  protected constructor(
-    dbObj: Record<string, unknown>,
-    options: IModelOptions,
-  ) {
+  public constructor(dbObj: Record<string, unknown>, options: IModelOptions) {
     this.$collection = options.collection;
     this.$originalData = cloneDeep(dbObj);
     this.$currentData = dbObj;
     this.$isDeleted = false;
+    // eslint-disable-next-line no-constructor-return
     return new Proxy(this, proxyHandler);
   }
 
@@ -101,10 +102,8 @@ export class Model {
     this.$database = database;
   }
 
-  protected static _computeCollectionName(): string {
-    // @ts-ignore
+  public static _computeCollectionName(): string {
     if (this.collectionName) {
-      // @ts-ignore
       return this.collectionName;
     }
     return computeCollectionName(this.name);
@@ -123,7 +122,7 @@ export class Model {
 
   public static async create<T extends Model>(
     this: ModelConstructor<T>,
-    value: Omit<T, 'id'>,
+    value: Omit<T, 'id' | ModelReadonlyFields>,
     options?: CollectionInsertOneOptions,
   ): Promise<T> {
     const collection = await this.getCollection();
@@ -261,7 +260,7 @@ export class AutoIncrementModel extends Model {
   }
   public static async create<T extends Model>(
     this: ModelConstructor<T>,
-    value: Omit<T, 'id'>,
+    value: Omit<T, 'id' | ModelReadonlyFields>,
     options?: CollectionInsertOneOptions,
   ): Promise<T> {
     const collectionName = this._computeCollectionName();
