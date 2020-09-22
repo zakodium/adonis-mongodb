@@ -33,12 +33,12 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - name: Init docker
         run: docker-compose up -d
-      - name: Run tests
+      - name: Install dependencies
+        run: npm install
+      - name: Initialize MongoDB
         run: |
-          npm install
-          node reset-dev
-          npm run test-only
-        env:
-          CI: true
+          docker-compose exec mongodb mongo --eval 'rs.initiate({ _id: "rs0", members: [{ _id: 0, host: "127.0.0.1:27017" }] })'
+      - name: Run tests
+        run: npm run test-only
       - name: Teardown docker
         run: docker-compose down
