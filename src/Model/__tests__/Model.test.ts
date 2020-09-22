@@ -94,7 +94,8 @@ test('saved changes should be sent to database', async () => {
   await user.save();
 
   const sameUser = await User.findById(user.id);
-  expect(sameUser.password).toStrictEqual('rootroot');
+  expect(sameUser).not.toBeNull();
+  expect((sameUser as User).password).toStrictEqual('rootroot');
 });
 
 test('delete on model', async () => {
