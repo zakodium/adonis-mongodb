@@ -8,7 +8,7 @@
     "inlineSourceMap": true,
     "strict": true,
     "target": "es2019",
-    "types": ["@adonisjs/core"],
+    "types": ["@adonisjs/core", "jest"],
     "strictFunctionTypes": false,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
@@ -16,5 +16,5 @@
     "skipLibCheck": true
   },
   "include": ["./commands/**/*", "./src/**/*", "./providers/**/*"],
-  "exclude": ["./src/**/__tests__"]
+  "exclude": ["**/__tests__/**"]
 }

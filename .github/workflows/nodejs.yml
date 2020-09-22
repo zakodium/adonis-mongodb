@@ -2,38 +2,43 @@ name: Node.js CI
 
 on:
   push:
-    branches: master
   pull_request:
 
 jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
-      - name: Use Node.js 12
+      - uses: actions/checkout@v2
+      - name: Use Node.js 14.x
         uses: actions/setup-node@v1
         with:
-          node-version: 12
-      - name: npm install and test
+          node-version: 14.x
+      - name: Run linter
         run: |
           npm install
           npm run eslint
         env:
           CI: true
-  # test:
-  #   runs-on: ubuntu-latest
-  #   strategy:
-  #     matrix:
-  #       node-version: [10.x, 12.x, 13.x]
-  #   steps:
-  #     - uses: actions/checkout@v1
-  #     - name: Use Node.js ${{ matrix.node-version }}
-  #       uses: actions/setup-node@v1
-  #       with:
-  #         node-version: ${{ matrix.node-version }}
-  #     - name: npm install and test
-  #       run: |
-  #         npm install
-  #         npm run test-coverage
-  #       env:
-  #         CI: true
+  test:
+    timeout-minutes: 30
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [12.x, 14.x]
+    services:
+      mongodb:
+        image: mongo:4.4
+        ports:
+          - 33333:27017
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Run tests
+        run: |
+          npm install
+          npm run test-only
+        env:
+          CI: true
