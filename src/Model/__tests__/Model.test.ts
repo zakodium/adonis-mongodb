@@ -47,11 +47,7 @@ const db = new Mongodb(mongoConfig, new FakeLogger(loggerConfig));
 Model.$setDatabase(db);
 
 afterAll(async () => {
-  await (await User.getCollection()).drop();
-  await (await Post.getCollection()).drop();
-  await (
-    await db.connection('mongo').collection('__adonis_mongodb_counters')
-  ).drop();
+  await (await db.connection('mongo').database()).dropDatabase();
   await db.closeConnections();
 });
 
