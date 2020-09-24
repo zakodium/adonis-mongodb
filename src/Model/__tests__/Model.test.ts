@@ -1,11 +1,17 @@
 import { FakeLogger } from '@adonisjs/logger/build/standalone';
+import { ObjectId } from 'mongodb';
 
 import { Mongodb } from '../../Mongodb';
-import { Model } from '../Model';
+import { Model, AutoIncrementModel } from '../Model';
 
 interface IUser {
   username: string;
   password: string;
+}
+
+interface IPost {
+  title: string;
+  content: string;
 }
 
 class User extends Model implements IUser {
@@ -13,6 +19,13 @@ class User extends Model implements IUser {
 
   public username: string;
   public password: string;
+}
+
+class Post extends AutoIncrementModel implements IPost {
+  public static collectionName = 'posts';
+
+  public title: string;
+  public content: string;
 }
 
 const loggerConfig = {
@@ -34,7 +47,11 @@ const db = new Mongodb(mongoConfig, new FakeLogger(loggerConfig));
 Model.$setDatabase(db);
 
 afterAll(async () => {
-  await (await User.getCollection()).deleteMany({});
+  await (await User.getCollection()).drop();
+  await (await Post.getCollection()).drop();
+  await (
+    await db.connection('mongo').collection('__adonis_mongodb_counters')
+  ).drop();
   await db.closeConnections();
 });
 
@@ -98,9 +115,19 @@ test('saved changes should be sent to database', async () => {
   expect((sameUser as User).password).toStrictEqual('rootroot');
 });
 
-test('delete on model', async () => {
+test('id is an ObjectId', async () => {
   const user = await User.create({
     username: 'root5',
+    password: 'root',
+  });
+  await user.save();
+
+  expect(user.id).toBeInstanceOf(ObjectId);
+});
+
+test('delete on model', async () => {
+  const user = await User.create({
+    username: 'root6',
     password: 'root',
   });
 
@@ -108,4 +135,25 @@ test('delete on model', async () => {
 
   const sameUserButDeleted = await User.findById(user.id);
   expect(sameUserButDeleted).toBeNull();
+});
+
+test('id is a number on AutoIncrementModel', async () => {
+  const firstPost = await Post.create({
+    title: 'post title',
+    content: 'post content',
+  });
+  expect(firstPost.id).toBe(1);
+  expect(typeof firstPost.id).toBe('number');
+});
+
+test('AutoIncrementModel id increments', async () => {
+  const firstPost = await Post.create({
+    title: 'post title 1',
+    content: 'post content',
+  });
+  const secondPost = await Post.create({
+    title: 'post title 2',
+    content: 'post content',
+  });
+  expect(firstPost.id).toBe(secondPost.id - 1);
 });

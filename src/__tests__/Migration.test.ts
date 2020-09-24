@@ -39,6 +39,7 @@ class TestMigration extends BaseMigration {
 }
 
 afterAll(async () => {
+  await (await db.connection('mongo').collection('migration')).drop();
   await db.connection('mongo').close();
 });
 

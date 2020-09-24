@@ -255,7 +255,7 @@ export class Model {
 }
 
 export class AutoIncrementModel extends Model {
-  private constructor(dbObj: Record<string, unknown>, options: IModelOptions) {
+  public constructor(dbObj: Record<string, unknown>, options: IModelOptions) {
     super(dbObj, options);
   }
   public static async create<T extends Model>(
