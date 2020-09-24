@@ -1,7 +1,7 @@
 /* eslint-disable no-undef */
 import { basename } from 'path';
 
-import { FakeLogger } from '@adonisjs/logger/build/standalone';
+import { FakeLogger } from '@adonisjs/logger';
 
 import { Connection } from '../src/Connection';
 import { Mongodb } from '../src/Mongodb';
