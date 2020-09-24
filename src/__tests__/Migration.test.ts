@@ -1,4 +1,4 @@
-import { Logger } from '@adonisjs/logger/build/standalone';
+import { Logger } from '@adonisjs/logger';
 import { ClientSession } from 'mongodb';
 
 import { getMongodb, getLogger } from '../../test-utils/TestUtils';
