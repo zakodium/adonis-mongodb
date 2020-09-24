@@ -39,7 +39,7 @@
   },
   "scripts": {
     "clean": "rimraf lib",
-    "eslint": "eslint commands providers src --ext ts --cache",
+    "eslint": "eslint commands providers src test-utils --ext ts --cache",
     "eslint-fix": "npm run eslint -- --fix",
     "prepublishOnly": "npm run tsc",
     "test-only": "jest",

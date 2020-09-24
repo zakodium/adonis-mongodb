@@ -1,25 +1,6 @@
-import { Logger } from '@adonisjs/logger/build/standalone';
+import { getMongodb } from '../../test-utils/TestUtils';
 
-import { Mongodb } from '../Mongodb';
-
-const mongoConfig = {
-  default: 'mongo',
-  connections: {
-    mongo: {
-      url: 'mongodb://127.0.0.1:33333',
-      database: 'test-runner',
-    },
-  },
-};
-
-const loggerConfig = {
-  name: 'adonis-logger',
-  level: 'trace',
-  messageKey: 'msg',
-  enabled: false,
-};
-
-const db = new Mongodb(mongoConfig, new Logger(loggerConfig));
+const db = getMongodb();
 
 afterAll(async () => {
   await db.connection('mongo').close();
