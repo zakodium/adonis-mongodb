@@ -1,24 +1,11 @@
 import { promisify } from 'util';
 
-import { FakeLogger } from '@adonisjs/logger/build/standalone';
-
-import { Connection } from '../Connection';
+import { getConnection, getLogger } from '../../test-utils/TestUtils';
 
 const sleep = promisify(setTimeout);
 
-const loggerConfig = {
-  name: 'adonis-logger',
-  level: 'trace',
-  messageKey: 'msg',
-  enabled: true,
-};
-
-const connectionConfig = {
-  url: 'mongodb://localhost:33333',
-  database: 'test-runner',
-};
-const logger = new FakeLogger(loggerConfig);
-const connection = new Connection('mongo', connectionConfig, logger);
+const logger = getLogger();
+const connection = getConnection(logger);
 
 afterAll(async () => {
   await connection.close();

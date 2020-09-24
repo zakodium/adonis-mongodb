@@ -1,7 +1,6 @@
-import { FakeLogger } from '@adonisjs/logger/build/standalone';
 import { ObjectId } from 'mongodb';
 
-import { Mongodb } from '../../Mongodb';
+import { getMongodb } from '../../../test-utils/TestUtils';
 import { Model, AutoIncrementModel } from '../Model';
 
 interface IUser {
@@ -28,26 +27,11 @@ class Post extends AutoIncrementModel implements IPost {
   public content: string;
 }
 
-const loggerConfig = {
-  name: 'adonis-logger',
-  level: 'trace',
-  messageKey: 'msg',
-  enabled: true,
-};
-const mongoConfig = {
-  default: 'mongo',
-  connections: {
-    mongo: {
-      url: 'mongodb://127.0.0.1:33333',
-      database: 'test-runner',
-    },
-  },
-};
-const db = new Mongodb(mongoConfig, new FakeLogger(loggerConfig));
+const db = getMongodb();
 Model.$setDatabase(db);
 
 afterAll(async () => {
-  await (await db.connection('mongo').database()).dropDatabase();
+  //await (await db.connection('mongo').database()).dropDatabase();
   await db.closeConnections();
 });
 
