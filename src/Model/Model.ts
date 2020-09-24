@@ -177,6 +177,7 @@ export class Model {
     const result = await collection.findOne({ _id: id }, options);
     if (result === null) {
       throw new Error(
+        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
         `document ${id} not found in ${this._computeCollectionName()}`,
       );
     }
