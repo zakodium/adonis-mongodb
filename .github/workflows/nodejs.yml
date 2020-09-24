@@ -25,20 +25,19 @@ jobs:
     strategy:
       matrix:
         node-version: [12.x, 14.x]
-    services:
-      mongodb:
-        image: mongo:4.4
-        ports:
-          - 33333:27017
     steps:
       - uses: actions/checkout@v2
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
+      - name: Init docker
+        run: docker-compose up -d
+      - name: Install dependencies
+        run: npm install
+      - name: Initialize MongoDB
+        run: node reset-dev
       - name: Run tests
-        run: |
-          npm install
-          npm run test-only
-        env:
-          CI: true
+        run: npm run test-only
+      - name: Teardown docker
+        run: docker-compose down

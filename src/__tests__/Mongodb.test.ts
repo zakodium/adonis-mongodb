@@ -6,7 +6,7 @@ const mongoConfig = {
   default: 'mongo',
   connections: {
     mongo: {
-      url: 'mongo://127.0.0.1:33333',
+      url: 'mongodb://127.0.0.1:33333',
       database: 'test-runner',
     },
   },
