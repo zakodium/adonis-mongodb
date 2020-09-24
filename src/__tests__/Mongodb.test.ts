@@ -1,5 +1,3 @@
-import { Logger } from '@adonisjs/logger/build/standalone';
-
 import { getMongodb } from '../../test-utils/TestUtils';
 
 const db = getMongodb();

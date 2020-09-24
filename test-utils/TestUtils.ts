@@ -1,5 +1,7 @@
-import { FakeLogger } from '@adonisjs/logger/build/standalone';
+/* eslint-disable no-undef */
 import { basename } from 'path';
+
+import { FakeLogger } from '@adonisjs/logger/build/standalone';
 
 import { Connection } from '../src/Connection';
 import { Mongodb } from '../src/Mongodb';
@@ -28,7 +30,10 @@ export function getMongodb(logger = getLogger()) {
     connections: {
       mongo: {
         url: 'mongodb://127.0.0.1:33333',
-        database: `test-runner-${basename(expect.getState().testPath, '.test.ts')}`,
+        database: `test-runner-${basename(
+          expect.getState().testPath,
+          '.test.ts',
+        )}`,
       },
     },
   };
