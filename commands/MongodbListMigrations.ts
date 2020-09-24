@@ -62,7 +62,7 @@ export default class MongodbListMigrations extends MigrationCommand {
       // eslint-disable-next-line no-console
       console.log(table.toString());
     } finally {
-      void db.closeConnections();
+      await db.closeConnections();
     }
   }
 }

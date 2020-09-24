@@ -1,4 +1,5 @@
 import { inject } from '@adonisjs/fold';
+import { ObjectId } from 'mongodb';
 
 import { Mongodb } from '../src/Mongodb';
 
@@ -6,6 +7,13 @@ import MigrationCommand, {
   migrationCollectionName,
   migrationLockCollectionName,
 } from './util/MigrationCommand';
+
+interface IMigration {
+  _id: ObjectId | undefined;
+  name: string;
+  date: Date;
+  batch: number;
+}
 
 export default class MongodbMigrate extends MigrationCommand {
   public static commandName = 'mongodb:migration:run';
@@ -24,7 +32,7 @@ export default class MongodbMigrate extends MigrationCommand {
         migrationLockCollectionName,
       );
 
-      const migrationColl = await connection.collection(
+      const migrationColl = await connection.collection<IMigration>(
         migrationCollectionName,
       );
 
@@ -62,7 +70,7 @@ export default class MongodbMigrate extends MigrationCommand {
 
         // Get the next incremental batch value
         const value = await migrationColl
-          .aggregate([
+          .aggregate<{ maxBatch: number }>([
             {
               $project: {
                 maxBatch: { $max: '$batch' },
