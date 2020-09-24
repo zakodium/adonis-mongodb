@@ -31,7 +31,7 @@ const db = getMongodb();
 Model.$setDatabase(db);
 
 afterAll(async () => {
-  //await (await db.connection('mongo').database()).dropDatabase();
+  await (await db.connection('mongo').database()).dropDatabase();
   await db.closeConnections();
 });
 
