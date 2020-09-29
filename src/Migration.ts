@@ -6,9 +6,9 @@ import { ConnectionContract } from '@ioc:Mongodb/Database';
 import { Mongodb } from './Mongodb';
 
 enum MigrationType {
-  CreateCollection,
-  CreateIndex,
-  Custom,
+  CreateCollection = 'CreateCollection',
+  CreateIndex = 'CreateIndex',
+  Custom = 'Custom',
 }
 
 interface CreateCollectionOperation {
@@ -33,6 +33,7 @@ type MigrationOperation =
   | CreateIndexOperation
   | CustomOperation;
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default function createMigration(Database: Mongodb): any {
   abstract class Migration {
     private $operations: MigrationOperation[] = [];

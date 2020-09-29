@@ -76,8 +76,7 @@ test("find by id should throw when doesn't exists", async () => {
   const t = async () => {
     await User.findByIdOrThrow('notavalidid');
   };
-  // eslint-disable-next-line @typescript-eslint/no-floating-promises, jest/valid-expect
-  expect(t).rejects.toStrictEqual(
+  await expect(t).rejects.toStrictEqual(
     new Error('document notavalidid not found in users'),
   );
 });

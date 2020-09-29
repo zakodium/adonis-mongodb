@@ -177,8 +177,7 @@ export class Model {
     const result = await collection.findOne({ _id: id }, options);
     if (result === null) {
       throw new Error(
-        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-        `document ${id} not found in ${this._computeCollectionName()}`,
+        `document ${String(id)} not found in ${this._computeCollectionName()}`,
       );
     }
     return new this(result, { collection });
@@ -193,7 +192,7 @@ export class Model {
     };
   }
 
-  protected $dirty(): Record<string, any> {
+  protected $dirty(): Record<string, unknown> {
     return pickBy(this.$currentData, (value, key) => {
       return (
         this.$originalData[key] === undefined ||
@@ -224,7 +223,7 @@ export class Model {
       return false;
     }
 
-    const toSet: { [key: string]: any } = {};
+    const toSet: { [key: string]: unknown } = {};
 
     const now = new Date();
     this.$currentData.updatedAt = now;
@@ -266,7 +265,7 @@ export class AutoIncrementModel extends Model {
   ): Promise<T> {
     const collectionName = this._computeCollectionName();
     const connection = this.$database.connection();
-    const counterCollection = await connection.collection(
+    const counterCollection = await connection.collection<{ count: number }>(
       '__adonis_mongodb_counters',
     );
 

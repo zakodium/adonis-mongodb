@@ -1,11 +1,11 @@
-import { Logger } from '@adonisjs/logger';
+import { Logger } from '@poppinss/fancy-logs';
 import { ClientSession } from 'mongodb';
 
-import { getMongodb, getLogger } from '../../test-utils/TestUtils';
+import { getMongodb } from '../../test-utils/TestUtils';
 import createMigration from '../Migration';
 
-const logger = getLogger();
-const db = getMongodb(logger);
+const logger = new Logger({ fake: true });
+const db = getMongodb();
 const BaseMigration = createMigration(db);
 
 class TestMigration extends BaseMigration {

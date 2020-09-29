@@ -8,8 +8,8 @@ import {
 } from '@ioc:Mongodb/Database';
 
 enum ConnectionStatus {
-  CONNECTED,
-  DISCONNECTED,
+  CONNECTED = 'CONNECTED',
+  DISCONNECTED = 'DISCONNECTED',
 }
 
 export class Connection implements ConnectionContract {
@@ -79,7 +79,7 @@ export class Connection implements ConnectionContract {
     return this._ensureDb();
   }
 
-  public async collection<TSchema = any>(
+  public async collection<TSchema = unknown>(
     collectionName: string,
   ): Promise<Collection<TSchema>> {
     const db = await this._ensureDb();
@@ -96,6 +96,7 @@ export class Connection implements ConnectionContract {
         result = await handler(session, db);
       });
     });
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
     return result;
   }

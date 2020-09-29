@@ -56,7 +56,7 @@ export default class MongodbListMigrations extends MigrationCommand {
             : this.colors.yellow('pending'),
           document ? document.batch : 'NA',
           description || '',
-        ] as any);
+        ]);
       });
 
       // eslint-disable-next-line no-console

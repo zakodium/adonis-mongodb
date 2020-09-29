@@ -8,12 +8,17 @@
     "inlineSourceMap": true,
     "strict": true,
     "target": "es2019",
-    "types": ["@adonisjs/core", "jest"],
+    "types": ["@adonisjs/logger", "jest"],
     "strictFunctionTypes": false,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "strictPropertyInitialization": false,
     "skipLibCheck": true
   },
-  "include": ["./commands/**/*", "./src/**/*", "./providers/**/*", "./test-utils/*"]
+  "include": [
+    "./commands/**/*",
+    "./src/**/*",
+    "./providers/**/*",
+    "./test-utils/*"
+  ]
 }
