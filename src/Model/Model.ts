@@ -263,7 +263,7 @@ export class Model {
       {
         _id: this.$currentData._id,
       },
-      options,
+      { session: this.$options.session, ...options },
     );
     this.$isDeleted = true;
     return result.deletedCount === 1;

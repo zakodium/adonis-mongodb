@@ -136,3 +136,26 @@ test('AutoIncrementModel id increments', async () => {
   });
   expect(firstPost.id).toBe(secondPost.id - 1);
 });
+
+test('passing session should run requests within the same session', async () => {
+  await db.connection('mongo').transaction(async (session) => {
+    const user = await User.create(
+      {
+        username: 'root7',
+        password: 'rootroot',
+      },
+      { session },
+    );
+
+    user.password = 'root';
+
+    await user.save();
+
+    const shouldNotExist = await User.findOne({ username: 'root7' });
+    expect(shouldNotExist).toBeNull();
+  });
+
+  const shouldExistNow = await User.findOne({ username: 'root7' });
+  expect(shouldExistNow).not.toBeNull();
+  expect(shouldExistNow?.password).toBe('root');
+});
