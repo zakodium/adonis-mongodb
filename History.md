@@ -1,3 +1,13 @@
+# [0.3.0](https://github.com/zakodium/adonis-mongodb/compare/v0.2.2...v0.3.0) (2020-09-29)
+
+
+### Features
+
+* migrations paths can be configured in the config file ([#8](https://github.com/zakodium/adonis-mongodb/issues/8)) ([fb8934d](https://github.com/zakodium/adonis-mongodb/commit/fb8934d3a6e1ac7a334bcf244c5b3ed0ef1c9dd6))
+* pass session on object instantiation ([#16](https://github.com/zakodium/adonis-mongodb/issues/16)) ([1395ba0](https://github.com/zakodium/adonis-mongodb/commit/1395ba0ac095a36818f84557afe7fce17c6caf25))
+
+
+
 ## [0.2.2](https://github.com/zakodium/adonis-mongodb/compare/v0.2.1...v0.2.2) (2020-09-09)
 
 
