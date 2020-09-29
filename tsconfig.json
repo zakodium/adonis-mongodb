@@ -8,7 +8,7 @@
     "inlineSourceMap": true,
     "strict": true,
     "target": "es2019",
-    "types": ["@adonisjs/logger", "jest"],
+    "types": ["jest"],
     "strictFunctionTypes": false,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
