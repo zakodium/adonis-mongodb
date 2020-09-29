@@ -259,7 +259,7 @@ export class Model {
 
   public async delete(options?: CommonOptions): Promise<boolean> {
     this.$ensureNotDeleted();
-    const result = await this.$options.deleteOne(
+    const result = await this.$collection.deleteOne(
       {
         _id: this.$currentData._id,
       },
