@@ -32,9 +32,10 @@ TODO
 To run tests locally:
 
 ```bash
-$ docker-compose up -d
-$ npm test
-$ docker-compose down
+docker-compose up -d
+node reset-dev.js
+npm test
+docker-compose down
 ```
 
 ## License
