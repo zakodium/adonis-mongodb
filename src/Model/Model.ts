@@ -54,11 +54,10 @@ class FindResult<T> {
     const result = await this.$cursor.toArray();
     return result.map(
       (value) =>
-        new this.$constructor(
-          value,
-          { collection: this.$collection },
-          { session: this.$options?.session },
-        ),
+        new this.$constructor(value, {
+          collection: this.$collection,
+          session: this.$options?.session,
+        }),
     );
   }
 
@@ -78,11 +77,10 @@ class FindResult<T> {
 
   public async *[Symbol.asyncIterator](): AsyncIterableIterator<T> {
     for await (const value of this.$cursor) {
-      yield new this.$constructor(
-        value,
-        { collection: this.$collection },
-        { session: this.$options?.session },
-      );
+      yield new this.$constructor(value, {
+        collection: this.$collection,
+        session: this.$options?.session,
+      });
     }
   }
 }
