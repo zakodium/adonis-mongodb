@@ -51,7 +51,12 @@ class FindResult<T> {
   public async all(): Promise<T[]> {
     const result = await this.$cursor.toArray();
     return result.map(
-      (value) => new this.$constructor(value, { collection: this.$collection }),
+      (value) =>
+        new this.$constructor(
+          value,
+          { collection: this.$collection },
+          { session: this.$options?.session },
+        ),
     );
   }
 
@@ -71,7 +76,11 @@ class FindResult<T> {
 
   public async *[Symbol.asyncIterator](): AsyncIterableIterator<T> {
     for await (const value of this.$cursor) {
-      yield new this.$constructor(value, { collection: this.$collection });
+      yield new this.$constructor(
+        value,
+        { collection: this.$collection },
+        { session: this.$options?.session },
+      );
     }
   }
 }
@@ -133,7 +142,10 @@ export class Model {
       ...value,
     };
     const result = await collection.insertOne(toInsert, options);
-    return new this({ _id: result.insertedId, ...toInsert }, { collection });
+    return new this(
+      { _id: result.insertedId, ...toInsert },
+      { collection, session: options?.session },
+    );
   }
 
   public static async findOne<T extends Model>(
@@ -144,7 +156,7 @@ export class Model {
     const collection = await this.getCollection();
     const result = await collection.findOne(filter, options);
     if (result === null) return null;
-    return new this(result, { collection });
+    return new this(result, { collection }, { session: options?.session });
   }
 
   public static async find<T extends Model>(
@@ -165,7 +177,7 @@ export class Model {
     const collection = await this.getCollection();
     const result = await collection.findOne({ _id: id }, options);
     if (result === null) return null;
-    return new this(result, { collection });
+    return new this(result, { collection }, { session: options?.session });
   }
 
   public static async findByIdOrThrow<T extends Model>(
@@ -180,7 +192,7 @@ export class Model {
         `document ${String(id)} not found in ${this._computeCollectionName()}`,
       );
     }
-    return new this(result, { collection });
+    return new this(result, { collection }, { session: options?.session });
   }
 
   protected [Symbol.for('nodejs.util.inspect.custom')](): any {
@@ -285,6 +297,6 @@ export class AutoIncrementModel extends Model {
       ...value,
     };
     await collection.insertOne(toInsert, options);
-    return new this(toInsert, { collection });
+    return new this(toInsert, { collection }, { session: options?.session });
   }
 }
