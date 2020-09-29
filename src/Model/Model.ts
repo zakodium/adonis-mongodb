@@ -99,7 +99,7 @@ export class Model {
   protected $originalData: any;
   protected $currentData: any;
   protected $isDeleted: boolean;
-  protected $options: any;
+  protected $options: IModelOptions;
 
   public constructor(dbObj: Record<string, unknown>, options: IModelOptions) {
     this.$collection = options.collection;
