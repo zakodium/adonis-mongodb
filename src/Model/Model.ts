@@ -7,6 +7,7 @@ import {
   Cursor,
   UpdateOneOptions,
   CommonOptions,
+  ClientSession,
 } from 'mongodb';
 import pluralize from 'pluralize';
 
@@ -23,6 +24,7 @@ interface ModelConstructor<M> {
 
 interface IModelOptions {
   collection: Collection;
+  session?: ClientSession;
 }
 
 type ModelReadonlyFields = 'isDirty' | 'save' | 'delete';
@@ -97,12 +99,14 @@ export class Model {
   protected $originalData: any;
   protected $currentData: any;
   protected $isDeleted: boolean;
+  protected $options: any;
 
   public constructor(dbObj: Record<string, unknown>, options: IModelOptions) {
     this.$collection = options.collection;
     this.$originalData = cloneDeep(dbObj);
     this.$currentData = dbObj;
     this.$isDeleted = false;
+    this.$options = options;
     // eslint-disable-next-line no-constructor-return
     return new Proxy(this, proxyHandler);
   }
@@ -156,7 +160,7 @@ export class Model {
     const collection = await this.getCollection();
     const result = await collection.findOne(filter, options);
     if (result === null) return null;
-    return new this(result, { collection }, { session: options?.session });
+    return new this(result, { collection, session: options?.session });
   }
 
   public static async find<T extends Model>(
@@ -177,7 +181,7 @@ export class Model {
     const collection = await this.getCollection();
     const result = await collection.findOne({ _id: id }, options);
     if (result === null) return null;
-    return new this(result, { collection }, { session: options?.session });
+    return new this(result, { collection, session: options?.session });
   }
 
   public static async findByIdOrThrow<T extends Model>(
@@ -192,7 +196,7 @@ export class Model {
         `document ${String(id)} not found in ${this._computeCollectionName()}`,
       );
     }
-    return new this(result, { collection }, { session: options?.session });
+    return new this(result, { collection, session: options?.session });
   }
 
   protected [Symbol.for('nodejs.util.inspect.custom')](): any {
@@ -247,7 +251,7 @@ export class Model {
     await this.$collection.updateOne(
       { _id: this.$currentData._id },
       { $set: toSet },
-      options,
+      { session: this.$options.session, ...options },
     );
     this.$originalData = cloneDeep(this.$currentData);
     return true;
@@ -255,7 +259,7 @@ export class Model {
 
   public async delete(options?: CommonOptions): Promise<boolean> {
     this.$ensureNotDeleted();
-    const result = await this.$collection.deleteOne(
+    const result = await this.$options.deleteOne(
       {
         _id: this.$currentData._id,
       },
@@ -297,6 +301,6 @@ export class AutoIncrementModel extends Model {
       ...value,
     };
     await collection.insertOne(toInsert, options);
-    return new this(toInsert, { collection }, { session: options?.session });
+    return new this(toInsert, { collection, session: options?.session });
   }
 }
