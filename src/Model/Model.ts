@@ -27,7 +27,7 @@ interface IModelOptions {
   session?: ClientSession;
 }
 
-type ModelReadonlyFields = 'isDirty' | 'save' | 'delete';
+type ModelReadonlyFields = 'isDirty' | 'save' | 'delete' | 'isInstance';
 
 class FindResult<T> {
   private $filter: FilterQuery<T>;
