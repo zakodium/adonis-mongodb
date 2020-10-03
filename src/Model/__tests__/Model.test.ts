@@ -159,3 +159,27 @@ test('passing session should run requests within the same session', async () => 
   expect(shouldExistNow).not.toBeNull();
   expect(shouldExistNow?.password).toBe('root');
 });
+
+test('class instanciation Model should creates an entry', async () => {
+  const user = new User();
+  user.username = 'root8';
+  user.password = 'rootroot';
+  await user.save();
+
+  const shouldExist = await User.findOne({ username: 'root8' });
+  expect(shouldExist).not.toBeNull();
+  expect(user.id).toBeInstanceOf(ObjectId);
+});
+
+test('class instanciation Model should be updatable', async () => {
+  const user = new User();
+  user.username = 'root9';
+  user.password = 'rootroot';
+  await user.save();
+
+  user.password = 'root';
+  await user.save();
+
+  const shouldHaveNewPassword = await User.findOne({ username: 'root9' });
+  expect(shouldHaveNewPassword?.password).toBe('root');
+});

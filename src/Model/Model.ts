@@ -99,12 +99,18 @@ export class Model {
   protected $isDeleted: boolean;
   protected $options: IModelOptions;
 
-  public constructor(dbObj: Record<string, unknown>, options: IModelOptions) {
-    this.$collection = options.collection;
-    this.$originalData = cloneDeep(dbObj);
-    this.$currentData = dbObj;
+  public constructor(dbObj?: Record<string, unknown>, options?: IModelOptions) {
+    if (dbObj && options) {
+      this.$collection = options.collection;
+      this.$originalData = cloneDeep(dbObj);
+      this.$currentData = dbObj;
+      this.$options = options;
+    } else {
+      this.$originalData = {};
+      this.$currentData = {};
+    }
     this.$isDeleted = false;
-    this.$options = options;
+
     // eslint-disable-next-line no-constructor-return
     return new Proxy(this, proxyHandler);
   }
@@ -221,12 +227,25 @@ export class Model {
     }
   }
 
+  private async getCollection(): Promise<Collection<any>> {
+    if (!Model.$database) {
+      throw new Error('Model should only be accessed from IoC container');
+    }
+    const collectionName = computeCollectionName(this.constructor.name);
+    const connection = Model.$database.connection();
+    return connection.collection(collectionName);
+  }
+
   public get id() {
     return this.$currentData._id;
   }
 
   public get isDirty(): boolean {
     return Object.keys(this.$dirty()).length > 0;
+  }
+
+  public get isInstance(): boolean {
+    return this.$collection === undefined || this.$options === undefined;
   }
 
   public async save(options?: UpdateOneOptions): Promise<boolean> {
@@ -246,11 +265,28 @@ export class Model {
     for (const [dirtyKey, dirtyValue] of dirtyEntries) {
       toSet[dirtyKey] = dirtyValue;
     }
-    await this.$collection.updateOne(
-      { _id: this.$currentData._id },
-      { $set: toSet },
-      { session: this.$options.session, ...options },
-    );
+    if (this.isInstance) {
+      this.$collection = await this.getCollection();
+      this.$options = {
+        collection: this.$collection,
+        session: options?.session,
+      };
+
+      const now = new Date();
+      const toInsert = {
+        createdAt: now,
+        updatedAt: now,
+        ...toSet,
+      };
+      const result = await this.$collection.insertOne(toInsert, options);
+      this.$currentData._id = result.insertedId;
+    } else {
+      await this.$collection.updateOne(
+        { _id: this.$currentData._id },
+        { $set: toSet },
+        { session: this.$options.session, ...options },
+      );
+    }
     this.$originalData = cloneDeep(this.$currentData);
     return true;
   }
