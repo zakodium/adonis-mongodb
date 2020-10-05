@@ -236,6 +236,24 @@ export class Model {
     this.$collection = await connection.collection(collectionName);
   }
 
+  protected $prepareToSet() {
+    const dirty = this.$dirty();
+    const dirtyEntries = Object.entries(dirty);
+    if (dirtyEntries.length === 0) {
+      return null;
+    }
+
+    const toSet: { [key: string]: unknown } = {};
+    const now = new Date();
+    this.$currentData.updatedAt = now;
+    toSet.updatedAt = now;
+
+    for (const [dirtyKey, dirtyValue] of dirtyEntries) {
+      toSet[dirtyKey] = dirtyValue;
+    }
+    return toSet;
+  }
+
   public get id() {
     return this.$currentData._id;
   }
@@ -247,20 +265,10 @@ export class Model {
   public async save(options?: UpdateOneOptions): Promise<boolean> {
     this.$ensureNotDeleted();
     await this.$ensureCollection();
-    const dirty = this.$dirty();
-    const dirtyEntries = Object.entries(dirty);
-    if (dirtyEntries.length === 0) {
-      return false;
-    }
 
-    const toSet: { [key: string]: unknown } = {};
-    const now = new Date();
-    this.$currentData.updatedAt = now;
-    toSet.updatedAt = now;
+    const toSet = this.$prepareToSet();
+    if (toSet === null) return false;
 
-    for (const [dirtyKey, dirtyValue] of dirtyEntries) {
-      toSet[dirtyKey] = dirtyValue;
-    }
     if (this.id === undefined) {
       const result = await (this.$collection as Collection).insertOne(toSet, {
         session: this.$options?.session,
@@ -300,20 +308,10 @@ export class AutoIncrementModel extends Model {
   public async save(options?: UpdateOneOptions): Promise<boolean> {
     this.$ensureNotDeleted();
     await this.$ensureCollection();
-    const dirty = this.$dirty();
-    const dirtyEntries = Object.entries(dirty);
-    if (dirtyEntries.length === 0) {
-      return false;
-    }
 
-    const toSet: { [key: string]: unknown } = {};
-    const now = new Date();
-    this.$currentData.updatedAt = now;
-    toSet.updatedAt = now;
+    const toSet = this.$prepareToSet();
+    if (toSet === null) return false;
 
-    for (const [dirtyKey, dirtyValue] of dirtyEntries) {
-      toSet[dirtyKey] = dirtyValue;
-    }
     if (this.id === undefined) {
       const connection = AutoIncrementModel.$database.connection();
       const counterCollection = await connection.collection<{ count: number }>(
