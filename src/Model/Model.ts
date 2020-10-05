@@ -7,7 +7,7 @@ import {
   Cursor,
   FilterQuery,
   FindOneOptions,
-  UpdateOneOptions
+  UpdateOneOptions,
 } from 'mongodb';
 import pluralize from 'pluralize';
 
@@ -27,7 +27,7 @@ interface IModelOptions {
   session?: ClientSession;
 }
 
-type ModelReadonlyFields = 'isDirty' | 'save' | 'delete' | 'isInstance';
+type ModelReadonlyFields = 'isDirty' | 'save' | 'delete';
 
 class FindResult<T> {
   private $filter: FilterQuery<T>;
@@ -93,22 +93,20 @@ export class Model {
   public static $database: Mongodb;
   public static collectionName?: string;
 
-  protected $collection: Collection;
+  protected $collection: Collection | null = null;
   protected $originalData: any;
   protected $currentData: any;
   protected $isDeleted: boolean;
   protected $options: IModelOptions;
 
   public constructor(dbObj?: Record<string, unknown>, options?: IModelOptions) {
-    if (dbObj && options) {
-      this.$collection = options.collection;
-      this.$originalData = cloneDeep(dbObj);
-      this.$currentData = dbObj;
+    this.$originalData = {};
+    this.$currentData = dbObj === undefined ? {} : dbObj;
+    if (options !== undefined) {
       this.$options = options;
-    } else {
-      this.$originalData = {};
-      this.$currentData = {};
+      this.$collection = options.collection;
     }
+
     this.$isDeleted = false;
 
     // eslint-disable-next-line no-constructor-return
@@ -149,11 +147,12 @@ export class Model {
       updatedAt: now,
       ...value,
     };
-    const result = await collection.insertOne(toInsert, options);
-    return new this(
-      { _id: result.insertedId, ...toInsert },
-      { collection, session: options?.session },
-    );
+    const instance = new this(toInsert, {
+      collection,
+      session: options?.session,
+    });
+    await instance.save(options);
+    return instance;
   }
 
   public static async findOne<T extends Model>(
@@ -227,13 +226,14 @@ export class Model {
     }
   }
 
-  private async getCollection(): Promise<Collection<any>> {
+  protected async $ensureCollection() {
     if (!Model.$database) {
       throw new Error('Model should only be accessed from IoC container');
     }
+    if (this.$collection !== null) return;
     const collectionName = computeCollectionName(this.constructor.name);
     const connection = Model.$database.connection();
-    return connection.collection(collectionName);
+    this.$collection = await connection.collection(collectionName);
   }
 
   public get id() {
@@ -246,6 +246,7 @@ export class Model {
 
   public async save(options?: UpdateOneOptions): Promise<boolean> {
     this.$ensureNotDeleted();
+    await this.$ensureCollection();
     const dirty = this.$dirty();
     const dirtyEntries = Object.entries(dirty);
     if (dirtyEntries.length === 0) {
@@ -253,7 +254,6 @@ export class Model {
     }
 
     const toSet: { [key: string]: unknown } = {};
-
     const now = new Date();
     this.$currentData.updatedAt = now;
     toSet.updatedAt = now;
@@ -261,27 +261,17 @@ export class Model {
     for (const [dirtyKey, dirtyValue] of dirtyEntries) {
       toSet[dirtyKey] = dirtyValue;
     }
-
-    if (this.$collection === undefined && this.$options === undefined) {
-      this.$collection = await this.getCollection();
-      this.$options = {
-        collection: this.$collection,
-        session: options?.session,
-      };
-
-      const now = new Date();
-      const toInsert = {
-        createdAt: now,
-        updatedAt: now,
-        ...toSet,
-      };
-      const result = await this.$collection.insertOne(toInsert, options);
+    if (this.id === undefined) {
+      const result = await (this.$collection as Collection).insertOne(toSet, {
+        session: this.$options?.session,
+        ...options,
+      });
       this.$currentData._id = result.insertedId;
     } else {
-      await this.$collection.updateOne(
+      await (this.$collection as Collection).updateOne(
         { _id: this.$currentData._id },
         { $set: toSet },
-        { session: this.$options.session, ...options },
+        { session: this.$options?.session, ...options },
       );
     }
     this.$originalData = cloneDeep(this.$currentData);
@@ -290,7 +280,8 @@ export class Model {
 
   public async delete(options?: CommonOptions): Promise<boolean> {
     this.$ensureNotDeleted();
-    const result = await this.$collection.deleteOne(
+    await this.$ensureCollection();
+    const result = await (this.$collection as Collection).deleteOne(
       {
         _id: this.$currentData._id,
       },
@@ -302,9 +293,56 @@ export class Model {
 }
 
 export class AutoIncrementModel extends Model {
-  public constructor(dbObj: Record<string, unknown>, options: IModelOptions) {
+  public constructor(dbObj?: Record<string, unknown>, options?: IModelOptions) {
     super(dbObj, options);
   }
+
+  public async save(options?: UpdateOneOptions): Promise<boolean> {
+    this.$ensureNotDeleted();
+    await this.$ensureCollection();
+    const dirty = this.$dirty();
+    const dirtyEntries = Object.entries(dirty);
+    if (dirtyEntries.length === 0) {
+      return false;
+    }
+
+    const toSet: { [key: string]: unknown } = {};
+    const now = new Date();
+    this.$currentData.updatedAt = now;
+    toSet.updatedAt = now;
+
+    for (const [dirtyKey, dirtyValue] of dirtyEntries) {
+      toSet[dirtyKey] = dirtyValue;
+    }
+    if (this.id === undefined) {
+      const connection = AutoIncrementModel.$database.connection();
+      const counterCollection = await connection.collection<{ count: number }>(
+        '__adonis_mongodb_counters',
+      );
+
+      const doc = await counterCollection.findOneAndUpdate(
+        { _id: computeCollectionName(this.constructor.name) },
+        { $inc: { count: 1 } },
+        { session: options?.session, upsert: true },
+      );
+      const newCount = doc.value ? doc.value.count + 1 : 1;
+      toSet._id = newCount;
+      await (this.$collection as Collection).insertOne(toSet, {
+        session: this.$options?.session,
+        ...options,
+      });
+      this.$currentData._id = newCount;
+    } else {
+      await (this.$collection as Collection).updateOne(
+        { _id: this.$currentData._id },
+        { $set: toSet },
+        { session: this.$options?.session, ...options },
+      );
+    }
+    this.$originalData = cloneDeep(this.$currentData);
+    return true;
+  }
+
   public static async create<T extends Model>(
     this: ModelConstructor<T>,
     value: Omit<T, 'id' | ModelReadonlyFields>,

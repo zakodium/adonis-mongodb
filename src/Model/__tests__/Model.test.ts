@@ -27,6 +27,16 @@ class Post extends AutoIncrementModel implements IPost {
   public content: string;
 }
 
+let usernameCounter = 0;
+function nextUsername() {
+  return `root${++usernameCounter}`;
+}
+
+let postTitleCounter = 0;
+function nextTitle() {
+  return `post title ${++postTitleCounter}`;
+}
+
 const db = getMongodb();
 Model.$setDatabase(db);
 
@@ -37,9 +47,10 @@ afterAll(async () => {
 
 test('can create', async () => {
   const newUser = await User.create({
-    username: 'root',
+    username: nextUsername(),
     password: 'root',
   });
+  await newUser.save();
   expect(newUser).toBeDefined();
 });
 
@@ -55,7 +66,7 @@ test('find one by property', async () => {
 
 test('find all', async () => {
   await User.create({
-    username: 'root2',
+    username: nextUsername(),
     password: 'root',
   });
 
@@ -65,7 +76,7 @@ test('find all', async () => {
 
 test('find by id should work', async () => {
   const user = await User.create({
-    username: 'root3',
+    username: nextUsername(),
     password: 'root',
   });
   const secondUser = await User.findById(user.id);
@@ -83,7 +94,7 @@ test("find by id should throw when doesn't exists", async () => {
 
 test('saved changes should be sent to database', async () => {
   const user = await User.create({
-    username: 'root4',
+    username: nextUsername(),
     password: 'root',
   });
   user.password = 'rootroot';
@@ -96,7 +107,7 @@ test('saved changes should be sent to database', async () => {
 
 test('id is an ObjectId', async () => {
   const user = await User.create({
-    username: 'root5',
+    username: nextUsername(),
     password: 'root',
   });
   await user.save();
@@ -106,7 +117,7 @@ test('id is an ObjectId', async () => {
 
 test('delete on model', async () => {
   const user = await User.create({
-    username: 'root6',
+    username: nextUsername(),
     password: 'root',
   });
 
@@ -118,7 +129,7 @@ test('delete on model', async () => {
 
 test('id is a number on AutoIncrementModel', async () => {
   const firstPost = await Post.create({
-    title: 'post title',
+    title: nextTitle(),
     content: 'post content',
   });
   expect(firstPost.id).toBe(1);
@@ -127,21 +138,22 @@ test('id is a number on AutoIncrementModel', async () => {
 
 test('AutoIncrementModel id increments', async () => {
   const firstPost = await Post.create({
-    title: 'post title 1',
+    title: nextTitle(),
     content: 'post content',
   });
   const secondPost = await Post.create({
-    title: 'post title 2',
+    title: nextTitle(),
     content: 'post content',
   });
   expect(firstPost.id).toBe(secondPost.id - 1);
 });
 
 test('passing session should run requests within the same session', async () => {
+  const username = nextUsername();
   await db.connection('mongo').transaction(async (session) => {
     const user = await User.create(
       {
-        username: 'root7',
+        username: username,
         password: 'rootroot',
       },
       { session },
@@ -151,7 +163,7 @@ test('passing session should run requests within the same session', async () => 
 
     await user.save();
 
-    const shouldNotExist = await User.findOne({ username: 'root7' });
+    const shouldNotExist = await User.findOne({ username: username });
     expect(shouldNotExist).toBeNull();
   });
 
@@ -182,4 +194,13 @@ test('class instanciation Model should be updatable', async () => {
 
   const shouldHaveNewPassword = await User.findOne({ username: 'root9' });
   expect(shouldHaveNewPassword?.password).toBe('root');
+});
+
+test('class instanciation auto incremented model', async () => {
+  const post = new Post();
+  post.title = nextTitle();
+  post.content = 'post content';
+  await post.save();
+
+  expect(typeof post.id).toBe('number');
 });
