@@ -1,4 +1,4 @@
-import { cloneDeep, isEqual, pickBy, snakeCase } from 'lodash'
+import { cloneDeep, isEqual, pickBy, snakeCase } from 'lodash';
 import {
   ClientSession,
   Collection,
@@ -8,11 +8,12 @@ import {
   FilterQuery,
   FindOneOptions,
   UpdateOneOptions,
-} from 'mongodb'
-import pluralize from 'pluralize'
+} from 'mongodb';
+import pluralize from 'pluralize';
 
-import { Mongodb } from '../Mongodb'
-import { proxyHandler } from './proxyHandler'
+import { Mongodb } from '../Mongodb';
+
+import { proxyHandler } from './proxyHandler';
 
 interface ModelConstructor<M> {
   $database: Mongodb;
@@ -260,7 +261,7 @@ export class Model {
     for (const [dirtyKey, dirtyValue] of dirtyEntries) {
       toSet[dirtyKey] = dirtyValue;
     }
-    
+
     if (this.$collection === undefined && this.$options === undefined) {
       this.$collection = await this.getCollection();
       this.$options = {
