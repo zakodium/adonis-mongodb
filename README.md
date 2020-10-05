@@ -7,6 +7,7 @@
 MongoDB provider for AdonisJs.
 
 ## Prerequisites
+This provider requires Adonis v5 preview and won't work with Adonis v4.
 
 We recommend using mongodb 4.4, because creation of collections and indices in migrations will be transactional and will be properly rolled back in case of error.
 
