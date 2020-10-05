@@ -7,7 +7,7 @@ import {
   Cursor,
   FilterQuery,
   FindOneOptions,
-  UpdateOneOptions,
+  UpdateOneOptions
 } from 'mongodb';
 import pluralize from 'pluralize';
 
