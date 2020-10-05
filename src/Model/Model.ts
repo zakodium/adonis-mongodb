@@ -340,34 +340,4 @@ export class AutoIncrementModel extends Model {
     this.$originalData = cloneDeep(this.$currentData);
     return true;
   }
-
-  public static async create<T extends Model>(
-    this: ModelConstructor<T>,
-    value: Omit<T, 'id' | ModelReadonlyFields>,
-    options?: CollectionInsertOneOptions,
-  ): Promise<T> {
-    const collectionName = this._computeCollectionName();
-    const connection = this.$database.connection();
-    const counterCollection = await connection.collection<{ count: number }>(
-      '__adonis_mongodb_counters',
-    );
-
-    const doc = await counterCollection.findOneAndUpdate(
-      { _id: collectionName },
-      { $inc: { count: 1 } },
-      { session: options?.session, upsert: true },
-    );
-
-    const newCount = doc.value ? doc.value.count + 1 : 1;
-    const collection = await this.getCollection();
-    const now = new Date();
-    const toInsert = {
-      _id: newCount,
-      createdAt: now,
-      updatedAt: now,
-      ...value,
-    };
-    await collection.insertOne(toInsert, options);
-    return new this(toInsert, { collection, session: options?.session });
-  }
 }
