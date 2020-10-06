@@ -315,11 +315,9 @@ export class Model {
   }
 
   public merge<T>(values: Omit<T, 'id' | ModelReadonlyFields>) {
-    Object.keys(values).forEach((key) => {
-      this.$currentData[key] =
-        values[key as keyof Omit<T, 'id' | ModelReadonlyFields>];
+    Object.entries(values).forEach(([key, value]) => {
+      this.$currentData[key] = value;
     });
-
     return this;
   }
 
