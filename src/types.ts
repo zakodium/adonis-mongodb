@@ -169,6 +169,20 @@ declare module '@ioc:Mongodb/Model' {
      * @returns - whether the entry was deleted.
      */
     public delete(options?: CommonOptions): Promise<boolean>;
+
+    /**
+     * Merge given values into the model instance.
+     * @param values - Values to merge with.
+     * @returns - modified model instance.
+     */
+    public merge<ValueType = any>(values: ValueType): this;
+
+    /**
+     * Remove all field in instance and replace it by provided values.
+     * @param values - Values to fill in.
+     * @returns - modified model instance.
+     */
+    public fill<ValueType = any>(values: ValueType): this;
   }
 
   class AutoIncrementModel extends Model<number> {}
