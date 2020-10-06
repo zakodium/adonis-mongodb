@@ -155,13 +155,7 @@ export class Model {
     options?: CollectionInsertOneOptions,
   ): Promise<T> {
     const collection = await this.getCollection();
-    const now = new Date();
-    const toInsert = {
-      createdAt: now,
-      updatedAt: now,
-      ...value,
-    };
-    const instance = new this(toInsert, {
+    const instance = new this(value, {
       collection,
       session: options?.session,
     });
@@ -261,6 +255,10 @@ export class Model {
 
     const toSet: { [key: string]: unknown } = {};
     const now = new Date();
+    if (this.$currentData.createdAt === undefined) {
+      this.$currentData.createdAt = now;
+      toSet.createdAt = now;
+    }
     this.$currentData.updatedAt = now;
     toSet.updatedAt = now;
 
