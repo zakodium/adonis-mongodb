@@ -46,8 +46,13 @@ function nextTitle() {
 const db = getMongodb();
 Model.$setDatabase(db);
 
-afterAll(async () => {
+beforeAll(async () => {
   await (await db.connection('mongo').database()).dropDatabase();
+  //await db.closeConnections();
+});
+
+afterAll(async () => {
+  //await (await db.connection('mongo').database()).dropDatabase();
   await db.closeConnections();
 });
 
@@ -269,4 +274,14 @@ test('merge method', async () => {
 
   expect(user).toHaveProperty(['hello']);
   expect((user as any).hello).toBe(true);
+});
+
+test('fill method', async () => {
+  const user = new User();
+  user.password = 'rootroot';
+
+  await user.fill({ username: nextUsername() }).save();
+
+  expect(user.password).toBeUndefined();
+  expect(user.username).toBeDefined();
 });
