@@ -172,7 +172,7 @@ test('passing session should run requests within the same session', async () => 
   expect(shouldExistNow?.password).toBe('root');
 });
 
-test('class instanciation Model should creates an entry', async () => {
+test('class instantiation Model should creates an entry', async () => {
   const user = new User();
   user.username = nextUsername();
   user.password = 'rootroot';
@@ -183,7 +183,7 @@ test('class instanciation Model should creates an entry', async () => {
   expect(user.id).toBeInstanceOf(ObjectId);
 });
 
-test('class instanciation Model should be updatable', async () => {
+test('class instantiation Model should be updatable', async () => {
   const username = nextUsername();
   const user = new User();
   user.username = username;
@@ -197,7 +197,7 @@ test('class instanciation Model should be updatable', async () => {
   expect(shouldHaveNewPassword?.password).toBe('root');
 });
 
-test('class instanciation auto incremented model', async () => {
+test('class instantiation auto incremented model', async () => {
   const post = new Post();
   post.title = nextTitle();
   post.content = 'post content';
