@@ -246,15 +246,10 @@ export class Model {
     }
     if (this.$collection !== null) return;
 
-    const definedCollectionName = (this.constructor as typeof Model)
-      .collectionName;
-
-    const collectionName =
-      definedCollectionName === undefined
-        ? computeCollectionName(this.constructor.name)
-        : definedCollectionName;
     const connection = Model.$database.connection();
-    this.$collection = await connection.collection(collectionName);
+    this.$collection = await connection.collection(
+      (this.constructor as typeof Model)._computeCollectionName(),
+    );
   }
 
   protected $prepareToSet() {
