@@ -1,13 +1,13 @@
 import { cloneDeep, isEqual, pickBy, snakeCase } from 'lodash';
 import {
-  FilterQuery,
-  Collection,
-  FindOneOptions,
-  CollectionInsertOneOptions,
-  Cursor,
-  UpdateOneOptions,
-  CommonOptions,
   ClientSession,
+  Collection,
+  CollectionInsertOneOptions,
+  CommonOptions,
+  Cursor,
+  FilterQuery,
+  FindOneOptions,
+  UpdateOneOptions,
 } from 'mongodb';
 import pluralize from 'pluralize';
 
@@ -54,10 +54,14 @@ class FindResult<T> {
     const result = await this.$cursor.toArray();
     return result.map(
       (value) =>
-        new this.$constructor(value, {
-          collection: this.$collection,
-          session: this.$options?.session,
-        }),
+        new this.$constructor(
+          value,
+          {
+            collection: this.$collection,
+            session: this.$options?.session,
+          },
+          true,
+        ),
     );
   }
 
@@ -93,18 +97,32 @@ export class Model {
   public static $database: Mongodb;
   public static collectionName?: string;
 
-  protected $collection: Collection;
+  protected $collection: Collection | null = null;
   protected $originalData: any;
   protected $currentData: any;
   protected $isDeleted: boolean;
   protected $options: IModelOptions;
 
-  public constructor(dbObj: Record<string, unknown>, options: IModelOptions) {
-    this.$collection = options.collection;
-    this.$originalData = cloneDeep(dbObj);
-    this.$currentData = dbObj;
+  public constructor(
+    dbObj?: Record<string, unknown>,
+    options?: IModelOptions,
+    alreadyExists = false,
+  ) {
+    if (dbObj) {
+      this.$originalData = alreadyExists === true ? cloneDeep(dbObj) : {};
+      this.$currentData = dbObj;
+    } else {
+      this.$originalData = {};
+      this.$currentData = {};
+    }
+
+    if (options !== undefined) {
+      this.$options = options;
+      this.$collection = options.collection;
+    }
+
     this.$isDeleted = false;
-    this.$options = options;
+
     // eslint-disable-next-line no-constructor-return
     return new Proxy(this, proxyHandler);
   }
@@ -137,17 +155,12 @@ export class Model {
     options?: CollectionInsertOneOptions,
   ): Promise<T> {
     const collection = await this.getCollection();
-    const now = new Date();
-    const toInsert = {
-      createdAt: now,
-      updatedAt: now,
-      ...value,
-    };
-    const result = await collection.insertOne(toInsert, options);
-    return new this(
-      { _id: result.insertedId, ...toInsert },
-      { collection, session: options?.session },
-    );
+    const instance = new this(value, {
+      collection,
+      session: options?.session,
+    });
+    await instance.save(options);
+    return instance;
   }
 
   public static async findOne<T extends Model>(
@@ -158,7 +171,7 @@ export class Model {
     const collection = await this.getCollection();
     const result = await collection.findOne(filter, options);
     if (result === null) return null;
-    return new this(result, { collection, session: options?.session });
+    return new this(result, { collection, session: options?.session }, true);
   }
 
   public static async find<T extends Model>(
@@ -179,7 +192,7 @@ export class Model {
     const collection = await this.getCollection();
     const result = await collection.findOne({ _id: id }, options);
     if (result === null) return null;
-    return new this(result, { collection, session: options?.session });
+    return new this(result, { collection, session: options?.session }, true);
   }
 
   public static async findByIdOrThrow<T extends Model>(
@@ -194,7 +207,7 @@ export class Model {
         `document ${String(id)} not found in ${this._computeCollectionName()}`,
       );
     }
-    return new this(result, { collection, session: options?.session });
+    return new this(result, { collection, session: options?.session }, true);
   }
 
   protected [Symbol.for('nodejs.util.inspect.custom')](): any {
@@ -221,6 +234,41 @@ export class Model {
     }
   }
 
+  protected async $ensureCollection() {
+    if (!Model.$database) {
+      throw new Error('Model should only be accessed from IoC container');
+    }
+    if (this.$collection !== null) return this.$collection;
+
+    const connection = Model.$database.connection();
+    this.$collection = await connection.collection(
+      (this.constructor as typeof Model)._computeCollectionName(),
+    );
+    return this.$collection;
+  }
+
+  protected $prepareToSet() {
+    const dirty = this.$dirty();
+    const dirtyEntries = Object.entries(dirty);
+    if (dirtyEntries.length === 0) {
+      return null;
+    }
+
+    const toSet: { [key: string]: unknown } = {};
+    const now = new Date();
+    if (this.$currentData.createdAt === undefined) {
+      this.$currentData.createdAt = now;
+      toSet.createdAt = now;
+    }
+    this.$currentData.updatedAt = now;
+    toSet.updatedAt = now;
+
+    for (const [dirtyKey, dirtyValue] of dirtyEntries) {
+      toSet[dirtyKey] = dirtyValue;
+    }
+    return toSet;
+  }
+
   public get id() {
     return this.$currentData._id;
   }
@@ -231,33 +279,32 @@ export class Model {
 
   public async save(options?: UpdateOneOptions): Promise<boolean> {
     this.$ensureNotDeleted();
-    const dirty = this.$dirty();
-    const dirtyEntries = Object.entries(dirty);
-    if (dirtyEntries.length === 0) {
-      return false;
+    const collection = await this.$ensureCollection();
+
+    const toSet = this.$prepareToSet();
+    if (toSet === null) return false;
+
+    if (this.id === undefined) {
+      const result = await collection.insertOne(toSet, {
+        session: this.$options?.session,
+        ...options,
+      });
+      this.$currentData._id = result.insertedId;
+    } else {
+      await collection.updateOne(
+        { _id: this.$currentData._id },
+        { $set: toSet },
+        { session: this.$options?.session, ...options },
+      );
     }
-
-    const toSet: { [key: string]: unknown } = {};
-
-    const now = new Date();
-    this.$currentData.updatedAt = now;
-    toSet.updatedAt = now;
-
-    for (const [dirtyKey, dirtyValue] of dirtyEntries) {
-      toSet[dirtyKey] = dirtyValue;
-    }
-    await this.$collection.updateOne(
-      { _id: this.$currentData._id },
-      { $set: toSet },
-      { session: this.$options.session, ...options },
-    );
     this.$originalData = cloneDeep(this.$currentData);
     return true;
   }
 
   public async delete(options?: CommonOptions): Promise<boolean> {
     this.$ensureNotDeleted();
-    const result = await this.$collection.deleteOne(
+    const collection = await this.$ensureCollection();
+    const result = await collection.deleteOne(
       {
         _id: this.$currentData._id,
       },
@@ -269,36 +316,43 @@ export class Model {
 }
 
 export class AutoIncrementModel extends Model {
-  public constructor(dbObj: Record<string, unknown>, options: IModelOptions) {
+  public constructor(dbObj?: Record<string, unknown>, options?: IModelOptions) {
     super(dbObj, options);
   }
-  public static async create<T extends Model>(
-    this: ModelConstructor<T>,
-    value: Omit<T, 'id' | ModelReadonlyFields>,
-    options?: CollectionInsertOneOptions,
-  ): Promise<T> {
-    const collectionName = this._computeCollectionName();
-    const connection = this.$database.connection();
-    const counterCollection = await connection.collection<{ count: number }>(
-      '__adonis_mongodb_counters',
-    );
 
-    const doc = await counterCollection.findOneAndUpdate(
-      { _id: collectionName },
-      { $inc: { count: 1 } },
-      { session: options?.session, upsert: true },
-    );
+  public async save(options?: UpdateOneOptions): Promise<boolean> {
+    this.$ensureNotDeleted();
+    const collection = await this.$ensureCollection();
 
-    const newCount = doc.value ? doc.value.count + 1 : 1;
-    const collection = await this.getCollection();
-    const now = new Date();
-    const toInsert = {
-      _id: newCount,
-      createdAt: now,
-      updatedAt: now,
-      ...value,
-    };
-    await collection.insertOne(toInsert, options);
-    return new this(toInsert, { collection, session: options?.session });
+    const toSet = this.$prepareToSet();
+    if (toSet === null) return false;
+
+    if (this.id === undefined) {
+      const connection = AutoIncrementModel.$database.connection();
+      const counterCollection = await connection.collection<{ count: number }>(
+        '__adonis_mongodb_counters',
+      );
+
+      const doc = await counterCollection.findOneAndUpdate(
+        { _id: computeCollectionName(this.constructor.name) },
+        { $inc: { count: 1 } },
+        { session: options?.session, upsert: true },
+      );
+      const newCount = doc.value ? doc.value.count + 1 : 1;
+      toSet._id = newCount;
+      await collection.insertOne(toSet, {
+        session: this.$options?.session,
+        ...options,
+      });
+      this.$currentData._id = newCount;
+    } else {
+      await (this.$collection as Collection).updateOne(
+        { _id: this.$currentData._id },
+        { $set: toSet },
+        { session: this.$options?.session, ...options },
+      );
+    }
+    this.$originalData = cloneDeep(this.$currentData);
+    return true;
   }
 }
