@@ -27,7 +27,7 @@ interface IModelOptions {
   session?: ClientSession;
 }
 
-type ModelReadonlyFields = 'isDirty' | 'save' | 'delete';
+type ModelReadonlyFields = 'isDirty' | 'save' | 'delete' | 'merge';
 
 class FindResult<T> {
   private $filter: FilterQuery<T>;
@@ -312,6 +312,14 @@ export class Model {
     );
     this.$isDeleted = true;
     return result.deletedCount === 1;
+  }
+
+  public merge<T>(values: Omit<T, 'id' | ModelReadonlyFields>) {
+    Object.keys(values).forEach((key) => {
+      this.$currentData[key] =
+        values[key as keyof Omit<T, 'id' | ModelReadonlyFields>];
+    });
+    return this;
   }
 }
 

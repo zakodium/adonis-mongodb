@@ -249,3 +249,24 @@ test('created user should not be dirty', async () => {
   });
   expect(user.isDirty).toBe(false);
 });
+
+test('merge method', async () => {
+  const username = nextUsername();
+  const myContent = {
+    username,
+    password: 'rootroot',
+    hello: true,
+  };
+
+  const user = new User();
+  await user.merge(myContent).save();
+
+  expect(user).toHaveProperty(['username']);
+  expect(user.username).toBe(username);
+
+  expect(user).toHaveProperty(['password']);
+  expect(user.password).toBe('rootroot');
+
+  expect(user).toHaveProperty(['hello']);
+  expect((user as any).hello).toBe(true);
+});
