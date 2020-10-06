@@ -46,13 +46,8 @@ function nextTitle() {
 const db = getMongodb();
 Model.$setDatabase(db);
 
-beforeAll(async () => {
-  await (await db.connection('mongo').database()).dropDatabase();
-  //await db.closeConnections();
-});
-
 afterAll(async () => {
-  //await (await db.connection('mongo').database()).dropDatabase();
+  await (await db.connection('mongo').database()).dropDatabase();
   await db.closeConnections();
 });
 
