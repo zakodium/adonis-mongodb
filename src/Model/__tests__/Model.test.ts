@@ -183,7 +183,7 @@ test('passing session should run requests within the same session', async () => 
   expect(shouldExistNow?.password).toBe('root');
 });
 
-test('class instantiation Model should creates an entry', async () => {
+test('class instantiation Model should create an entry', async () => {
   const user = new User();
   user.username = nextUsername();
   user.password = 'rootroot';
