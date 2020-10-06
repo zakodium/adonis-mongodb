@@ -56,7 +56,6 @@ test('can create', async () => {
     username: nextUsername(),
     password: 'root',
   });
-  await newUser.save();
   expect(newUser).toBeDefined();
 });
 
