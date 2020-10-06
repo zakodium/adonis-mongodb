@@ -285,10 +285,10 @@ test('fill method after save', async () => {
   const user = new User();
   user.password = 'rootroot';
   await user.save();
-  const createdAt = (user as any).createdAt;
+  const createdAt = user.createdAt;
   await user.fill({ username: nextUsername() }).save();
 
   expect(user.password).toBeUndefined();
   expect(user.username).toBeDefined();
-  expect((user as any).createdAt).toBe(createdAt);
+  expect(user.createdAt).toBe(createdAt);
 });
