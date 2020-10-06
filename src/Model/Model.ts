@@ -238,12 +238,13 @@ export class Model {
     if (!Model.$database) {
       throw new Error('Model should only be accessed from IoC container');
     }
-    if (this.$collection !== null) return;
+    if (this.$collection !== null) return this.$collection;
 
     const connection = Model.$database.connection();
     this.$collection = await connection.collection(
       (this.constructor as typeof Model)._computeCollectionName(),
     );
+    return this.$collection;
   }
 
   protected $prepareToSet() {
@@ -278,19 +279,19 @@ export class Model {
 
   public async save(options?: UpdateOneOptions): Promise<boolean> {
     this.$ensureNotDeleted();
-    await this.$ensureCollection();
+    const collection = await this.$ensureCollection();
 
     const toSet = this.$prepareToSet();
     if (toSet === null) return false;
 
     if (this.id === undefined) {
-      const result = await (this.$collection as Collection).insertOne(toSet, {
+      const result = await collection.insertOne(toSet, {
         session: this.$options?.session,
         ...options,
       });
       this.$currentData._id = result.insertedId;
     } else {
-      await (this.$collection as Collection).updateOne(
+      await collection.updateOne(
         { _id: this.$currentData._id },
         { $set: toSet },
         { session: this.$options?.session, ...options },
@@ -302,8 +303,8 @@ export class Model {
 
   public async delete(options?: CommonOptions): Promise<boolean> {
     this.$ensureNotDeleted();
-    await this.$ensureCollection();
-    const result = await (this.$collection as Collection).deleteOne(
+    const collection = await this.$ensureCollection();
+    const result = await collection.deleteOne(
       {
         _id: this.$currentData._id,
       },
@@ -321,7 +322,7 @@ export class AutoIncrementModel extends Model {
 
   public async save(options?: UpdateOneOptions): Promise<boolean> {
     this.$ensureNotDeleted();
-    await this.$ensureCollection();
+    const collection = await this.$ensureCollection();
 
     const toSet = this.$prepareToSet();
     if (toSet === null) return false;
@@ -339,7 +340,7 @@ export class AutoIncrementModel extends Model {
       );
       const newCount = doc.value ? doc.value.count + 1 : 1;
       toSet._id = newCount;
-      await (this.$collection as Collection).insertOne(toSet, {
+      await collection.insertOne(toSet, {
         session: this.$options?.session,
         ...options,
       });
