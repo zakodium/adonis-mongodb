@@ -319,11 +319,16 @@ export class Model {
       this.$currentData[key] =
         values[key as keyof Omit<T, 'id' | ModelReadonlyFields>];
     });
+
     return this;
   }
 
   public fill<T>(values: Omit<T, 'id' | ModelReadonlyFields>) {
-    this.$currentData = {};
+    const createdAt = this.$currentData.createdAt;
+    this.$currentData = {
+      _id: this.id,
+    };
+    if (createdAt) this.$currentData.createdAt = createdAt;
     return this.merge(values);
   }
 }
