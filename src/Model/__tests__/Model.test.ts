@@ -247,3 +247,11 @@ test('custom collection name - instance', async () => {
 
   expect(found).not.toBeNull();
 });
+
+test('created user should not be dirty', async () => {
+  const user = await User.create({
+    username: nextUsername(),
+    password: 'rootroot',
+  });
+  expect(user.isDirty).toBe(false);
+});
