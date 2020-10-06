@@ -1,4 +1,4 @@
-import { cloneDeep, isEqual, pickBy, snakeCase, clone } from 'lodash';
+import { cloneDeep, isEqual, pickBy, snakeCase } from 'lodash';
 import {
   ClientSession,
   Collection,
