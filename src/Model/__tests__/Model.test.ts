@@ -27,6 +27,12 @@ class Post extends AutoIncrementModel implements IPost {
   public content: string;
 }
 
+class Something extends Model {
+  public static collectionName = 'somethingElse';
+
+  public test: boolean;
+}
+
 let usernameCounter = 0;
 function nextUsername() {
   return `root${++usernameCounter}`;
@@ -197,6 +203,17 @@ test('class instantiation Model should be updatable', async () => {
   expect(shouldHaveNewPassword?.password).toBe('root');
 });
 
+test('find one returns should not be dirty', async () => {
+  const username = nextUsername();
+  await User.create({
+    username,
+    password: 'rootroot',
+  });
+
+  const foundUser = await User.findOne({ username });
+  expect(foundUser?.isDirty).toBe(false);
+});
+
 test('class instantiation auto incremented model', async () => {
   const post = new Post();
   post.title = nextTitle();
@@ -204,4 +221,24 @@ test('class instantiation auto incremented model', async () => {
   await post.save();
 
   expect(typeof post.id).toBe('number');
+});
+
+test('custom collection name - class', async () => {
+  const something = await Something.create({ test: false });
+  await something.save();
+  expect((await Something.getCollection()).collectionName).toBe(
+    Something.collectionName,
+  );
+});
+
+test('custom collection name - instance', async () => {
+  const something = new Something();
+  something.test = true;
+  await something.save();
+
+  const found = await (
+    await Model.$database.connection().collection(Something.collectionName)
+  ).findOne({ _id: something.id });
+
+  expect(found).not.toBeNull();
 });

@@ -1,4 +1,4 @@
-import { cloneDeep, isEqual, pickBy, snakeCase } from 'lodash';
+import { cloneDeep, isEqual, pickBy, snakeCase, clone } from 'lodash';
 import {
   ClientSession,
   Collection,
@@ -54,10 +54,14 @@ class FindResult<T> {
     const result = await this.$cursor.toArray();
     return result.map(
       (value) =>
-        new this.$constructor(value, {
-          collection: this.$collection,
-          session: this.$options?.session,
-        }),
+        new this.$constructor(
+          value,
+          {
+            collection: this.$collection,
+            session: this.$options?.session,
+          },
+          true,
+        ),
     );
   }
 
@@ -99,9 +103,19 @@ export class Model {
   protected $isDeleted: boolean;
   protected $options: IModelOptions;
 
-  public constructor(dbObj?: Record<string, unknown>, options?: IModelOptions) {
-    this.$originalData = {};
-    this.$currentData = dbObj === undefined ? {} : dbObj;
+  public constructor(
+    dbObj?: Record<string, unknown>,
+    options?: IModelOptions,
+    alreadyExists = false,
+  ) {
+    if (dbObj) {
+      this.$originalData = alreadyExists === true ? cloneDeep(dbObj) : {};
+      this.$currentData = dbObj;
+    } else {
+      this.$originalData = {};
+      this.$currentData = {};
+    }
+
     if (options !== undefined) {
       this.$options = options;
       this.$collection = options.collection;
@@ -163,7 +177,7 @@ export class Model {
     const collection = await this.getCollection();
     const result = await collection.findOne(filter, options);
     if (result === null) return null;
-    return new this(result, { collection, session: options?.session });
+    return new this(result, { collection, session: options?.session }, true);
   }
 
   public static async find<T extends Model>(
@@ -184,7 +198,7 @@ export class Model {
     const collection = await this.getCollection();
     const result = await collection.findOne({ _id: id }, options);
     if (result === null) return null;
-    return new this(result, { collection, session: options?.session });
+    return new this(result, { collection, session: options?.session }, true);
   }
 
   public static async findByIdOrThrow<T extends Model>(
@@ -199,7 +213,7 @@ export class Model {
         `document ${String(id)} not found in ${this._computeCollectionName()}`,
       );
     }
-    return new this(result, { collection, session: options?.session });
+    return new this(result, { collection, session: options?.session }, true);
   }
 
   protected [Symbol.for('nodejs.util.inspect.custom')](): any {
@@ -231,7 +245,14 @@ export class Model {
       throw new Error('Model should only be accessed from IoC container');
     }
     if (this.$collection !== null) return;
-    const collectionName = computeCollectionName(this.constructor.name);
+
+    const definedCollectionName = (this.constructor as typeof Model)
+      .collectionName;
+
+    const collectionName =
+      definedCollectionName === undefined
+        ? computeCollectionName(this.constructor.name)
+        : definedCollectionName;
     const connection = Model.$database.connection();
     this.$collection = await connection.collection(collectionName);
   }
