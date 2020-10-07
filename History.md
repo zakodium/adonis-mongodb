@@ -1,3 +1,13 @@
+## [0.3.1](https://github.com/zakodium/adonis-mongodb/compare/v0.3.0...v0.3.1) (2020-10-07)
+
+
+### Features
+
+* add merge and fill methods ([#23](https://github.com/zakodium/adonis-mongodb/issues/23)) ([0b9d3ef](https://github.com/zakodium/adonis-mongodb/commit/0b9d3ef80111b28010efaf24708415329fa4194b))
+* support instantiating models before saving ([#17](https://github.com/zakodium/adonis-mongodb/issues/17)) ([25d194a](https://github.com/zakodium/adonis-mongodb/commit/25d194a26b7d19c1e498b46c79b6172bcb5e58f2))
+
+
+
 # [0.3.0](https://github.com/zakodium/adonis-mongodb/compare/v0.2.2...v0.3.0) (2020-09-29)
 
 
