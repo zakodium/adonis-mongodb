@@ -27,7 +27,14 @@ interface IModelOptions {
   session?: ClientSession;
 }
 
-type ModelReadonlyFields = 'isDirty' | 'save' | 'delete';
+type ModelReadonlyFields =
+  | 'isDirty'
+  | 'save'
+  | 'delete'
+  | 'merge'
+  | 'fill'
+  | 'createdAt'
+  | 'updatedAt';
 
 class FindResult<T> {
   private $filter: FilterQuery<T>;
@@ -96,6 +103,9 @@ function computeCollectionName(constructorName: string): string {
 export class Model {
   public static $database: Mongodb;
   public static collectionName?: string;
+
+  public readonly createdAt: Date;
+  public readonly updatedAt: Date;
 
   protected $collection: Collection | null = null;
   protected $originalData: any;
@@ -312,6 +322,22 @@ export class Model {
     );
     this.$isDeleted = true;
     return result.deletedCount === 1;
+  }
+
+  public merge<T>(values: Omit<T, 'id' | ModelReadonlyFields>): this {
+    Object.entries(values).forEach(([key, value]) => {
+      this.$currentData[key] = value;
+    });
+    return this;
+  }
+
+  public fill<T>(values: Omit<T, 'id' | ModelReadonlyFields>) {
+    const createdAt = this.$currentData.createdAt;
+    this.$currentData = {
+      _id: this.id,
+    };
+    if (createdAt) this.$currentData.createdAt = createdAt;
+    return this.merge(values);
   }
 }
 
