@@ -327,8 +327,8 @@ export class Model {
     return result.deletedCount === 1;
   }
 
-  public merge<T>(
-    values: Omit<T, '_id' | 'id' | ModelReadonlyFields> & Partial<T>,
+  public merge<T = this>(
+    values: Omit<T, '_id' | 'id' | ModelReadonlyFields>,
   ): this {
     Object.entries(values).forEach(([key, value]) => {
       this.$currentData[key] = value;
@@ -336,9 +336,7 @@ export class Model {
     return this;
   }
 
-  public fill<T>(
-    values: Omit<T, '_id' | 'id' | ModelReadonlyFields> & Partial<T>,
-  ) {
+  public fill<T = this>(values: Omit<T, '_id' | 'id' | ModelReadonlyFields>) {
     const createdAt = this.$currentData.createdAt;
     this.$currentData = {
       _id: this.id,
