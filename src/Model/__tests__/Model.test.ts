@@ -294,14 +294,15 @@ test('fill method after save', async () => {
 });
 
 test('pass custom id', async () => {
+  const username = nextUsername();
   const user = await User.create({
     _id: 'test',
-    username: nextUsername(),
+    username,
     password: 'mypass',
   });
 
   await user.save();
 
-  expect(typeof user.id).toBe('string');
-  expect(user.id).toBe('test');
+  const newUser = await User.findOne({ username });
+  expect(newUser?._id).toBe('test');
 });
