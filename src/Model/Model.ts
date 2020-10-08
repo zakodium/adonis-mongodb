@@ -112,6 +112,7 @@ export class Model {
   protected $currentData: any;
   protected $isDeleted: boolean;
   protected $options: IModelOptions;
+  protected $alreadySaved: boolean;
 
   public constructor(
     dbObj?: Record<string, unknown>,
@@ -131,8 +132,8 @@ export class Model {
       this.$collection = options.collection;
     }
 
+    this.$alreadySaved = alreadyExists;
     this.$isDeleted = false;
-
     // eslint-disable-next-line no-constructor-return
     return new Proxy(this, proxyHandler);
   }
@@ -293,8 +294,7 @@ export class Model {
 
     const toSet = this.$prepareToSet();
     if (toSet === null) return false;
-
-    if (this.id === undefined) {
+    if (this.$alreadySaved === false) {
       const result = await collection.insertOne(toSet, {
         session: this.$options?.session,
         ...options,

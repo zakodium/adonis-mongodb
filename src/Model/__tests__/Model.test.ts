@@ -292,3 +292,16 @@ test('fill method after save', async () => {
   expect(user.username).toBeDefined();
   expect(user.createdAt).toBe(createdAt);
 });
+
+test('pass custom id', async () => {
+  const user = await User.create({
+    _id: 'test',
+    username: nextUsername(),
+    password: 'mypass',
+  } as any);
+
+  await user.save();
+
+  expect(typeof user.id).toBe('string');
+  expect(user.id).toBe('test');
+});
