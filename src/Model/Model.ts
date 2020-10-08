@@ -162,7 +162,7 @@ export class Model {
 
   public static async create<T extends Model>(
     this: ModelConstructor<T>,
-    value: Omit<T, 'id' | ModelReadonlyFields>,
+    value: Omit<T | '_id', 'id' | ModelReadonlyFields>,
     options?: CollectionInsertOneOptions,
   ): Promise<T> {
     const collection = await this.getCollection();

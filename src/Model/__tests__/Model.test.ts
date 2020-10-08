@@ -298,7 +298,7 @@ test('pass custom id', async () => {
     _id: 'test',
     username: nextUsername(),
     password: 'mypass',
-  } as any);
+  });
 
   await user.save();
 
