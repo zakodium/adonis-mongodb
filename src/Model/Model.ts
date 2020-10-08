@@ -104,6 +104,7 @@ export class Model {
   public static $database: Mongodb;
   public static collectionName?: string;
 
+  public readonly _id: any;
   public readonly createdAt: Date;
   public readonly updatedAt: Date;
 
@@ -112,6 +113,7 @@ export class Model {
   protected $currentData: any;
   protected $isDeleted: boolean;
   protected $options: IModelOptions;
+  protected $alreadySaved: boolean;
 
   public constructor(
     dbObj?: Record<string, unknown>,
@@ -131,8 +133,8 @@ export class Model {
       this.$collection = options.collection;
     }
 
+    this.$alreadySaved = alreadyExists;
     this.$isDeleted = false;
-
     // eslint-disable-next-line no-constructor-return
     return new Proxy(this, proxyHandler);
   }
@@ -161,7 +163,8 @@ export class Model {
 
   public static async create<T extends Model>(
     this: ModelConstructor<T>,
-    value: Omit<T, 'id' | ModelReadonlyFields>,
+    value: Omit<T, '_id' | 'id' | ModelReadonlyFields> &
+      Partial<Pick<T, '_id'>>,
     options?: CollectionInsertOneOptions,
   ): Promise<T> {
     const collection = await this.getCollection();
@@ -293,8 +296,7 @@ export class Model {
 
     const toSet = this.$prepareToSet();
     if (toSet === null) return false;
-
-    if (this.id === undefined) {
+    if (this.$alreadySaved === false) {
       const result = await collection.insertOne(toSet, {
         session: this.$options?.session,
         ...options,
@@ -308,6 +310,7 @@ export class Model {
       );
     }
     this.$originalData = cloneDeep(this.$currentData);
+    this.$alreadySaved = true;
     return true;
   }
 

@@ -168,11 +168,11 @@ test('passing session should run requests within the same session', async () => 
 
     await user.save();
 
-    const shouldNotExist = await User.findOne({ username: username });
+    const shouldNotExist = await User.findOne({ username });
     expect(shouldNotExist).toBeNull();
   });
 
-  const shouldExistNow = await User.findOne({ username: 'root7' });
+  const shouldExistNow = await User.findOne({ username });
   expect(shouldExistNow).not.toBeNull();
   expect(shouldExistNow?.password).toBe('root');
 });
@@ -291,4 +291,18 @@ test('fill method after save', async () => {
   expect(user.password).toBeUndefined();
   expect(user.username).toBeDefined();
   expect(user.createdAt).toBe(createdAt);
+});
+
+test('pass custom id', async () => {
+  const username = nextUsername();
+  const user = await User.create({
+    _id: 'test',
+    username,
+    password: 'mypass',
+  });
+
+  await user.save();
+
+  const newUser = await User.findOne({ username });
+  expect(newUser?._id).toBe('test');
 });
