@@ -308,6 +308,7 @@ export class Model {
       );
     }
     this.$originalData = cloneDeep(this.$currentData);
+    this.$alreadySaved = true;
     return true;
   }
 

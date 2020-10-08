@@ -168,11 +168,11 @@ test('passing session should run requests within the same session', async () => 
 
     await user.save();
 
-    const shouldNotExist = await User.findOne({ username: username });
+    const shouldNotExist = await User.findOne({ username });
     expect(shouldNotExist).toBeNull();
   });
 
-  const shouldExistNow = await User.findOne({ username: 'root7' });
+  const shouldExistNow = await User.findOne({ username });
   expect(shouldExistNow).not.toBeNull();
   expect(shouldExistNow?.password).toBe('root');
 });
