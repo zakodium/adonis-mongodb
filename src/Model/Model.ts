@@ -327,14 +327,18 @@ export class Model {
     return result.deletedCount === 1;
   }
 
-  public merge<T>(values: Omit<T, 'id' | ModelReadonlyFields>): this {
+  public merge<T>(
+    values: Omit<T, '_id' | 'id' | ModelReadonlyFields> & Partial<T>,
+  ): this {
     Object.entries(values).forEach(([key, value]) => {
       this.$currentData[key] = value;
     });
     return this;
   }
 
-  public fill<T>(values: Omit<T, 'id' | ModelReadonlyFields>) {
+  public fill<T>(
+    values: Omit<T, '_id' | 'id' | ModelReadonlyFields> & Partial<T>,
+  ) {
     const createdAt = this.$currentData.createdAt;
     this.$currentData = {
       _id: this.id,
