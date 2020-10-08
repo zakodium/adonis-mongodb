@@ -328,7 +328,7 @@ export class Model {
   }
 
   public merge<T = this>(
-    values: Omit<T, '_id' | 'id' | ModelReadonlyFields>,
+    values: Partial<Omit<T, '_id' | 'id' | ModelReadonlyFields>>,
   ): this {
     Object.entries(values).forEach(([key, value]) => {
       this.$currentData[key] = value;
@@ -336,7 +336,9 @@ export class Model {
     return this;
   }
 
-  public fill<T = this>(values: Omit<T, '_id' | 'id' | ModelReadonlyFields>) {
+  public fill<T = this>(
+    values: Partial<Omit<T, '_id' | 'id' | ModelReadonlyFields>>,
+  ) {
     const createdAt = this.$currentData.createdAt;
     this.$currentData = {
       _id: this.id,
