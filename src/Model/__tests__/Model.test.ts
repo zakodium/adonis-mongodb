@@ -255,7 +255,6 @@ test('merge method', async () => {
   const myContent = {
     username,
     password: 'rootroot',
-    hello: true,
   };
 
   const user = new User();
@@ -266,9 +265,6 @@ test('merge method', async () => {
 
   expect(user).toHaveProperty(['password']);
   expect(user.password).toBe('rootroot');
-
-  expect(user).toHaveProperty(['hello']);
-  expect((user as any).hello).toBe(true);
 });
 
 test('fill method', async () => {
