@@ -104,7 +104,7 @@ export class Model {
   public static $database: Mongodb;
   public static collectionName?: string;
 
-  public readonly _id: any;
+  public readonly _id?: any;
   public readonly createdAt: Date;
   public readonly updatedAt: Date;
 
