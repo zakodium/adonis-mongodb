@@ -104,6 +104,7 @@ export class Model {
   public static $database: Mongodb;
   public static collectionName?: string;
 
+  public readonly _id: any;
   public readonly createdAt: Date;
   public readonly updatedAt: Date;
 
@@ -162,7 +163,7 @@ export class Model {
 
   public static async create<T extends Model>(
     this: ModelConstructor<T>,
-    value: Omit<T | '_id', 'id' | ModelReadonlyFields>,
+    value: Omit<T, 'id' | ModelReadonlyFields>,
     options?: CollectionInsertOneOptions,
   ): Promise<T> {
     const collection = await this.getCollection();
