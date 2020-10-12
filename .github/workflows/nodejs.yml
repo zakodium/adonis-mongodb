@@ -2,6 +2,7 @@ name: Node.js CI
 
 on:
   push:
+    branches: master
   pull_request:
 
 jobs:
@@ -9,16 +10,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Use Node.js 14.x
-        uses: actions/setup-node@v1
+      - uses: actions/setup-node@v2-beta
         with:
           node-version: 14.x
-      - name: Run linter
-        run: |
-          npm install
-          npm run eslint
-        env:
-          CI: true
+      - name: Install dependencies
+        run: npm install
+      - name: Run ESLint
+        run: npm run eslint
+      - name: Check types
+        run: npm run check-types
   test:
     timeout-minutes: 30
     runs-on: ubuntu-latest
@@ -28,7 +28,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v2-beta
         with:
           node-version: ${{ matrix.node-version }}
       - name: Init docker
@@ -38,6 +38,8 @@ jobs:
       - name: Initialize MongoDB
         run: node reset-dev
       - name: Run tests
-        run: npm run test-only
+        run: npm run test-coverage
+      - name: Send coverage report to Codecov
+        uses: codecov/codecov-action@v1
       - name: Teardown docker
         run: docker-compose down
