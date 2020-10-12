@@ -255,17 +255,10 @@ test('merge method', async () => {
   const myContent = {
     username,
     password: 'rootroot',
-    hello: true,
   };
 
   const user = new User();
-  await user
-    .merge({
-      username,
-      password: 'rootroot',
-      hello: true,
-    })
-    .save();
+  await user.merge(myContent).save();
 
   expect(user).toHaveProperty(['username']);
   expect(user.username).toBe(username);
