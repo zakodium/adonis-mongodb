@@ -334,10 +334,12 @@ export class Model {
     return result.deletedCount === 1;
   }
 
-  public merge(
+  public merge<
+    T extends Partial<Omit<this, '_id' | 'id' | ModelReadonlyFields>>
+  >(
     values: NoExtraProperties<
       Partial<Omit<this, '_id' | 'id' | ModelReadonlyFields>>,
-      Partial<Omit<this, '_id' | 'id' | ModelReadonlyFields>>
+      T
     >,
   ): this {
     Object.entries(values).forEach(([key, value]) => {
@@ -346,10 +348,12 @@ export class Model {
     return this;
   }
 
-  public fill(
+  public fill<
+    T extends Partial<Omit<this, '_id' | 'id' | ModelReadonlyFields>>
+  >(
     values: NoExtraProperties<
       Partial<Omit<this, '_id' | 'id' | ModelReadonlyFields>>,
-      Partial<Omit<this, '_id' | 'id' | ModelReadonlyFields>>
+      T
     >,
   ) {
     const createdAt = this.$currentData.createdAt;

@@ -191,20 +191,28 @@ declare module '@ioc:Mongodb/Model' {
      * @param values - Values to merge with.
      * @returns - modified model instance.
      */
-    public merge<ValueType = any>(values: NoExtraProperties<
-      Partial<Omit<this, '_id' | 'id' | ModelReadonlyFields>>,
-      Partial<Omit<this, '_id' | 'id' | ModelReadonlyFields>>
-    >): this;
+    public merge<
+      T extends Partial<Omit<this, '_id' | 'id' | ModelReadonlyFields>>
+    >(
+      values: NoExtraProperties<
+        Partial<Omit<this, '_id' | 'id' | ModelReadonlyFields>>,
+        T
+      >,
+    ): this
 
     /**
      * Remove all field in instance and replace it by provided values.
      * @param values - Values to fill in.
      * @returns - modified model instance.
      */
-    public fill<ValueType = any>(values: NoExtraProperties<
-      Partial<Omit<this, '_id' | 'id' | ModelReadonlyFields>>,
-      Partial<Omit<this, '_id' | 'id' | ModelReadonlyFields>>
-    >): this;
+    public fill<
+      T extends Partial<Omit<this, '_id' | 'id' | ModelReadonlyFields>>
+    >(
+      values: NoExtraProperties<
+        Partial<Omit<this, '_id' | 'id' | ModelReadonlyFields>>,
+        T
+      >
+    ): this;
   }
 
   class AutoIncrementModel extends Model<number> {}
