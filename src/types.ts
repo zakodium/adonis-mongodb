@@ -92,6 +92,22 @@ declare module '@ioc:Mongodb/Model' {
     [Symbol.asyncIterator](): AsyncIterableIterator<T>;
   }
 
+  type ModelReadonlyFields =
+  | 'isDirty'
+  | 'save'
+  | 'delete'
+  | 'merge'
+  | 'fill'
+  | 'createdAt'
+  | 'updatedAt';
+
+  type Impossible<K extends keyof any> = {
+    [P in K]: never;
+  };
+  
+  type NoExtraProperties<T, U extends T = T> = U &
+    Impossible<Exclude<keyof U, keyof T>>;
+
   class Model<IdType = ObjectId> {
     /**
      * Create one document and return it.
@@ -175,14 +191,28 @@ declare module '@ioc:Mongodb/Model' {
      * @param values - Values to merge with.
      * @returns - modified model instance.
      */
-    public merge<ValueType = any>(values: ValueType): this;
+    public merge<
+      T extends Partial<Omit<this, '_id' | 'id' | ModelReadonlyFields>>
+    >(
+      values: NoExtraProperties<
+        Partial<Omit<this, '_id' | 'id' | ModelReadonlyFields>>,
+        T
+      >,
+    ): this
 
     /**
      * Remove all field in instance and replace it by provided values.
      * @param values - Values to fill in.
      * @returns - modified model instance.
      */
-    public fill<ValueType = any>(values: ValueType): this;
+    public fill<
+      T extends Partial<Omit<this, '_id' | 'id' | ModelReadonlyFields>>
+    >(
+      values: NoExtraProperties<
+        Partial<Omit<this, '_id' | 'id' | ModelReadonlyFields>>,
+        T
+      >
+    ): this;
   }
 
   class AutoIncrementModel extends Model<number> {}

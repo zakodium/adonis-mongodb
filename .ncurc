@@ -1,0 +1,6 @@
+{
+  "reject": [
+    "// https://github.com/zakodium/adonis-mongodb/issues/5",
+    "@types/mongodb"
+  ]
+}

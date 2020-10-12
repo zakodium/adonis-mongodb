@@ -27,6 +27,13 @@ interface IModelOptions {
   session?: ClientSession;
 }
 
+type Impossible<K extends keyof any> = {
+  [P in K]: never;
+};
+
+type NoExtraProperties<T, U extends T = T> = U &
+  Impossible<Exclude<keyof U, keyof T>>;
+
 type ModelReadonlyFields =
   | 'isDirty'
   | 'save'
@@ -327,14 +334,28 @@ export class Model {
     return result.deletedCount === 1;
   }
 
-  public merge<T>(values: Omit<T, 'id' | ModelReadonlyFields>): this {
+  public merge<
+    T extends Partial<Omit<this, '_id' | 'id' | ModelReadonlyFields>>
+  >(
+    values: NoExtraProperties<
+      Partial<Omit<this, '_id' | 'id' | ModelReadonlyFields>>,
+      T
+    >,
+  ): this {
     Object.entries(values).forEach(([key, value]) => {
       this.$currentData[key] = value;
     });
     return this;
   }
 
-  public fill<T>(values: Omit<T, 'id' | ModelReadonlyFields>) {
+  public fill<
+    T extends Partial<Omit<this, '_id' | 'id' | ModelReadonlyFields>>
+  >(
+    values: NoExtraProperties<
+      Partial<Omit<this, '_id' | 'id' | ModelReadonlyFields>>,
+      T
+    >,
+  ) {
     const createdAt = this.$currentData.createdAt;
     this.$currentData = {
       _id: this.id,

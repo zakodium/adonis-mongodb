@@ -255,7 +255,6 @@ test('merge method', async () => {
   const myContent = {
     username,
     password: 'rootroot',
-    hello: true,
   };
 
   const user = new User();
@@ -266,9 +265,6 @@ test('merge method', async () => {
 
   expect(user).toHaveProperty(['password']);
   expect(user.password).toBe('rootroot');
-
-  expect(user).toHaveProperty(['hello']);
-  expect((user as any).hello).toBe(true);
 });
 
 test('fill method', async () => {
@@ -279,6 +275,33 @@ test('fill method', async () => {
 
   expect(user.password).toBeUndefined();
   expect(user.username).toBeDefined();
+});
+
+test('merge and fill accept no extra properties', async () => {
+  const user = new User();
+
+  user.merge({
+    username: 'test',
+    // @ts-expect-error
+    bad: 'property',
+  });
+
+  const bad = {
+    password: 'xxx',
+    other: 'bad',
+  };
+
+  // @ts-expect-error
+  user.merge(bad);
+
+  user.fill({
+    username: 'test',
+    // @ts-expect-error
+    bad: 'property',
+  });
+
+  // @ts-expect-error
+  user.merge(bad);
 });
 
 test('fill method after save', async () => {
