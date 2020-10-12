@@ -1,7 +1,7 @@
+import { Logger } from '@adonisjs/logger';
 import { Exception } from '@poppinss/utils';
 import { MongoClient, Db, Collection, ClientSession } from 'mongodb';
 
-import { LoggerContract } from '@ioc:Adonis/Core/Logger';
 import {
   MongodbConnectionConfig,
   ConnectionContract,
@@ -14,7 +14,7 @@ enum ConnectionStatus {
 
 export class Connection implements ConnectionContract {
   private $name: string;
-  private $logger: LoggerContract;
+  private $logger: Logger;
   private $status: ConnectionStatus;
   private $client: MongoClient;
   private $connectPromise: Promise<Db> | null;
@@ -24,7 +24,7 @@ export class Connection implements ConnectionContract {
   public constructor(
     name: string,
     config: MongodbConnectionConfig,
-    logger: LoggerContract,
+    logger: Logger,
   ) {
     this.$name = name;
     this.config = config;
