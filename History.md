@@ -1,3 +1,11 @@
+### [0.3.2](https://github.com/zakodium/adonis-mongodb/compare/v0.3.1...v0.3.2) (2020-10-12)
+
+
+### Bug Fixes
+
+* allow custom IDs ([#26](https://github.com/zakodium/adonis-mongodb/issues/26)) ([7cd80c9](https://github.com/zakodium/adonis-mongodb/commit/7cd80c98a43866be4d97e00a32c7fe22851647e5))
+* fix merge and fill method typings ([#28](https://github.com/zakodium/adonis-mongodb/issues/28)) ([97cf4db](https://github.com/zakodium/adonis-mongodb/commit/97cf4dbd3783590ac004929aca81d5677dc2cd6f))
+
 ## [0.3.1](https://github.com/zakodium/adonis-mongodb/compare/v0.3.0...v0.3.1) (2020-10-07)
 
 
