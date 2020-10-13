@@ -42,7 +42,7 @@ export default abstract class MongodbMakeMigration extends BaseCommand {
         ? config.migrations
         : [folder];
 
-    const migrationFiles: string[] = (
+    const migrationFiles: string[] = (((
       await Promise.all(
         folders
           .map((folder) => join(this.application.appRoot, folder))
@@ -57,24 +57,21 @@ export default abstract class MongodbMakeMigration extends BaseCommand {
             }
           }),
       )
-    )
-      .filter((migrationFile) => migrationFile !== null)
-      .flat() as string[];
+    ).filter((migrationFile) => migrationFile !== null) as unknown) as string[])
+      .flat()
+      .sort((a, b) => basename(a, '.js').localeCompare(basename(b, '.js')));
 
-    let migrationNames = migrationFiles.sort((a, b) =>
-      basename(a, '.js').localeCompare(basename(b, '.js')),
-    );
     // Check migration file names
     let hadBadName = false;
-    migrationNames
-      .map((migrationName) => basename(migrationName, '.js'))
-      .forEach((migrationName) => {
-        const match = matchTimestamp.exec(migrationName);
+    migrationFiles
+      .map((migrationFile) => basename(migrationFile, '.js'))
+      .forEach((migrationFile) => {
+        const match = matchTimestamp.exec(migrationFile);
         const timestamp = Number(match?.groups?.timestamp);
         if (Number.isNaN(timestamp) || timestamp === 0) {
           hadBadName = true;
           this.logger.error(
-            `Invalid migration file: ${migrationName}. Name must start with a timestamp`,
+            `Invalid migration file: ${migrationFile}. Name must start with a timestamp`,
           );
         }
       });
@@ -82,7 +79,8 @@ export default abstract class MongodbMakeMigration extends BaseCommand {
     if (hadBadName) {
       throw new Error('some migration files are malformed');
     }
-    return migrationNames;
+
+    return migrationFiles;
   }
 
   protected async importMigration(

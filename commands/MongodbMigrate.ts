@@ -1,3 +1,5 @@
+import { basename } from 'path';
+
 import { inject } from '@adonisjs/fold';
 import { ObjectId } from 'mongodb';
 
@@ -23,7 +25,23 @@ export default class MongodbMigrate extends MigrationCommand {
   };
 
   private async _executeMigration(db: Mongodb): Promise<void> {
-    let migrationFiles = await this.getMigrationFiles(db.connection().config);
+    const migrations = (
+      await this.getMigrationFiles(db.connection().config)
+    ).map((migrationFile) => ({
+      name: basename(migrationFile, '.js'),
+      file: migrationFile,
+    }));
+
+    const duplicates = new Set(
+      migrations.filter(
+        ({ name }, index) =>
+          migrations.map((migration) => migration.name).indexOf(name) !== index,
+      ),
+    );
+    if (duplicates.size > 0) {
+      throw new Error(`found duplicate migration file names`);
+    }
+
     const connectionName = this.connection || undefined;
     const connection = db.connection(connectionName);
 
@@ -62,10 +80,12 @@ export default class MongodbMigrate extends MigrationCommand {
         const dbMigrationNames = migrationDocs.map((m) => m.name);
 
         // Keep migrations that are not yet registered
-        migrationFiles = migrationFiles.filter(
-          (name) => !dbMigrationNames.includes(name),
+        const unregisteredMigrations = migrations.filter(
+          (migration: { name: string; file: string }) =>
+            !dbMigrationNames.includes(basename(migration.name, '.js')),
         );
 
+        // Keep migrations that are not yet registered
         let executed = 0;
 
         // Get the next incremental batch value
@@ -84,13 +104,11 @@ export default class MongodbMigrate extends MigrationCommand {
           newBatch = value[0].maxBatch + 1;
         }
 
-        for (const migrationName of migrationFiles) {
-          const { Migration, description } = await this.importMigration(
-            migrationName,
-          );
+        for (const { name, file } of unregisteredMigrations) {
+          const { Migration, description } = await this.importMigration(file);
 
           this.logger.info(
-            `Executing migration: ${migrationName}${
+            `Executing migration: ${name}${
               description ? ` - ${description}` : ''
             }`,
           );
@@ -99,11 +117,11 @@ export default class MongodbMigrate extends MigrationCommand {
           executed++;
         }
 
-        if (migrationFiles.length > 0) {
+        if (unregisteredMigrations.length > 0) {
           await migrationColl.insertMany(
-            migrationFiles.map(
-              (migrationName) => ({
-                name: migrationName,
+            unregisteredMigrations.map(
+              ({ name }) => ({
+                name,
                 date: new Date(),
                 batch: newBatch,
               }),
