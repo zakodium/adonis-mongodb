@@ -1,6 +1,6 @@
-import { Logger } from '@poppinss/fancy-logs';
 import { IndexOptions, ClientSession, Db } from 'mongodb';
 
+import { LoggerContract } from '@ioc:Adonis/Core/Logger';
 import { ConnectionContract } from '@ioc:Mongodb/Database';
 
 import { Mongodb } from './Mongodb';
@@ -38,13 +38,13 @@ export default function createMigration(Database: Mongodb): any {
   abstract class Migration {
     private $operations: MigrationOperation[] = [];
     private $connection: ConnectionContract;
-    private $logger: Logger;
+    private $logger: LoggerContract;
     private $session: ClientSession;
     private $collectionList: string[];
 
     public constructor(
       connection: string | undefined,
-      logger: Logger,
+      logger: LoggerContract,
       session: ClientSession,
     ) {
       this.$connection = Database.connection(connection);

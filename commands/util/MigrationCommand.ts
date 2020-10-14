@@ -2,9 +2,9 @@ import fs from 'fs/promises';
 import { join, basename, extname } from 'path';
 
 import { BaseCommand, flags } from '@adonisjs/ace';
-import { Logger } from '@poppinss/fancy-logs';
 import { ClientSession } from 'mongodb';
 
+import { LoggerContract } from '@ioc:Adonis/Core/Logger';
 import { MongodbConnectionConfig } from '@ioc:Mongodb/Database';
 import BaseMigration from '@ioc:Mongodb/Migration';
 
@@ -17,13 +17,13 @@ export const migrationLockCollectionName = '__adonis_mongodb_lock';
 interface MigrationModule {
   default: new (
     connection: string | undefined,
-    logger: Logger,
+    logger: LoggerContract,
     session: ClientSession,
   ) => BaseMigration;
   description?: string;
 }
 
-export default abstract class MongodbMakeMigration extends BaseCommand {
+export default abstract class MigrationCommand extends BaseCommand {
   public static settings = {
     loadApp: true,
   };
