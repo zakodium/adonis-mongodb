@@ -1,5 +1,13 @@
 # Changelog
 
+### [0.3.4](https://www.github.com/zakodium/adonis-mongodb/compare/v0.3.3...v0.3.4) (2020-10-14)
+
+
+### Bug Fixes
+
+* in-memory typescript keeps migrations as TS files ([#36](https://www.github.com/zakodium/adonis-mongodb/issues/36)) ([7f4fd20](https://www.github.com/zakodium/adonis-mongodb/commit/7f4fd20e4df965ed3eab9407065506ef9721c638))
+* rename handle with run ([#34](https://www.github.com/zakodium/adonis-mongodb/issues/34)) ([70c1b53](https://www.github.com/zakodium/adonis-mongodb/commit/70c1b53428f4902ca61036c14dcaf3f21db5f665))
+
 ### [0.3.3](https://www.github.com/zakodium/adonis-mongodb/compare/v0.3.2...v0.3.3) (2020-10-14)
 
 
