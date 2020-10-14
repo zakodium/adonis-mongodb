@@ -1,5 +1,12 @@
 # Changelog
 
+### [0.3.3](https://www.github.com/zakodium/adonis-mongodb/compare/v0.3.2...v0.3.3) (2020-10-14)
+
+
+### Bug Fixes
+
+* **migration:** correctly extract name from migrations and check for dups ([7c6dec1](https://www.github.com/zakodium/adonis-mongodb/commit/7c6dec1942c0f22096ad603b63f39451dc13ae5b))
+
 ### [0.3.2](https://github.com/zakodium/adonis-mongodb/compare/v0.3.1...v0.3.2) (2020-10-12)
 
 
@@ -144,6 +151,3 @@
 ### Features
 
 * initial library ([6c917cf](https://github.com/zakodium/adonis-mongodb/commit/6c917cf8bb76c01ba02ed90036c293f0667f6d81))
-
-
-
