@@ -86,7 +86,7 @@ export default class MongodbMigrate extends MigrationCommand {
         // Keep migrations that are not yet registered
         const unregisteredMigrations = migrations.filter(
           (migration: { name: string; file: string }) =>
-            !dbMigrationNames.includes(basename(migration.name, '.js')),
+            !dbMigrationNames.includes(migration.name),
         );
 
         // Keep migrations that are not yet registered
