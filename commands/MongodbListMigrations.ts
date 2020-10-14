@@ -24,9 +24,7 @@ export default class MongodbListMigrations extends MigrationCommand {
     try {
       const database = await db.connection().database();
       const coll = database.collection('__adonis_mongodb');
-      const migrationFiles = await this.getMigrationFiles(
-        db.connection().config,
-      );
+      const migrations = await this.getMigrations(db.connection().config);
 
       const migrationDocuments = await coll.find({}).toArray();
 
@@ -35,22 +33,18 @@ export default class MongodbListMigrations extends MigrationCommand {
       });
 
       const imports = await Promise.all(
-        migrationFiles.map((migrationFile) =>
-          this.importMigration(migrationFile),
-        ),
+        migrations.map(({ file }) => this.importMigration(file)),
       );
 
       /**
        * Push a new row to the table
        */
-      migrationFiles.forEach((migrationFile, idx) => {
-        const document = migrationDocuments.find(
-          (doc) => doc.name === migrationFile,
-        );
+      migrations.forEach(({ name, file }, idx) => {
+        const document = migrationDocuments.find((doc) => doc.name === name);
 
         const { description } = imports[idx];
         table.push([
-          migrationFile,
+          file,
           document
             ? this.colors.green('completed')
             : this.colors.yellow('pending'),

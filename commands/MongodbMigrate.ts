@@ -25,26 +25,7 @@ export default class MongodbMigrate extends MigrationCommand {
   };
 
   private async _executeMigration(db: Mongodb): Promise<void> {
-    const migrations = (
-      await this.getMigrationFiles(db.connection().config)
-    ).map((migrationFile) => ({
-      name: basename(migrationFile, '.js'),
-      file: migrationFile,
-    }));
-
-    const duplicates = new Set(
-      migrations.filter(
-        ({ name }, index) =>
-          migrations.map((migration) => migration.name).indexOf(name) !== index,
-      ),
-    );
-    if (duplicates.size > 0) {
-      throw new Error(
-        `found duplicate migration file names: ${[...duplicates]
-          .map(({ name }) => name)
-          .join(', ')}`,
-      );
-    }
+    const migrations = await this.getMigrations(db.connection().config);
 
     const connectionName = this.connection || undefined;
     const connection = db.connection(connectionName);
@@ -85,8 +66,7 @@ export default class MongodbMigrate extends MigrationCommand {
 
         // Keep migrations that are not yet registered
         const unregisteredMigrations = migrations.filter(
-          (migration: { name: string; file: string }) =>
-            !dbMigrationNames.includes(migration.name),
+          (migration) => !dbMigrationNames.includes(migration.name),
         );
 
         // Keep migrations that are not yet registered
