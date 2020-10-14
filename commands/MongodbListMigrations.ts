@@ -1,4 +1,4 @@
-import { inject } from '@adonisjs/fold';
+import { inject } from '@adonisjs/core/build/standalone';
 import CliTable from 'cli-table3';
 
 import { Mongodb } from '../src/Mongodb';
