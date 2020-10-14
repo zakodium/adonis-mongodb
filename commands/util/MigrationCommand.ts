@@ -1,5 +1,5 @@
-import fs from 'fs/promises';
-import { join, basename, extname } from 'path';
+import { readdir } from 'fs/promises';
+import { join, extname } from 'path';
 
 import { BaseCommand, flags } from '@adonisjs/core/build/standalone';
 import { Logger } from '@poppinss/cliui/build/src/Logger';
@@ -8,7 +8,10 @@ import { ClientSession } from 'mongodb';
 import { MongodbConnectionConfig } from '@ioc:Mongodb/Database';
 import BaseMigration from '@ioc:Mongodb/Migration';
 
-const matchTimestamp = /^(?<timestamp>\d+)_.*$/;
+import transformMigrations, {
+  MigrationDescription,
+} from './transformMigrations';
+
 const folder = 'mongodb/migrations';
 
 export const migrationCollectionName = '__adonis_mongodb';
@@ -34,64 +37,39 @@ export default abstract class MigrationCommand extends BaseCommand {
   @flags.string({ description: 'Database connection to use for the migration' })
   public connection: string;
 
-  protected async getMigrationFiles(
+  protected async getMigrations(
     config: MongodbConnectionConfig,
-  ): Promise<string[]> {
+  ): Promise<MigrationDescription[]> {
     const folders =
       config.migrations && config.migrations.length > 0
         ? config.migrations
         : [folder];
 
-    const migrationFiles: string[] = (
-      await Promise.all(
-        folders
-          .map((folder) => join(this.application.appRoot, folder))
-          .map(async (migrationsPath) => {
-            try {
-              const files = await fs.readdir(migrationsPath);
-              return files
-                .filter((file) => extname(file) === '.js')
-                .map((file) => join(migrationsPath, file));
-            } catch {
-              return null;
-            }
-          }),
-      )
-    )
-      .filter((migrationFile) => migrationFile !== null)
-      .flat() as string[];
-
-    let migrationNames = migrationFiles.sort((a, b) =>
-      basename(a, '.js').localeCompare(basename(b, '.js')),
+    const rawMigrationFiles = await Promise.all(
+      folders
+        .map((folder) => join(this.application.appRoot, folder))
+        .map(async (migrationsPath) => {
+          try {
+            const files = await readdir(migrationsPath);
+            return files
+              .filter((file) => extname(file) === '.js')
+              .map((file) => join(migrationsPath, file));
+          } catch {
+            return [];
+          }
+        }),
     );
-    // Check migration file names
-    let hadBadName = false;
-    migrationNames
-      .map((migrationName) => basename(migrationName, '.js'))
-      .forEach((migrationName) => {
-        const match = matchTimestamp.exec(migrationName);
-        const timestamp = Number(match?.groups?.timestamp);
-        if (Number.isNaN(timestamp) || timestamp === 0) {
-          hadBadName = true;
-          this.logger.error(
-            `Invalid migration file: ${migrationName}. Name must start with a timestamp`,
-          );
-        }
-      });
 
-    if (hadBadName) {
-      throw new Error('some migration files are malformed');
-    }
-    return migrationNames;
+    return transformMigrations(rawMigrationFiles, this.logger);
   }
 
   protected async importMigration(
-    name: string,
+    file: string,
   ): Promise<{ Migration: MigrationModule['default']; description?: string }> {
-    const module: MigrationModule = await import(name);
+    const module: MigrationModule = await import(file);
     const { default: Migration, description } = module;
     if (!Migration || typeof Migration !== 'function') {
-      throw new Error(`Migration in ${name} must export a default class`);
+      throw new Error(`Migration in ${file} must export a default class`);
     }
     return { Migration, description };
   }
