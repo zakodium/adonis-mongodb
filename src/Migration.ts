@@ -1,4 +1,4 @@
-import { Logger } from '@poppinss/fancy-logs';
+import { Logger } from '@poppinss/cliui/build/src/Logger';
 import { IndexOptions, ClientSession, Db } from 'mongodb';
 
 import { ConnectionContract } from '@ioc:Mongodb/Database';

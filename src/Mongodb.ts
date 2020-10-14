@@ -1,17 +1,17 @@
-import { Logger } from '@adonisjs/logger';
 import { Exception } from '@poppinss/utils';
 
+import { LoggerContract } from '@ioc:Adonis/Core/Logger';
 import { MongodbContract, MongodbConfig } from '@ioc:Mongodb/Database';
 
 import { Connection } from './Connection';
 
 export class Mongodb implements MongodbContract {
   private $config: MongodbConfig;
-  private $logger: Logger;
+  private $logger: LoggerContract;
   private $connections: Map<string, Connection>;
   private $defaultConnectionName: string;
 
-  public constructor(config: MongodbConfig, logger: Logger) {
+  public constructor(config: MongodbConfig, logger: LoggerContract) {
     this.$config = config;
     this.$logger = logger;
     this.$defaultConnectionName = config.default;

@@ -19,5 +19,6 @@
     "./src/**/*",
     "./providers/**/*",
     "./test-utils/*"
-  ]
+  ],
+  "types": ["@adonisjs/core", "@types/jest"]
 }

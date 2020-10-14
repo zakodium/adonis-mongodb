@@ -1,10 +1,10 @@
-import { Logger } from '@poppinss/fancy-logs';
+import { Logger } from '@poppinss/cliui/build/src/Logger';
 import { ClientSession } from 'mongodb';
 
 import { getMongodb } from '../../test-utils/TestUtils';
 import createMigration from '../Migration';
 
-const logger = new Logger({ fake: true });
+const logger = new Logger();
 const db = getMongodb();
 const BaseMigration = createMigration(db);
 

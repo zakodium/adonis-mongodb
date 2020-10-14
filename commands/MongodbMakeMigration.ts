@@ -1,7 +1,11 @@
 import { join } from 'path';
 
-import { BaseCommand, args, flags } from '@adonisjs/ace';
-import { inject } from '@adonisjs/fold';
+import {
+  inject,
+  BaseCommand,
+  args,
+  flags,
+} from '@adonisjs/core/build/standalone';
 
 import { MongodbContract } from '@ioc:Mongodb/Database';
 

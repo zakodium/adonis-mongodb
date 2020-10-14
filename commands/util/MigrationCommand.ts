@@ -1,8 +1,8 @@
 import { readdir } from 'fs/promises';
 import { join, extname } from 'path';
 
-import { BaseCommand, flags } from '@adonisjs/ace';
-import { Logger } from '@poppinss/fancy-logs';
+import { BaseCommand, flags } from '@adonisjs/core/build/standalone';
+import { Logger } from '@poppinss/cliui/build/src/Logger';
 import { ClientSession } from 'mongodb';
 
 import { MongodbConnectionConfig } from '@ioc:Mongodb/Database';
@@ -26,7 +26,7 @@ interface MigrationModule {
   description?: string;
 }
 
-export default abstract class MongodbMakeMigration extends BaseCommand {
+export default abstract class MigrationCommand extends BaseCommand {
   public static settings = {
     loadApp: true,
   };
