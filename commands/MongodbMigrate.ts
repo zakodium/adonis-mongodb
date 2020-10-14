@@ -39,7 +39,11 @@ export default class MongodbMigrate extends MigrationCommand {
       ),
     );
     if (duplicates.size > 0) {
-      throw new Error(`found duplicate migration file names`);
+      throw new Error(
+        `found duplicate migration file names: ${[...duplicates]
+          .map(({ name }) => name)
+          .join(', ')}`,
+      );
     }
 
     const connectionName = this.connection || undefined;
