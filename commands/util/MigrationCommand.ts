@@ -42,7 +42,7 @@ export default abstract class MongodbMakeMigration extends BaseCommand {
         ? config.migrations
         : [folder];
 
-    const rawMigrationFiles: string[] = await Promise.all(
+    const rawMigrationFiles = await Promise.all(
       folders
         .map((folder) => join(this.application.appRoot, folder))
         .map(async (migrationsPath) => {
