@@ -1,6 +1,6 @@
 import { basename } from 'path';
 
-import { Logger } from '@poppinss/fancy-logs';
+import { Logger } from '@poppinss/cliui/build/src/Logger';
 
 const matchTimestamp = /^(?<timestamp>\d+)_.*$/;
 
