@@ -12,11 +12,7 @@ export default class MongodbProvider {
 
   public register(): void {
     this.app.container.singleton('Mongodb/Database', () => {
-      const config = this.app.container
-        .use('Adonis/Core/Config')
-        .get('mongodb', {});
-      const Logger = this.app.container.use('Adonis/Core/Logger');
-      return new Mongodb(config, Logger);
+      return new Mongodb(this.app.config.get('mongodb', {}), this.app.logger);
     });
     this.app.container.singleton('Mongodb/Model', () => {
       Model.$setDatabase(this.app.container.use('Mongodb/Database'));

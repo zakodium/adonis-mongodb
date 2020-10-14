@@ -1,4 +1,4 @@
-import { inject } from '@adonisjs/fold';
+import { inject } from '@adonisjs/core/build/standalone';
 import { ObjectId } from 'mongodb';
 
 import { Mongodb } from '../src/Mongodb';
@@ -94,11 +94,7 @@ export default class MongodbMigrate extends MigrationCommand {
               description ? ` - ${description}` : ''
             }`,
           );
-          const migration = new Migration(
-            connectionName,
-            this.application.logger,
-            session,
-          );
+          const migration = new Migration(connectionName, this.logger, session);
           await migration.execUp();
           executed++;
         }
