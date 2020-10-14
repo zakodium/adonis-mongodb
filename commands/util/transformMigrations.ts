@@ -1,4 +1,4 @@
-import { basename } from 'path';
+import { basename, extname } from 'path';
 
 import { Logger } from '@poppinss/cliui/build/src/Logger';
 
@@ -16,9 +16,11 @@ export default function transformMigrations(
   // Separate name and file fields
   const migrations: MigrationDescription[] = rawMigrations
     .flat()
-    .sort((a, b) => basename(a, '.js').localeCompare(basename(b, '.js')))
+    .sort((a, b) =>
+      basename(a, extname(a)).localeCompare(basename(b, extname(a))),
+    )
     .map((migrationFile) => ({
-      name: basename(migrationFile, '.js'),
+      name: basename(migrationFile, extname(migrationFile)),
       file: migrationFile,
     }));
 
