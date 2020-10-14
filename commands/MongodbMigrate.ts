@@ -1,5 +1,3 @@
-import { basename } from 'path';
-
 import { inject } from '@adonisjs/fold';
 import { ObjectId } from 'mongodb';
 
