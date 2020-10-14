@@ -23,7 +23,7 @@ export default class MongodbMakeMigration extends BaseCommand {
   public connection: string;
 
   @inject(['Mongodb/Database'])
-  public async handle(db: MongodbContract): Promise<void> {
+  public async run(db: MongodbContract): Promise<void> {
     const { name } = this;
     if (name.includes('/')) {
       this.logger.error('name argument should not contain any slash');
