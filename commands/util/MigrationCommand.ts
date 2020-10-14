@@ -42,22 +42,22 @@ export default abstract class MongodbMakeMigration extends BaseCommand {
         ? config.migrations
         : [folder];
 
-    const migrationFiles: string[] = (((
-      await Promise.all(
-        folders
-          .map((folder) => join(this.application.appRoot, folder))
-          .map(async (migrationsPath) => {
-            try {
-              const files = await fs.readdir(migrationsPath);
-              return files
-                .filter((file) => extname(file) === '.js')
-                .map((file) => join(migrationsPath, file));
-            } catch {
-              return null;
-            }
-          }),
-      )
-    ).filter((migrationFile) => migrationFile !== null) as unknown) as string[])
+    const rawMigrationFiles: string[] = await Promise.all(
+      folders
+        .map((folder) => join(this.application.appRoot, folder))
+        .map(async (migrationsPath) => {
+          try {
+            const files = await fs.readdir(migrationsPath);
+            return files
+              .filter((file) => extname(file) === '.js')
+              .map((file) => join(migrationsPath, file));
+          } catch {
+            return [];
+          }
+        }),
+    );
+
+    const migrationFiles = rawMigrationFiles
       .flat()
       .sort((a, b) => basename(a, '.js').localeCompare(basename(b, '.js')));
 
