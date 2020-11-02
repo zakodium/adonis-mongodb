@@ -1,5 +1,12 @@
 # Changelog
 
+### [0.3.5](https://www.github.com/zakodium/adonis-mongodb/compare/v0.3.4...v0.3.5) (2020-11-02)
+
+
+### Bug Fixes
+
+* fix types ([#37](https://www.github.com/zakodium/adonis-mongodb/issues/37)) ([d66ff32](https://www.github.com/zakodium/adonis-mongodb/commit/d66ff3237b18b5cdaa81ceba3272520bdc0cbd75)), closes [#5](https://www.github.com/zakodium/adonis-mongodb/issues/5)
+
 ### [0.3.4](https://www.github.com/zakodium/adonis-mongodb/compare/v0.3.3...v0.3.4) (2020-10-14)
 
 
