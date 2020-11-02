@@ -190,7 +190,10 @@ export class Model {
   ): Promise<T | null> {
     const collection = await this.getCollection();
     // @ts-expect-error Bug with options
-    const result = await collection.findOne(filter, options);
+    const result = await collection.findOne(
+      filter,
+      options as FindOneOptions<unknown>,
+    );
     if (result === null) return null;
     return new this(result, { collection, session: options?.session }, true);
   }
