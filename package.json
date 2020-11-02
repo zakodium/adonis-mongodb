@@ -88,7 +88,7 @@
   },
   "dependencies": {
     "@poppinss/utils": "^2.5.7",
-    "@types/mongodb": "3.5.26",
+    "@types/mongodb": "^3.5.32",
     "cli-table3": "^0.6.0",
     "lodash": "^4.17.20",
     "mongodb": "^3.6.2",
