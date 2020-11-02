@@ -201,8 +201,7 @@ export class Model {
     options?: FindOneOptions<Omit<T, ModelReadonlyFields>>,
   ): Promise<FindResult<T>> {
     const collection = await this.getCollection();
-    // @ts-expect-error Bug with options
-    const cursor = collection.find(filter, options);
+    const cursor = collection.find(filter, options as FindOneOptions<unknown>);
     return new FindResult(filter, options, cursor, collection, this);
   }
 
@@ -212,8 +211,10 @@ export class Model {
     options?: FindOneOptions<Omit<T, ModelReadonlyFields>>,
   ): Promise<T | null> {
     const collection = await this.getCollection();
-    // @ts-expect-error Bug with options
-    const result = await collection.findOne({ _id: id }, options);
+    const result = await collection.findOne(
+      { _id: id },
+      options as FindOneOptions<unknown>,
+    );
     if (result === null) return null;
     return new this(result, { collection, session: options?.session }, true);
   }
@@ -224,8 +225,10 @@ export class Model {
     options?: FindOneOptions<Omit<T, ModelReadonlyFields>>,
   ): Promise<T> {
     const collection = await this.getCollection();
-    // @ts-expect-error Bug with options
-    const result = await collection.findOne({ _id: id }, options);
+    const result = await collection.findOne(
+      { _id: id },
+      options as FindOneOptions<unknown>,
+    );
     if (result === null) {
       throw new Error(
         `document ${String(id)} not found in ${this._computeCollectionName()}`,
