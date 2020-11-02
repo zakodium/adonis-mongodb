@@ -189,7 +189,6 @@ export class Model {
     options?: FindOneOptions<Omit<T, ModelReadonlyFields>>,
   ): Promise<T | null> {
     const collection = await this.getCollection();
-    // @ts-expect-error Bug with options
     const result = await collection.findOne(
       filter,
       options as FindOneOptions<unknown>,
