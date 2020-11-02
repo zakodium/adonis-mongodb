@@ -186,10 +186,13 @@ export class Model {
   public static async findOne<T extends Model>(
     this: ModelConstructor<T>,
     filter: FilterQuery<T>,
-    options?: FindOneOptions<T>,
+    options?: FindOneOptions<Omit<T, ModelReadonlyFields>>,
   ): Promise<T | null> {
     const collection = await this.getCollection();
-    const result = await collection.findOne(filter, options);
+    const result = await collection.findOne(
+      filter,
+      options as FindOneOptions<unknown>,
+    );
     if (result === null) return null;
     return new this(result, { collection, session: options?.session }, true);
   }
@@ -197,20 +200,23 @@ export class Model {
   public static async find<T extends Model>(
     this: ModelConstructor<T>,
     filter: FilterQuery<T>,
-    options?: FindOneOptions<T>,
+    options?: FindOneOptions<Omit<T, ModelReadonlyFields>>,
   ): Promise<FindResult<T>> {
     const collection = await this.getCollection();
-    const cursor = collection.find(filter, options);
+    const cursor = collection.find(filter, options as FindOneOptions<unknown>);
     return new FindResult(filter, options, cursor, collection, this);
   }
 
   public static async findById<T extends Model>(
     this: ModelConstructor<T>,
     id: unknown,
-    options?: FindOneOptions<T>,
+    options?: FindOneOptions<Omit<T, ModelReadonlyFields>>,
   ): Promise<T | null> {
     const collection = await this.getCollection();
-    const result = await collection.findOne({ _id: id }, options);
+    const result = await collection.findOne(
+      { _id: id },
+      options as FindOneOptions<unknown>,
+    );
     if (result === null) return null;
     return new this(result, { collection, session: options?.session }, true);
   }
@@ -218,10 +224,13 @@ export class Model {
   public static async findByIdOrThrow<T extends Model>(
     this: ModelConstructor<T>,
     id: unknown,
-    options?: FindOneOptions<T>,
+    options?: FindOneOptions<Omit<T, ModelReadonlyFields>>,
   ): Promise<T> {
     const collection = await this.getCollection();
-    const result = await collection.findOne({ _id: id }, options);
+    const result = await collection.findOne(
+      { _id: id },
+      options as FindOneOptions<unknown>,
+    );
     if (result === null) {
       throw new Error(
         `document ${String(id)} not found in ${this._computeCollectionName()}`,
