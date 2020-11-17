@@ -12,13 +12,13 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "strictPropertyInitialization": false,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "types": ["@adonisjs/core", "@types/jest"]
   },
   "include": [
     "./commands/**/*",
     "./src/**/*",
     "./providers/**/*",
     "./test-utils/*"
-  ],
-  "types": ["@adonisjs/core", "@types/jest"]
+  ]
 }
