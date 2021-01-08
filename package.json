@@ -68,9 +68,6 @@
     "tabWidth": 2,
     "trailingComma": "all"
   },
-  "peerDependencies": {
-    "@adonisjs/core": "^5.0.4-preview-rc-2"
-  },
   "devDependencies": {
     "@adonisjs/core": "^5.0.4-preview-rc-2",
     "@adonisjs/logger": "^3.0.3",
