@@ -1,5 +1,12 @@
 # Changelog
 
+### [0.3.6](https://www.github.com/zakodium/adonis-mongodb/compare/v0.3.5...v0.3.6) (2021-01-08)
+
+
+### Bug Fixes
+
+* remove peer dependency on adonis core ([fa35ba6](https://www.github.com/zakodium/adonis-mongodb/commit/fa35ba6a7149474d3a63df6abbf0b568565ce91b))
+
 ### [0.3.5](https://www.github.com/zakodium/adonis-mongodb/compare/v0.3.4...v0.3.5) (2020-11-02)
 
 
