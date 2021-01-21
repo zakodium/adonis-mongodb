@@ -40,7 +40,6 @@ export default class MongodbMigrate extends MigrationCommand {
       const lock = await migrationLockColl.updateOne(
         {
           _id: 'migration_lock',
-          running: false,
         },
         {
           $set: { running: true },
@@ -50,7 +49,7 @@ export default class MongodbMigrate extends MigrationCommand {
         },
       );
 
-      if (lock.matchedCount === 0 && lock.upsertedCount === 0) {
+      if (lock.modifiedCount === 0 && lock.upsertedCount === 0) {
         this.logger.error('A migration is already running');
         process.exitCode = 1;
         await db.closeConnections();
