@@ -119,6 +119,12 @@ export default class MongodbMigrate extends MigrationCommand {
         } else {
           this.logger.info('No pending migration');
         }
+      } catch (err) {
+        this.logger.error('Migration failed');
+        // TODO: See if there can be a way in Ace commands to print error stack traces
+        // eslint-disable-next-line no-console
+        console.error(err);
+        await session.abortTransaction();
       } finally {
         await migrationLockColl.updateOne(
           {
