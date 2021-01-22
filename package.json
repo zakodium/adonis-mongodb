@@ -1,6 +1,6 @@
 {
   "name": "@zakodium/adonis-mongodb",
-  "version": "0.3.6",
+  "version": "0.3.7",
   "description": "MongoDB provider for AdonisJs",
   "main": "./lib/providers/MongodbProvider.js",
   "types": "./lib/src/types.d.ts",
