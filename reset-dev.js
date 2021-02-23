@@ -6,8 +6,6 @@ try {
   childProcess.execFileSync(
     'docker-compose',
     [
-      '-f',
-      'docker-compose.yml',
       'exec',
       // Do not try to allocate a TTY so it works in GitHub actions too.
       '-T',
