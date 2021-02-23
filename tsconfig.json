@@ -13,7 +13,7 @@
     "emitDecoratorMetadata": true,
     "strictPropertyInitialization": false,
     "skipLibCheck": true,
-    "types": ["@adonisjs/core", "@types/jest"]
+    "types": ["@adonisjs/auth", "@adonisjs/core", "@types/jest"]
   },
   "include": [
     "./commands/**/*",
