@@ -69,6 +69,7 @@
     "trailingComma": "all"
   },
   "devDependencies": {
+    "@adonisjs/auth": "^6.0.1",
     "@adonisjs/core": "^5.0.5-canary-rc-2",
     "@adonisjs/logger": "^4.0.0",
     "@poppinss/cliui": "^2.2.0",

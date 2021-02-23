@@ -49,6 +49,8 @@ declare module '@ioc:Mongodb/Model' {
     CollectionInsertOneOptions,
     CommonOptions,
   } from 'mongodb';
+  import { HashersList } from '@ioc:Adonis/Core/Hash';
+  import { UserProviderContract } from '@ioc:Adonis/Addons/Auth';
 
   export type ModelCreateOptions = CollectionInsertOneOptions;
 
@@ -93,18 +95,18 @@ declare module '@ioc:Mongodb/Model' {
   }
 
   type ModelReadonlyFields =
-  | 'isDirty'
-  | 'save'
-  | 'delete'
-  | 'merge'
-  | 'fill'
-  | 'createdAt'
-  | 'updatedAt';
+    | 'isDirty'
+    | 'save'
+    | 'delete'
+    | 'merge'
+    | 'fill'
+    | 'createdAt'
+    | 'updatedAt';
 
   type Impossible<K extends keyof any> = {
     [P in K]: never;
   };
-  
+
   type NoExtraProperties<T, U extends T = T> = U &
     Impossible<Exclude<keyof U, keyof T>>;
 
@@ -198,7 +200,7 @@ declare module '@ioc:Mongodb/Model' {
         Partial<Omit<this, '_id' | 'id' | ModelReadonlyFields>>,
         T
       >,
-    ): this
+    ): this;
 
     /**
      * Remove all field in instance and replace it by provided values.
@@ -211,11 +213,49 @@ declare module '@ioc:Mongodb/Model' {
       values: NoExtraProperties<
         Partial<Omit<this, '_id' | 'id' | ModelReadonlyFields>>,
         T
-      >
+      >,
     ): this;
   }
 
   class AutoIncrementModel extends Model<number> {}
+
+  export interface MongodbModelAuthProviderContract<
+    User extends ModelConstructor<unknown>
+  > extends UserProviderContract<InstanceType<User>> {}
+
+  export interface MongodbModelAuthProviderConfig<
+    User extends ModelConstructor<unknown>
+  > {
+    driver: 'mongodb-model';
+    /**
+     * Function that imports the user model.
+     * @default () => import('App/Models/User')
+     */
+    model?: () =>
+      | Promise<User>
+      | Promise<{
+          default: User;
+        }>;
+    /**
+     * List of keys used to search the user.
+     * @default ['email']
+     */
+    uids?: (keyof InstanceType<User>)[];
+    /**
+     * Unique key on the user object.
+     * @default _id
+     */
+    identifierKey?: keyof InstanceType<User>;
+    /**
+     * Value type for `identifierKey`.
+     * @default 'objectid'
+     */
+    identifierKeyType?: 'objectid' | 'string' | 'number';
+    /**
+     * Hash driver used to hash the password.
+     */
+    hashDriver?: keyof HashersList;
+  }
 }
 
 declare module '@ioc:Mongodb/ObjectId' {

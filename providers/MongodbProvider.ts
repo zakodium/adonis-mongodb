@@ -2,6 +2,7 @@ import { ObjectId } from 'mongodb';
 
 import { ApplicationContract } from '@ioc:Adonis/Core/Application';
 
+import { getMongodbModelAuthProvider } from '../src/Auth/MongodbModelAuthProvider';
 import createMigration from '../src/Migration';
 import { Model, AutoIncrementModel } from '../src/Model/Model';
 import { Mongodb } from '../src/Mongodb';
@@ -30,7 +31,10 @@ export default class MongodbProvider {
   }
 
   public boot(): void {
-    // All bindings are ready, feel free to use them
+    if (this.app.container.hasBinding('Adonis/Addons/Auth')) {
+      const Auth = this.app.container.use('Adonis/Addons/Auth');
+      Auth.extend('provider', 'mongodb-model', getMongodbModelAuthProvider);
+    }
   }
 
   public async shutdown(): Promise<void> {
