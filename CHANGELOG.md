@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.4.0](https://www.github.com/zakodium/adonis-mongodb/compare/v0.3.6...v0.4.0) (2021-02-23)
+
+
+### Features
+
+* add authentication provider using model ([8fb56a7](https://www.github.com/zakodium/adonis-mongodb/commit/8fb56a7d0284f044d02341125565d336289047c7))
+
+
+### Bug Fixes
+
+* abort migration transaction in case of error ([#47](https://www.github.com/zakodium/adonis-mongodb/issues/47)) ([8a46ef1](https://www.github.com/zakodium/adonis-mongodb/commit/8a46ef14c62edbae9d2c7acacb538ca2f4dee0b8))
+* correctly handle already running migrations in migrate command ([b6efc7c](https://www.github.com/zakodium/adonis-mongodb/commit/b6efc7ca0d092c144a571882b6593ebf7b6241b2))
+
 ### [0.3.6](https://www.github.com/zakodium/adonis-mongodb/compare/v0.3.5...v0.3.6) (2021-01-08)
 
 
