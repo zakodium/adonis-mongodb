@@ -1,5 +1,12 @@
 # Changelog
 
+### [0.4.1](https://www.github.com/zakodium/adonis-mongodb/compare/v0.4.0...v0.4.1) (2021-03-04)
+
+
+### Bug Fixes
+
+* do not put templates in subdirectories ([a7e2a34](https://www.github.com/zakodium/adonis-mongodb/commit/a7e2a34dd968ffb1bf72db27225b25f1535a9070))
+
 ## [0.4.0](https://www.github.com/zakodium/adonis-mongodb/compare/v0.3.6...v0.4.0) (2021-02-23)
 
 
