@@ -2,11 +2,11 @@ import { MongodbConfig } from '@ioc:Mongodb/Database';
 import Env from '@ioc:Adonis/Core/Env';
 
 const config: MongodbConfig = {
-  default: 'mongodb',
+  default: Env.get('MONGODB_CONNECTION'),
   connections: {
     mongodb: {
-      url: Env.getOrFail('MONGODB_URL') as string,
-      database: Env.getOrFail('MONGODB_DATABASE') as string,
+      url: Env.get('MONGODB_URL'),
+      database: Env.get('MONGODB_DATABASE'),
     },
   },
 };

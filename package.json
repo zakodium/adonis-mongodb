@@ -6,7 +6,8 @@
   "types": "./lib/src/types.d.ts",
   "files": [
     "lib",
-    "templates"
+    "templates",
+    "instructions.md"
   ],
   "keywords": [
     "adonisjs",
@@ -21,14 +22,14 @@
   "adonisjs": {
     "templates": {
       "basePath": "./templates",
-      "config": [
-        "mongodb.txt"
-      ]
+      "config": "mongodb.txt"
     },
     "env": {
+      "MONGODB_CONNECTION": "mongodb",
       "MONGODB_URL": "mongodb://localhost:27017",
       "MONGODB_DATABASE": "test"
     },
+    "instructionsMd": "./instructions.md",
     "types": "@zakodium/adonis-mongodb",
     "providers": [
       "@zakodium/adonis-mongodb"
