@@ -4,7 +4,7 @@
 [![build status][ci-image]][ci-url]
 [![npm download][download-image]][download-url]
 
-MongoDB provider for AdonisJS.
+MongoDB provider for AdonisJS 5.
 
 | :warning: This module is unstable and in active development. Use at your own risk. |
 | ---------------------------------------------------------------------------------- |
@@ -13,7 +13,8 @@ MongoDB provider for AdonisJS.
 
 This provider requires Adonis v5 preview and won't work with Adonis v4.
 
-We recommend using mongodb 4.4, because creation of collections and indices in migrations will be transactional and will be properly rolled back in case of error.
+We recommend using mongodb 4.4, because creation of collections and indices in
+migrations will be transactional and will be properly rolled back in case of error.
 
 If you use a version < 4.4, you might run into issues with partially applied migrations.
 
@@ -21,7 +22,7 @@ If you use a version < 4.4, you might run into issues with partially applied mig
 
 ```console
 npm i @zakodium/adonis-mongodb
-node ace invoke @zakodium/adonis-mongodb
+node ace configure @zakodium/adonis-mongodb
 ```
 
 ## Documentation
@@ -29,7 +30,7 @@ node ace invoke @zakodium/adonis-mongodb
 ### Using with the authentication provider
 
 Adonis MongoDB can be used to authenticate users with the `@adonisjs/auth` addon.
-Do enable it, edit the following files:
+To enable it, edit the following files:
 
 #### `contracts/auth.ts`
 
