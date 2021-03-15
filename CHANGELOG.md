@@ -1,5 +1,12 @@
 # Changelog
 
+### [0.5.1](https://www.github.com/zakodium/adonis-mongodb/compare/v0.5.0...v0.5.1) (2021-03-15)
+
+
+### Bug Fixes
+
+* add toJSON method type ([#56](https://www.github.com/zakodium/adonis-mongodb/issues/56)) ([a570ac0](https://www.github.com/zakodium/adonis-mongodb/commit/a570ac00eefa9a35c46d1e74b719cd331cd5d0b5))
+
 ## [0.5.0](https://www.github.com/zakodium/adonis-mongodb/compare/v0.4.1...v0.5.0) (2021-03-15)
 
 
