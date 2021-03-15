@@ -339,15 +339,13 @@ test('toJSON method', async () => {
 
   const jsonPost = post.toJSON();
 
-  expect(post).toHaveProperty(['_id']);
-  expect(jsonPost._id).toBe('test');
+  const expected = {
+    _id: 'test',
+    title: 'mytitle',
+    content: 'mycontent',
+    createdAt: post.createdAt,
+    updatedAt: post.updatedAt,
+  };
 
-  expect(post).toHaveProperty(['title']);
-  expect(jsonPost.title).toBe('mytitle');
-
-  expect(post).toHaveProperty(['content']);
-  expect(jsonPost.content).toBe('mycontent');
-
-  expect(post).toHaveProperty(['createdAt']);
-  expect(post).toHaveProperty(['updatedAt']);
+  expect(JSON.stringify(jsonPost)).toStrictEqual(JSON.stringify(expected));
 });

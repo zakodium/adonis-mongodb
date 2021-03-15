@@ -307,7 +307,7 @@ export class Model {
     return Object.keys(this.$dirty()).length > 0;
   }
 
-  public toJSON(): any {
+  public toJSON(): unknown {
     return this.$currentData;
   }
 
