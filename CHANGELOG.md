@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.0](https://www.github.com/zakodium/adonis-mongodb/compare/v0.4.1...v0.5.0) (2021-03-15)
+
+
+### Features
+
+* add a toJSON method on Models ([#54](https://www.github.com/zakodium/adonis-mongodb/issues/54)) ([1f0c199](https://www.github.com/zakodium/adonis-mongodb/commit/1f0c199cc3ba89b61b81b1f3af58fa3acefd9c9c))
+
 ### [0.4.1](https://www.github.com/zakodium/adonis-mongodb/compare/v0.4.0...v0.4.1) (2021-03-04)
 
 
