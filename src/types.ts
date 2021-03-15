@@ -96,6 +96,7 @@ declare module '@ioc:Mongodb/Model' {
 
   type ModelReadonlyFields =
     | 'isDirty'
+    | 'toJSON'
     | 'save'
     | 'delete'
     | 'merge'
@@ -170,6 +171,11 @@ declare module '@ioc:Mongodb/Model' {
 
     public readonly createdAt: Date;
     public readonly updatedAt: Date;
+
+    /**
+     * Returns the Model's current data
+     */
+    public toJSON(): unknown;
 
     /**
      * `true` if the entry has unsaved modifications.
