@@ -329,3 +329,23 @@ test('pass custom id', async () => {
   const newUser = await User.findOne({ username });
   expect(newUser?._id).toBe('test');
 });
+
+test('toJSON method', async () => {
+  const post = await Post.create({
+    _id: 'test',
+    title: 'mytitle',
+    content: 'mycontent',
+  });
+
+  const jsonPost = post.toJSON();
+
+  const expected = {
+    _id: 'test',
+    title: 'mytitle',
+    content: 'mycontent',
+    createdAt: post.createdAt,
+    updatedAt: post.updatedAt,
+  };
+
+  expect(JSON.stringify(jsonPost)).toStrictEqual(JSON.stringify(expected));
+});
