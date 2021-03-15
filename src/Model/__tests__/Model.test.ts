@@ -329,3 +329,25 @@ test('pass custom id', async () => {
   const newUser = await User.findOne({ username });
   expect(newUser?._id).toBe('test');
 });
+
+test('toJSON method', async () => {
+  const post = await Post.create({
+    _id: 'test',
+    title: 'mytitle',
+    content: 'mycontent',
+  });
+
+  const jsonPost = post.toJSON();
+
+  expect(post).toHaveProperty(['_id']);
+  expect(jsonPost._id).toBe('test');
+
+  expect(post).toHaveProperty(['title']);
+  expect(jsonPost.title).toBe('mytitle');
+
+  expect(post).toHaveProperty(['content']);
+  expect(jsonPost.content).toBe('mycontent');
+
+  expect(post).toHaveProperty(['createdAt']);
+  expect(post).toHaveProperty(['updatedAt']);
+});

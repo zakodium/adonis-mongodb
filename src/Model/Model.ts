@@ -36,6 +36,7 @@ type NoExtraProperties<T, U extends T = T> = U &
 
 type ModelReadonlyFields =
   | 'isDirty'
+  | 'toJSON'
   | 'save'
   | 'delete'
   | 'merge'
@@ -304,6 +305,10 @@ export class Model {
 
   public get isDirty(): boolean {
     return Object.keys(this.$dirty()).length > 0;
+  }
+
+  public toJSON(): any {
+    return this.$currentData;
   }
 
   public async save(options?: UpdateOneOptions): Promise<boolean> {
