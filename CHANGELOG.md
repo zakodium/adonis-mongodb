@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.6.0](https://www.github.com/zakodium/adonis-mongodb/compare/v0.5.0...v0.6.0) (2021-03-23)
+
+
+### Bug Fixes
+
+* add toJSON method type ([#56](https://www.github.com/zakodium/adonis-mongodb/issues/56)) ([a570ac0](https://www.github.com/zakodium/adonis-mongodb/commit/a570ac00eefa9a35c46d1e74b719cd331cd5d0b5))
+* update dependencies ([f52991e](https://www.github.com/zakodium/adonis-mongodb/commit/f52991edd2597e38d2e6c59b5fd4015fd856b00b))
+
 ## [0.5.0](https://www.github.com/zakodium/adonis-mongodb/compare/v0.4.1...v0.5.0) (2021-03-15)
 
 
