@@ -8,6 +8,8 @@ import { Model, AutoIncrementModel } from '../src/Model/Model';
 import { Mongodb } from '../src/Mongodb';
 
 export default class MongodbProvider {
+  public static needsApplication = true;
+
   public constructor(protected app: ApplicationContract) {}
 
   public register(): void {
