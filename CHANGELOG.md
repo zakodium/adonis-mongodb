@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.7.0](https://www.github.com/zakodium/adonis-mongodb/compare/v0.6.0...v0.7.0) (2021-04-27)
+
+
+### ⚠ BREAKING CHANGES
+
+* The module now depends on @adonisjs/auth v8
+
+### Features
+
+* bump @adonisjs/auth to version 8 ([#60](https://www.github.com/zakodium/adonis-mongodb/issues/60)) ([de23012](https://www.github.com/zakodium/adonis-mongodb/commit/de230126e50637516363302e0e28bf7d32ba0a44))
+
 ## [0.6.0](https://www.github.com/zakodium/adonis-mongodb/compare/v0.5.0...v0.6.0) (2021-03-23)
 
 
