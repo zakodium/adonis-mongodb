@@ -1,4 +1,3 @@
-import { Application } from '@adonisjs/core/build/standalone';
 import { esmResolver } from '@poppinss/utils';
 import { ObjectId } from 'mongodb';
 
