@@ -3,6 +3,7 @@ import { esmResolver } from '@poppinss/utils';
 import { ObjectId } from 'mongodb';
 
 import {
+  AuthManagerContract,
   ProviderUserContract,
   UserProviderContract,
 } from '@ioc:Adonis/Addons/Auth';
@@ -62,7 +63,7 @@ class MongodbModelAuthUserProvider
   private hash: HashContract;
 
   public constructor(
-    private app: Application,
+    private auth: AuthManagerContract,
     private config: MongodbModelAuthProviderConfig<ModelConstructor<unknown>>,
   ) {
     if (config.uids) {
@@ -80,7 +81,7 @@ class MongodbModelAuthUserProvider
       this.identifierKeyType = config.identifierKeyType;
     }
 
-    const Hash = app.container.use('Adonis/Core/Hash');
+    const Hash = this.auth.application.container.use('Adonis/Core/Hash');
     // @ts-expect-error For some reason, BcryptDriver is not compatible with HashDriver.
     this.hash = config.hashDriver ? Hash.use(config.hashDriver) : Hash;
   }
@@ -89,7 +90,9 @@ class MongodbModelAuthUserProvider
     if (this.config.model) {
       return esmResolver(await this.config.model());
     } else {
-      return esmResolver(await this.app.container.useAsync('App/Models/User'));
+      return esmResolver(
+        await this.auth.application.container.useAsync('App/Models/User'),
+      );
     }
   }
 
@@ -143,8 +146,9 @@ class MongodbModelAuthUserProvider
 }
 
 export function getMongodbModelAuthProvider(
-  application: Application,
+  auth: AuthManagerContract,
+  _mapping: string,
   config: MongodbModelAuthProviderConfig<ModelConstructor<unknown>>,
 ) {
-  return new MongodbModelAuthUserProvider(application, config);
+  return new MongodbModelAuthUserProvider(auth, config);
 }
