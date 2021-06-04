@@ -349,7 +349,7 @@ export class Model {
   }
 
   public merge<
-    T extends Partial<Omit<this, '_id' | 'id' | ModelReadonlyFields>>
+    T extends Partial<Omit<this, '_id' | 'id' | ModelReadonlyFields>>,
   >(
     values: NoExtraProperties<
       Partial<Omit<this, '_id' | 'id' | ModelReadonlyFields>>,
@@ -363,7 +363,7 @@ export class Model {
   }
 
   public fill<
-    T extends Partial<Omit<this, '_id' | 'id' | ModelReadonlyFields>>
+    T extends Partial<Omit<this, '_id' | 'id' | ModelReadonlyFields>>,
   >(
     values: NoExtraProperties<
       Partial<Omit<this, '_id' | 'id' | ModelReadonlyFields>>,

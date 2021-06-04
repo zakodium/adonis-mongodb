@@ -14,7 +14,8 @@ import {
 } from '@ioc:Mongodb/Model';
 
 class MongodbModelAuthProviderUser
-  implements ProviderUserContract<Model<unknown>> {
+  implements ProviderUserContract<Model<unknown>>
+{
   public constructor(
     // `this.user` can be any Model, so we use `any` to avoid indexing issues later.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -55,7 +56,8 @@ class MongodbModelAuthProviderUser
 }
 
 class MongodbModelAuthUserProvider
-  implements UserProviderContract<Model<unknown>> {
+  implements UserProviderContract<Model<unknown>>
+{
   private uids = ['email'];
   private identifierKey = '_id';
   private identifierKeyType: 'objectid' | 'string' | 'number' = 'objectid';

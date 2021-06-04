@@ -2,11 +2,12 @@ name: Node.js CI
 
 on:
   push:
-    branches: master
+    branches:
+      - main
   pull_request:
 
 env:
-  NODE_VERSION: 14.x
+  NODE_VERSION: 16.x
 
 jobs:
   lint:
@@ -20,14 +21,14 @@ jobs:
         run: npm install
       - name: Run ESLint
         run: npm run eslint
-      - name: Check types
-        run: npm run check-types
+      - name: Run Prettier
+        run: npm run prettier
   test:
     timeout-minutes: 30
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [14.x, 15.x]
+        node-version: [14.x, 16.x]
       fail-fast: false
     steps:
       - uses: actions/checkout@v2

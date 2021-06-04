@@ -200,7 +200,7 @@ declare module '@ioc:Mongodb/Model' {
      * @returns - modified model instance.
      */
     public merge<
-      T extends Partial<Omit<this, '_id' | 'id' | ModelReadonlyFields>>
+      T extends Partial<Omit<this, '_id' | 'id' | ModelReadonlyFields>>,
     >(
       values: NoExtraProperties<
         Partial<Omit<this, '_id' | 'id' | ModelReadonlyFields>>,
@@ -214,7 +214,7 @@ declare module '@ioc:Mongodb/Model' {
      * @returns - modified model instance.
      */
     public fill<
-      T extends Partial<Omit<this, '_id' | 'id' | ModelReadonlyFields>>
+      T extends Partial<Omit<this, '_id' | 'id' | ModelReadonlyFields>>,
     >(
       values: NoExtraProperties<
         Partial<Omit<this, '_id' | 'id' | ModelReadonlyFields>>,
@@ -226,11 +226,11 @@ declare module '@ioc:Mongodb/Model' {
   class AutoIncrementModel extends Model<number> {}
 
   export interface MongodbModelAuthProviderContract<
-    User extends ModelConstructor<unknown>
+    User extends ModelConstructor<unknown>,
   > extends UserProviderContract<InstanceType<User>> {}
 
   export interface MongodbModelAuthProviderConfig<
-    User extends ModelConstructor<unknown>
+    User extends ModelConstructor<unknown>,
   > {
     driver: 'mongodb-model';
     /**

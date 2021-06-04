@@ -43,10 +43,12 @@
     "check-types": "tsc --noEmit",
     "eslint": "eslint . --cache",
     "eslint-fix": "npm run eslint -- --fix",
-    "prepublishOnly": "npm run tsc",
+    "prepack": "npm run tsc",
+    "prettier": "prettier --check .",
+    "prettier-write": "prettier --write .",
     "test-only": "jest",
     "test-coverage": "jest --coverage",
-    "test": "npm run test-only && npm run eslint && npm run check-types",
+    "test": "npm run test-only && npm run eslint && npm run prettier && npm run check-types",
     "tsc": "npm run clean && npm run tsc-cjs",
     "tsc-cjs": "tsc --project tsconfig.prod.json"
   },
@@ -62,35 +64,28 @@
     "preset": "ts-jest",
     "testEnvironment": "node"
   },
-  "prettier": {
-    "arrowParens": "always",
-    "semi": true,
-    "singleQuote": true,
-    "tabWidth": 2,
-    "trailingComma": "all"
-  },
   "devDependencies": {
-    "@adonisjs/auth": "^8.0.0",
-    "@adonisjs/core": "^5.1.0",
-    "@adonisjs/logger": "^4.0.1",
-    "@poppinss/cliui": "^2.2.1",
-    "@types/jest": "^26.0.21",
-    "@types/lodash": "^4.14.168",
+    "@adonisjs/auth": "^8.0.5",
+    "@adonisjs/core": "^5.1.8",
+    "@adonisjs/logger": "^4.0.3",
+    "@poppinss/cliui": "^2.2.4",
+    "@types/jest": "^26.0.23",
+    "@types/lodash": "^4.14.170",
     "@types/pluralize": "0.0.29",
-    "@zakodium/eslint-config": "^3.0.1",
-    "eslint": "^7.22.0",
-    "jest": "^26.6.3",
-    "prettier": "^2.2.1",
+    "@zakodium/eslint-config": "^3.0.2",
+    "eslint": "^7.27.0",
+    "jest": "^27.0.4",
+    "prettier": "^2.3.0",
     "rimraf": "^3.0.2",
-    "ts-jest": "^26.5.4",
-    "typescript": "^4.2.3"
+    "ts-jest": "^27.0.2",
+    "typescript": "^4.3.2"
   },
   "dependencies": {
-    "@poppinss/utils": "^3.0.5",
-    "@types/mongodb": "^3.6.10",
+    "@poppinss/utils": "^3.1.3",
+    "@types/mongodb": "^3.6.17",
     "cli-table3": "^0.6.0",
     "lodash": "^4.17.21",
-    "mongodb": "^3.6.5",
+    "mongodb": "^3.6.9",
     "pluralize": "^8.0.0"
   }
 }
