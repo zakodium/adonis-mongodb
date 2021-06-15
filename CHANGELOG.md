@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.8.0](https://www.github.com/zakodium/adonis-mongodb/compare/v0.7.0...v0.8.0) (2021-06-15)
+
+
+### Features
+
+* do not cancel successful migrations ([#65](https://www.github.com/zakodium/adonis-mongodb/issues/65)) ([0b4fb92](https://www.github.com/zakodium/adonis-mongodb/commit/0b4fb928798e19c831f86ee1d26d59d5473fac75))
+
 ## [0.7.0](https://www.github.com/zakodium/adonis-mongodb/compare/v0.6.0...v0.7.0) (2021-04-27)
 
 
