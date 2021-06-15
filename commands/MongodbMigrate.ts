@@ -65,7 +65,7 @@ export default class MongodbMigrate extends MigrationCommand {
     );
 
     // Keep migrations that are not yet registered
-    let executed = 0;
+    let successfullyExecuted = 0;
 
     // Get the next incremental batch value
     const value = await migrationColl
@@ -83,7 +83,9 @@ export default class MongodbMigrate extends MigrationCommand {
       newBatch = value[0].maxBatch + 1;
     }
 
+    let lastTransactionError = null;
     for (const { name, file } of unregisteredMigrations) {
+      // eslint-disable-next-line @typescript-eslint/no-loop-func
       await connection.transaction(async (session) => {
         try {
           const { Migration, description } = await this.importMigration(file);
@@ -105,30 +107,51 @@ export default class MongodbMigrate extends MigrationCommand {
             { session },
           );
         } catch (err) {
-          this.logger.error('Migration failed');
-          // TODO: See if there can be a way in Ace commands to print error stack traces
-          // eslint-disable-next-line no-console
-          console.error(err);
+          lastTransactionError = err;
           await session.abortTransaction();
-        } finally {
-          await migrationLockColl.updateOne(
-            {
-              _id: 'migration_lock',
-              running: true,
-            },
-            {
-              $set: { running: false },
-            },
-          );
         }
       });
-      executed++;
+
+      if (lastTransactionError) {
+        break;
+      }
+
+      successfullyExecuted++;
     }
 
-    if (executed > 0) {
-      this.logger.info(`Executed ${executed} migrations`);
-    } else {
+    await migrationLockColl.updateOne(
+      {
+        _id: 'migration_lock',
+        running: true,
+      },
+      {
+        $set: { running: false },
+      },
+    );
+
+    if (successfullyExecuted > 0) {
+      const remainingMigrations =
+        unregisteredMigrations.length - successfullyExecuted;
+      this.logger.info(
+        `Successfully executed ${successfullyExecuted} migrations${
+          lastTransactionError ? `, 1 migration failed` : ''
+        }${
+          remainingMigrations > 0
+            ? `, ${
+                remainingMigrations - (lastTransactionError ? 1 : 0)
+              } pending migrations remaining`
+            : ''
+        }`,
+      );
+    } else if (lastTransactionError === null) {
       this.logger.info('No pending migration');
+    }
+
+    if (lastTransactionError) {
+      this.logger.error('Migration failed');
+      // TODO: See if there can be a way in Ace commands to print error stack traces
+      // eslint-disable-next-line no-console
+      console.error(lastTransactionError);
     }
   }
 
