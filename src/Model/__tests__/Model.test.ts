@@ -77,6 +77,24 @@ test('find all', async () => {
 
   const users = await User.find({});
   expect(await users.count()).toBe(2);
+  const allUsers = await users.all();
+  expect(allUsers).toHaveLength(2);
+  expect(allUsers[0]).toBeInstanceOf(User);
+  expect(allUsers[0].username).toBe('root1');
+});
+
+test('find async iterator', async () => {
+  const users = await User.find({});
+  let count = 0;
+  for await (const user of users) {
+    count++;
+    expect(user).toBeInstanceOf(User);
+    expect(user.password).toBe('root');
+    user.password = 'newroot';
+    await user.save();
+    expect(user.password).toBe('newroot');
+  }
+  expect(count).toBe(2);
 });
 
 test('find by id should work', async () => {

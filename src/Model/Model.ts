@@ -96,10 +96,14 @@ class FindResult<T> {
 
   public async *[Symbol.asyncIterator](): AsyncIterableIterator<T> {
     for await (const value of this.$cursor) {
-      yield new this.$constructor(value, {
-        collection: this.$collection,
-        session: this.$options?.session,
-      });
+      yield new this.$constructor(
+        value,
+        {
+          collection: this.$collection,
+          session: this.$options?.session,
+        },
+        true,
+      );
     }
   }
 }
