@@ -3,7 +3,7 @@
   "version": "0.8.0",
   "description": "MongoDB provider for AdonisJs",
   "main": "./lib/providers/MongodbProvider.js",
-  "types": "./lib/src/types.d.ts",
+  "types": "./lib/adonis-typings/index.d.ts",
   "files": [
     "lib",
     "templates",
