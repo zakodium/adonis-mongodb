@@ -1,15 +1,23 @@
 declare module '@ioc:Zakodium/Mongodb/Database' {
   import { MongoClientOptions, Collection, Db, ClientSession } from 'mongodb';
 
-  export interface MongodbConnections {
-    [key: string]: MongodbConnectionConfig;
-  }
-
+  /**
+   * Shape of the configuration in the mongodb config file.
+   */
   export interface MongodbConfig {
-    default: string;
-    connections: MongodbConnections;
+    /**
+     * Primary connection name.
+     */
+    connection: string;
+    /**
+     * Connection configurations.
+     */
+    connections: Record<string, MongodbConnectionConfig>;
   }
 
+  /**
+   * Configuration of a MongoDB connection.
+   */
   export interface MongodbConnectionConfig {
     url: string;
     database: string;

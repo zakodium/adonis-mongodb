@@ -2,6 +2,8 @@ import { basename } from 'path';
 
 import { FakeLogger } from '@adonisjs/logger';
 
+import type { MongodbConfig } from '@ioc:Zakodium/Mongodb/Database';
+
 import { Connection } from '../src/Connection';
 import { Mongodb } from '../src/Mongodb';
 
@@ -24,8 +26,8 @@ export function getConnection(logger = getLogger()) {
 }
 
 export function getMongodb(logger = getLogger()) {
-  const mongoConfig = {
-    default: 'mongo',
+  const mongoConfig: MongodbConfig = {
+    connection: 'mongo',
     connections: {
       mongo: {
         url: 'mongodb://127.0.0.1:33333',
