@@ -1,5 +1,5 @@
-import { MongodbConfig } from '@ioc:Mongodb/Database';
 import Env from '@ioc:Adonis/Core/Env';
+import { MongodbConfig } from '@ioc:Zakodium/Mongodb/Database';
 
 const config: MongodbConfig = {
   default: Env.get('MONGODB_CONNECTION'),

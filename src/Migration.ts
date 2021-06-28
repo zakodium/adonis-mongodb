@@ -1,7 +1,7 @@
 import { Logger } from '@poppinss/cliui/build/src/Logger';
 import { IndexOptions, ClientSession, Db } from 'mongodb';
 
-import { ConnectionContract } from '@ioc:Mongodb/Database';
+import type { ConnectionContract } from '@ioc:Zakodium/Mongodb/Database';
 
 import { Mongodb } from './Mongodb';
 
