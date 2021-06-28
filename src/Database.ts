@@ -1,5 +1,6 @@
 import { LoggerContract } from '@ioc:Adonis/Core/Logger';
 import type {
+  ConnectionContract,
   ConnectionManagerContract,
   DatabaseContract,
   MongodbConfig,
@@ -38,5 +39,11 @@ export class Database implements DatabaseContract {
     for (const [connectionName, connectionConfig] of Object.entries(config)) {
       this.manager.add(connectionName, connectionConfig);
     }
+  }
+
+  public connection(
+    connectionName = this.primaryConnectionName,
+  ): ConnectionContract {
+    return this.manager.get(connectionName).connection;
   }
 }

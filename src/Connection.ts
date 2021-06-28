@@ -101,10 +101,10 @@ export class Connection extends EventEmitter implements ConnectionContract {
     }
     this.connectPromise = null;
     this.status = ConnectionStatus.DISCONNECTED;
-    this.emit('disconnect:start');
+    this.emit('disconnect:start', this);
     try {
       await this.client.close();
-      this.emit('disconnect');
+      this.emit('disconnect', this);
     } catch (error) {
       this.emit('disconnect:error', error, this);
       throw error;

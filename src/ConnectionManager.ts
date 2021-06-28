@@ -102,7 +102,7 @@ export class ConnectionManager implements ConnectionManagerContract {
   }
 
   public async closeAll(): Promise<void> {
-    await Promise.allSettled(
+    await Promise.all(
       [...this.connections.values()].map((connection) =>
         connection.connection.disconnect(),
       ),

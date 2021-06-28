@@ -47,7 +47,7 @@ const db = getMongodb();
 Model.$setDatabase(db);
 
 afterAll(async () => {
-  await (await db.manager.get('mongo').connection.database()).dropDatabase();
+  await (await db.connection('mongo').database()).dropDatabase();
   await db.manager.closeAll();
 });
 
@@ -173,7 +173,7 @@ test('AutoIncrementModel id increments', async () => {
 
 test('passing session should run requests within the same session', async () => {
   const username = nextUsername();
-  await db.manager.get('mongo').connection.transaction(async (session) => {
+  await db.connection('mongo').transaction(async (session) => {
     const user = await User.create(
       {
         username: username,

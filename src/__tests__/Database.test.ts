@@ -12,6 +12,25 @@ test('primaryConnectionName', () => {
   expect(db.primaryConnectionName).toBe('mongo');
 });
 
+describe('connection', () => {
+  it('should throw if connection does not exist', () => {
+    expect(() => db.connection('idontexist')).toThrow(
+      'E_NO_MONGODB_CONNECTION',
+    );
+  });
+
+  it('should return the requested connection', () => {
+    const connection = db.connection('other');
+    expect(connection.name).toBe('other');
+  });
+
+  it('should return the default connection', () => {
+    const connection = db.connection();
+    expect(connection.name).toBe('mongo');
+    expect(connection).toBe(db.connection('mongo'));
+  });
+});
+
 describe('Database constructor errors', () => {
   it.each([undefined, null, 42, {}])(
     'error if connection is not a string (%s)',

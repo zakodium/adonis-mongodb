@@ -34,6 +34,8 @@ declare module '@ioc:Zakodium/Mongodb/Database' {
   }
 
   export interface DatabaseContract {
+    connection(connectionName?: string): ConnectionContract;
+
     /**
      * Name of the primary connection defined inside `config/mongodb.ts`.
      */

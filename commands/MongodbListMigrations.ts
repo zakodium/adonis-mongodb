@@ -16,7 +16,7 @@ export default class MongodbListMigrations extends MigrationCommand {
   public async run(db: Database): Promise<void> {
     try {
       const connection = this.getConnection(db);
-      const database = await connection.connection.database();
+      const database = await connection.database();
       const coll = database.collection('__adonis_mongodb');
       const migrations = await this.getMigrations(connection.config);
 
