@@ -46,9 +46,8 @@
     "prepack": "npm run tsc",
     "prettier": "prettier --check .",
     "prettier-write": "prettier --write .",
-    "test-only": "jest",
-    "test-coverage": "jest --coverage",
     "test": "npm run test-only && npm run eslint && npm run prettier && npm run check-types",
+    "test-only": "jest --coverage",
     "tsc": "npm run clean && npm run tsc-cjs",
     "tsc-cjs": "tsc --project tsconfig.prod.json"
   },
@@ -60,10 +59,6 @@
     "url": "https://github.com/zakodium/adonis-mongodb/issues"
   },
   "homepage": "https://github.com/zakodium/adonis-mongodb#readme",
-  "jest": {
-    "preset": "ts-jest",
-    "testEnvironment": "node"
-  },
   "devDependencies": {
     "@adonisjs/auth": "^8.0.6",
     "@adonisjs/core": "^5.1.8",
