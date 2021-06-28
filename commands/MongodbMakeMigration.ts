@@ -7,7 +7,7 @@ import {
   flags,
 } from '@adonisjs/core/build/standalone';
 
-import type { MongodbContract } from '@ioc:Zakodium/Mongodb/Database';
+import type { DatabaseContract } from '@ioc:Zakodium/Mongodb/Database';
 
 export default class MongodbMakeMigration extends BaseCommand {
   public static commandName = 'mongodb:make:migration';
@@ -22,8 +22,8 @@ export default class MongodbMakeMigration extends BaseCommand {
   @flags.string({ description: 'Database connection to use for the migration' })
   public connection: string;
 
-  @inject(['Mongodb/Database'])
-  public async run(db: MongodbContract): Promise<void> {
+  @inject(['Zakodium/Mongodb/Database'])
+  public async run(db: DatabaseContract): Promise<void> {
     const { name } = this;
     if (name.includes('/')) {
       this.logger.error('name argument should not contain any slash');

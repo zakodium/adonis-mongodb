@@ -1,7 +1,7 @@
 import { inject } from '@adonisjs/core/build/standalone';
 import { ObjectId } from 'mongodb';
 
-import { Mongodb } from '../src/Mongodb';
+import { Database } from '../src/Database';
 
 import MigrationCommand, {
   migrationCollectionName,
@@ -22,7 +22,7 @@ export default class MongodbMigrate extends MigrationCommand {
     loadApp: true,
   };
 
-  private async _executeMigration(db: Mongodb): Promise<void> {
+  private async _executeMigration(db: Database): Promise<void> {
     const migrations = await this.getMigrations(db.connection().config);
 
     const connectionName = this.connection || undefined;
@@ -155,8 +155,8 @@ export default class MongodbMigrate extends MigrationCommand {
     }
   }
 
-  @inject(['Mongodb/Database'])
-  public async run(db: Mongodb): Promise<void> {
+  @inject(['Zakodium/Mongodb/Database'])
+  public async run(db: Database): Promise<void> {
     if (this.connection && !db.hasConnection(this.connection)) {
       this.logger.error(
         `No MongoDB connection registered with name "${this.connection}"`,

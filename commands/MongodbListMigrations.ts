@@ -1,7 +1,7 @@
 import { inject } from '@adonisjs/core/build/standalone';
 import CliTable from 'cli-table3';
 
-import { Mongodb } from '../src/Mongodb';
+import { Database } from '../src/Database';
 
 import MigrationCommand from './util/MigrationCommand';
 
@@ -12,8 +12,8 @@ export default class MongodbListMigrations extends MigrationCommand {
     loadApp: true,
   };
 
-  @inject(['Mongodb/Database'])
-  public async run(db: Mongodb): Promise<void> {
+  @inject(['Zakodium/Mongodb/Database'])
+  public async run(db: Database): Promise<void> {
     if (this.connection && !db.hasConnection(this.connection)) {
       this.logger.error(
         `No MongoDB connection registered with name "${this.connection}"`,

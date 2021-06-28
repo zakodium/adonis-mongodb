@@ -5,7 +5,7 @@ import { FakeLogger } from '@adonisjs/logger';
 import type { MongodbConfig } from '@ioc:Zakodium/Mongodb/Database';
 
 import { Connection } from '../src/Connection';
-import { Mongodb } from '../src/Mongodb';
+import { Database } from '../src/Database';
 
 export function getLogger() {
   const loggerConfig = {
@@ -39,5 +39,5 @@ export function getMongodb(logger = getLogger()) {
     },
   };
 
-  return new Mongodb(mongoConfig, logger);
+  return new Database(mongoConfig, logger);
 }

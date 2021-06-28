@@ -3,7 +3,7 @@ import { IndexOptions, ClientSession, Db } from 'mongodb';
 
 import type { ConnectionContract } from '@ioc:Zakodium/Mongodb/Database';
 
-import { Mongodb } from './Mongodb';
+import { Database } from './Database';
 
 enum MigrationType {
   CreateCollection = 'CreateCollection',
@@ -34,7 +34,7 @@ type MigrationOperation =
   | CustomOperation;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export default function createMigration(Database: Mongodb): any {
+export default function createMigration(Database: Database): any {
   abstract class Migration {
     private $operations: MigrationOperation[] = [];
     private $connection: ConnectionContract;

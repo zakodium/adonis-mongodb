@@ -2,7 +2,7 @@ declare module '@ioc:Zakodium/Mongodb/Database' {
   import { MongoClientOptions, Collection, Db, ClientSession } from 'mongodb';
 
   /**
-   * Shape of the configuration in the mongodb config file.
+   * Shape of the configuration in `config/mongodb.ts`.
    */
   export interface MongodbConfig {
     /**
@@ -25,7 +25,12 @@ declare module '@ioc:Zakodium/Mongodb/Database' {
     migrations?: string[];
   }
 
-  export interface MongodbContract {
+  export interface DatabaseContract {
+    /**
+     * Name of the primary connection defined inside `config/mongodb.ts`.
+     */
+    primaryConnectionName: string;
+
     hasConnection(connectionName: string): boolean;
     connection(connectionName?: string): ConnectionContract;
     closeConnections(): Promise<void>;
@@ -43,6 +48,6 @@ declare module '@ioc:Zakodium/Mongodb/Database' {
     ): Promise<TResult>;
   }
 
-  const mongodb: MongodbContract;
-  export default mongodb;
+  const Database: DatabaseContract;
+  export default Database;
 }

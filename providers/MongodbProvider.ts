@@ -3,35 +3,37 @@ import { ObjectId } from 'mongodb';
 import { ApplicationContract } from '@ioc:Adonis/Core/Application';
 
 import { getMongodbModelAuthProvider } from '../src/Auth/MongodbModelAuthProvider';
+import { Database } from '../src/Database';
 import createMigration from '../src/Migration';
 import { Model, AutoIncrementModel } from '../src/Model/Model';
-import { Mongodb } from '../src/Mongodb';
 
 export default class MongodbProvider {
   public constructor(protected app: ApplicationContract) {}
 
   private registerDatabase(): void {
-    this.app.container.singleton('Mongodb/Database', () => {
+    this.app.container.singleton('Zakodium/Mongodb/Database', () => {
       const { config, logger } = this.app;
-      return new Mongodb(config.get('mongodb', {}), logger);
+      return new Database(config.get('mongodb', {}), logger);
     });
   }
 
   public register(): void {
     this.registerDatabase();
-    this.app.container.singleton('Mongodb/Model', () => {
-      Model.$setDatabase(this.app.container.use('Mongodb/Database'));
+    this.app.container.singleton('Zakodium/Mongodb/Model', () => {
+      Model.$setDatabase(this.app.container.use('Zakodium/Mongodb/Database'));
       AutoIncrementModel.$setDatabase(
-        this.app.container.use('Mongodb/Database'),
+        this.app.container.use('Zakodium/Mongodb/Database'),
       );
 
       return { Model, AutoIncrementModel };
     });
 
-    this.app.container.singleton('Mongodb/Migration', () => {
-      return createMigration(this.app.container.use('Mongodb/Database'));
+    this.app.container.singleton('Zakodium/Mongodb/Migration', () => {
+      return createMigration(
+        this.app.container.use('Zakodium/Mongodb/Database'),
+      );
     });
-    this.app.container.bind('Mongodb/ObjectId', () => ObjectId);
+    this.app.container.bind('Zakodium/Mongodb/ObjectId', () => ObjectId);
   }
 
   public boot(): void {
@@ -42,7 +44,7 @@ export default class MongodbProvider {
   }
 
   public async shutdown(): Promise<void> {
-    const Database = this.app.container.use('Mongodb/Database');
+    const Database = this.app.container.use('Zakodium/Mongodb/Database');
     return Database.closeConnections();
   }
 
