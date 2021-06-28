@@ -6,7 +6,7 @@ import { Logger } from '@poppinss/cliui/build/src/Logger';
 import { ClientSession } from 'mongodb';
 
 import type {
-  ConnectionNode,
+  ConnectionContract,
   MongodbConnectionConfig,
 } from '@ioc:Zakodium/Mongodb/Database';
 import type BaseMigration from '@ioc:Zakodium/Mongodb/Migration';
@@ -42,14 +42,14 @@ export default abstract class MigrationCommand extends BaseCommand {
   @flags.string({ description: 'Database connection to use for the migration' })
   public connection: string;
 
-  protected getConnection(db: Database): ConnectionNode {
+  protected getConnection(db: Database): ConnectionContract {
     if (this.connection && !db.manager.has(this.connection)) {
       this.logger.error(
         `No MongoDB connection registered with name "${this.connection}"`,
       );
       process.exit(1);
     }
-    return db.manager.get(this.connection || db.primaryConnectionName);
+    return db.connection(this.connection);
   }
 
   protected async getMigrations(

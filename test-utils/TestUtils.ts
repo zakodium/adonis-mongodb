@@ -26,15 +26,20 @@ export function getConnection(logger = getLogger()) {
 }
 
 export function getMongodb(logger = getLogger()) {
+  const database = `test-runner-${basename(
+    expect.getState().testPath,
+    '.test.ts',
+  )}`;
   const mongoConfig: MongodbConfig = {
     connection: 'mongo',
     connections: {
       mongo: {
         url: 'mongodb://127.0.0.1:33333',
-        database: `test-runner-${basename(
-          expect.getState().testPath,
-          '.test.ts',
-        )}`,
+        database,
+      },
+      other: {
+        url: 'mongodb://127.0.0.1:33333',
+        database,
       },
     },
   };

@@ -26,11 +26,11 @@ export default class MongodbMigrate extends MigrationCommand {
     const connection = this.getConnection(db);
     const migrations = await this.getMigrations(connection.config);
 
-    const migrationLockColl = await connection.connection.collection(
+    const migrationLockColl = await connection.collection(
       migrationLockCollectionName,
     );
 
-    const migrationColl = await connection.connection.collection<IMigration>(
+    const migrationColl = await connection.collection<IMigration>(
       migrationCollectionName,
     );
 
@@ -83,7 +83,7 @@ export default class MongodbMigrate extends MigrationCommand {
     let lastTransactionError = null;
     for (const { name, file } of unregisteredMigrations) {
       // eslint-disable-next-line @typescript-eslint/no-loop-func
-      await connection.connection.transaction(async (session) => {
+      await connection.transaction(async (session) => {
         try {
           const { Migration, description } = await this.importMigration(file);
 
