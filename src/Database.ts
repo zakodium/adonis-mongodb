@@ -1,16 +1,14 @@
-import { Exception } from '@poppinss/utils';
-
 import { LoggerContract } from '@ioc:Adonis/Core/Logger';
 import type {
+  ConnectionManagerContract,
   DatabaseContract,
   MongodbConfig,
 } from '@ioc:Zakodium/Mongodb/Database';
 
-import { Connection } from './Connection';
+import { ConnectionManager } from './ConnectionManager';
 
 export class Database implements DatabaseContract {
-  private connections: Map<string, Connection>;
-
+  public readonly manager: ConnectionManagerContract;
   public readonly primaryConnectionName: string;
 
   public constructor(
@@ -31,44 +29,14 @@ export class Database implements DatabaseContract {
       );
     }
 
-    this.connections = new Map();
-    this._registerConnections();
+    this.manager = new ConnectionManager(this.logger);
+    this.registerConnections();
   }
 
-  private _registerConnections(): void {
+  private registerConnections(): void {
     const config = this.config.connections;
     for (const [connectionName, connectionConfig] of Object.entries(config)) {
-      this.connections.set(
-        connectionName,
-        new Connection(connectionName, connectionConfig, this.logger),
-      );
+      this.manager.add(connectionName, connectionConfig);
     }
-  }
-
-  public hasConnection(connectionName: string): boolean {
-    return this.connections.has(connectionName);
-  }
-
-  public connection(
-    connectionName: string = this.primaryConnectionName,
-  ): Connection {
-    if (!this.hasConnection(connectionName)) {
-      throw new Exception(
-        `no MongoDB connection registered with name "${connectionName}"`,
-        500,
-        'E_NO_MONGODB_CONNECTION',
-      );
-    }
-
-    const connection = this.connections.get(connectionName) as Connection;
-    return connection;
-  }
-
-  public async closeConnections(): Promise<void> {
-    await Promise.all(
-      [...this.connections.values()].map(async (connection) =>
-        connection.close(),
-      ),
-    );
   }
 }

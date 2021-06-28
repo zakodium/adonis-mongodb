@@ -1,3 +1,5 @@
+import { EventEmitter } from 'events';
+
 import { Exception } from '@poppinss/utils';
 import { MongoClient, Db, Collection, ClientSession } from 'mongodb';
 
@@ -12,67 +14,101 @@ enum ConnectionStatus {
   DISCONNECTED = 'DISCONNECTED',
 }
 
-export class Connection implements ConnectionContract {
-  private $name: string;
-  private $logger: LoggerContract;
-  private $status: ConnectionStatus;
-  private $client: MongoClient;
-  private $connectPromise: Promise<Db> | null;
+export declare interface Connection {
+  on(
+    event: 'connect',
+    callback: (connection: ConnectionContract) => void,
+  ): this;
+  on(
+    event: 'error',
+    callback: (error: Error, connection: ConnectionContract) => void,
+  ): this;
+  on(
+    event: 'disconnect',
+    callback: (connection: ConnectionContract) => void,
+  ): this;
+  on(
+    event: 'disconnect:start',
+    callback: (connection: ConnectionContract) => void,
+  ): this;
+  on(
+    event: 'disconnect:error',
+    callback: (error: Error, connection: ConnectionContract) => void,
+  ): this;
+}
 
-  public config: MongodbConnectionConfig;
+export class Connection extends EventEmitter implements ConnectionContract {
+  public readonly client: MongoClient;
+  public readonly name: string;
+  public ready: boolean;
+  public readonly config: MongodbConnectionConfig;
+
+  private logger: LoggerContract;
+  private status: ConnectionStatus;
+  private connectPromise: Promise<Db> | null;
 
   public constructor(
     name: string,
     config: MongodbConnectionConfig,
     logger: LoggerContract,
   ) {
-    this.$name = name;
+    super();
+
+    this.name = name;
     this.config = config;
-    this.$logger = logger;
-    this.$status = ConnectionStatus.DISCONNECTED;
-    this.$client = new MongoClient(this.config.url, {
+    this.logger = logger;
+    this.status = ConnectionStatus.DISCONNECTED;
+    this.client = new MongoClient(this.config.url, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
       ...this.config.clientOptions,
     });
-    this.$connectPromise = null;
+    this.connectPromise = null;
   }
 
   private async _ensureDb(): Promise<Db> {
     this.connect();
-    if (!this.$connectPromise) {
+    if (!this.connectPromise) {
       throw new Exception(
         `unexpected MongoDB connection error`,
         500,
         'E_MONGODB_CONNECTION',
       );
     }
-    return this.$connectPromise;
+    return this.connectPromise;
   }
 
   public connect(): void {
-    if (this.$status === ConnectionStatus.CONNECTED) {
+    if (this.status === ConnectionStatus.CONNECTED) {
       return;
     }
-    this.$status = ConnectionStatus.CONNECTED;
-    this.$connectPromise = this.$client
+    this.status = ConnectionStatus.CONNECTED;
+    this.connectPromise = this.client
       .connect()
       .then((client) => client.db(this.config.database));
-    this.$connectPromise.catch((error) => {
-      this.$logger.fatal(
-        `could not connect to database "${this.$name}"`,
-        error,
-      );
+    this.connectPromise.catch((error) => {
+      this.connectPromise = null;
+      this.status = ConnectionStatus.DISCONNECTED;
+      this.logger.fatal(`could not connect to database "${this.name}"`, error);
+      this.emit('error', error, this);
     });
+    this.emit('connect', this);
   }
 
-  public async close(): Promise<void> {
-    if (this.$status === ConnectionStatus.DISCONNECTED) {
+  public async disconnect(): Promise<void> {
+    if (this.status === ConnectionStatus.DISCONNECTED) {
       return;
     }
-    this.$connectPromise = null;
-    this.$status = ConnectionStatus.DISCONNECTED;
-    return this.$client.close();
+    this.connectPromise = null;
+    this.status = ConnectionStatus.DISCONNECTED;
+    this.emit('disconnect:start');
+    try {
+      await this.client.close();
+      this.emit('disconnect');
+    } catch (error) {
+      this.emit('disconnect:error', error, this);
+      throw error;
+    }
   }
 
   public async database(): Promise<Db> {
@@ -91,13 +127,12 @@ export class Connection implements ConnectionContract {
   ): Promise<TResult> {
     const db = await this._ensureDb();
     let result: TResult;
-    await this.$client.withSession(async (session) => {
+    await this.client.withSession(async (session) => {
       return session.withTransaction(async (session) => {
         result = await handler(session, db);
       });
     });
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
+    // @ts-expect-error The `await` ensures `result` has a value.
     return result;
   }
 }

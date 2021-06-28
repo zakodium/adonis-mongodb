@@ -8,7 +8,7 @@ const logger = getLogger();
 const connection = getConnection(logger);
 
 afterAll(async () => {
-  await connection.close();
+  await connection.disconnect();
 });
 
 test('try to connect with good config', async () => {

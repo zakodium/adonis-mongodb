@@ -14,17 +14,11 @@ export default class MongodbListMigrations extends MigrationCommand {
 
   @inject(['Zakodium/Mongodb/Database'])
   public async run(db: Database): Promise<void> {
-    if (this.connection && !db.hasConnection(this.connection)) {
-      this.logger.error(
-        `No MongoDB connection registered with name "${this.connection}"`,
-      );
-      process.exitCode = 1;
-      return;
-    }
     try {
-      const database = await db.connection().database();
+      const connection = this.getConnection(db);
+      const database = await connection.connection.database();
       const coll = database.collection('__adonis_mongodb');
-      const migrations = await this.getMigrations(db.connection().config);
+      const migrations = await this.getMigrations(connection.config);
 
       const migrationDocuments = await coll.find({}).toArray();
 
@@ -56,7 +50,7 @@ export default class MongodbListMigrations extends MigrationCommand {
       // eslint-disable-next-line no-console
       console.log(table.toString());
     } finally {
-      await db.closeConnections();
+      await db.manager.closeAll();
     }
   }
 }

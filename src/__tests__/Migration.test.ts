@@ -22,16 +22,18 @@ class TestMigration extends BaseMigration {
 }
 
 afterAll(async () => {
-  await (await db.connection('mongo').database()).dropDatabase();
-  await db.closeConnections();
+  await (await db.manager.get('mongo').connection.database()).dropDatabase();
+  await db.manager.closeAll();
 });
 
 test('runs a migration correctly edit database', async () => {
-  await db.connection('mongo').transaction(async (session) => {
+  await db.manager.get('mongo').connection.transaction(async (session) => {
     const migration = new TestMigration('mongo', logger, session);
     await migration.execUp();
   });
-  const collections = await (await db.connection('mongo').database())
+  const collections = await (
+    await db.manager.get('mongo').connection.database()
+  )
     .listCollections()
     .toArray();
   expect(collections).toHaveLength(1);

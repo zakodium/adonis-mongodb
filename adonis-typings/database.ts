@@ -1,5 +1,13 @@
 declare module '@ioc:Zakodium/Mongodb/Database' {
-  import { MongoClientOptions, Collection, Db, ClientSession } from 'mongodb';
+  import { EventEmitter } from 'events';
+
+  import {
+    MongoClientOptions,
+    Collection,
+    Db,
+    ClientSession,
+    MongoClient,
+  } from 'mongodb';
 
   /**
    * Shape of the configuration in `config/mongodb.ts`.
@@ -31,14 +39,116 @@ declare module '@ioc:Zakodium/Mongodb/Database' {
      */
     primaryConnectionName: string;
 
-    hasConnection(connectionName: string): boolean;
-    connection(connectionName?: string): ConnectionContract;
-    closeConnections(): Promise<void>;
+    /**
+     * Connection manager.
+     */
+    manager: ConnectionManagerContract;
   }
 
-  export interface ConnectionContract {
+  /**
+   * Connection manager to manage database connections.
+   */
+  export interface ConnectionManagerContract {
+    /**
+     * List of registered connections.
+     */
+    connections: Map<string, ConnectionNode>;
+
+    /**
+     * Add a new connection.
+     */
+    add(connectionName: string, config: MongodbConnectionConfig): void;
+
+    /**
+     * Initiate a connection. It is a noop if the connection is already initiated.
+     */
+    connect(connectionName: string): void;
+
+    /**
+     * Get a connection.
+     */
+    get(connectionName: string): ConnectionNode;
+
+    /**
+     * Returns whether the connection is managed by the manager.
+     */
+    has(connectionName: string): boolean;
+
+    /**
+     * Returns whether the connection is connected.
+     */
+    isConnected(connectionName: string): boolean;
+
+    /**
+     * Close a connection.
+     */
+    close(connectionName: string): Promise<void>;
+
+    /**
+     * Close all managed connections.
+     */
+    closeAll(): Promise<void>;
+  }
+
+  export interface ConnectionNode {
+    name: string;
+    config: MongodbConnectionConfig;
+    connection: ConnectionContract;
+    state: 'registered' | 'open' | 'closing' | 'closed';
+  }
+
+  export interface ConnectionContract extends EventEmitter {
+    /**
+     * Instance of the MongoDB client.
+     */
+    readonly client: MongoClient;
+
+    /**
+     * Name of the connection.
+     */
+    readonly name: string;
+
+    /**
+     * Whether the connection is ready.
+     */
+    readonly ready: boolean;
+
+    /**
+     * Config of the connection.
+     */
+    readonly config: MongodbConnectionConfig;
+
+    /**
+     * Initiate the connection.
+     */
     connect(): void;
-    close(): Promise<void>;
+
+    /**
+     * Close the connection.
+     */
+    disconnect(): Promise<void>;
+
+    on(
+      event: 'connect',
+      callback: (connection: ConnectionContract) => void,
+    ): this;
+    on(
+      event: 'error',
+      callback: (error: Error, connection: ConnectionContract) => void,
+    ): this;
+    on(
+      event: 'disconnect',
+      callback: (connection: ConnectionContract) => void,
+    ): this;
+    on(
+      event: 'disconnect:start',
+      callback: (connection: ConnectionContract) => void,
+    ): this;
+    on(
+      event: 'disconnect:error',
+      callback: (error: Error, connection: ConnectionContract) => void,
+    ): this;
+
     database(): Promise<Db>;
     collection<TSchema = any>(
       collectionName: string,

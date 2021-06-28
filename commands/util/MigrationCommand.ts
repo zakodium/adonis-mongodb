@@ -5,8 +5,13 @@ import { BaseCommand, flags } from '@adonisjs/core/build/standalone';
 import { Logger } from '@poppinss/cliui/build/src/Logger';
 import { ClientSession } from 'mongodb';
 
-import type { MongodbConnectionConfig } from '@ioc:Zakodium/Mongodb/Database';
+import type {
+  ConnectionNode,
+  MongodbConnectionConfig,
+} from '@ioc:Zakodium/Mongodb/Database';
 import type BaseMigration from '@ioc:Zakodium/Mongodb/Migration';
+
+import { Database } from '../../src/Database';
 
 import transformMigrations, {
   MigrationDescription,
@@ -36,6 +41,16 @@ export default abstract class MigrationCommand extends BaseCommand {
 
   @flags.string({ description: 'Database connection to use for the migration' })
   public connection: string;
+
+  protected getConnection(db: Database): ConnectionNode {
+    if (this.connection && !db.manager.has(this.connection)) {
+      this.logger.error(
+        `No MongoDB connection registered with name "${this.connection}"`,
+      );
+      process.exit(1);
+    }
+    return db.manager.get(this.connection || db.primaryConnectionName);
+  }
 
   protected async getMigrations(
     config: MongodbConnectionConfig,

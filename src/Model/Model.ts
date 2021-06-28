@@ -169,7 +169,9 @@ export class Model {
       throw new Error('Model should only be accessed from IoC container');
     }
     const collectionName = this._computeCollectionName();
-    const connection = this.$database.connection();
+    const { connection } = this.$database.manager.get(
+      this.$database.primaryConnectionName,
+    );
     return connection.collection(collectionName);
   }
 
@@ -274,7 +276,9 @@ export class Model {
     }
     if (this.$collection !== null) return this.$collection;
 
-    const connection = Model.$database.connection();
+    const { connection } = Model.$database.manager.get(
+      Model.$database.primaryConnectionName,
+    );
     this.$collection = await connection.collection(
       (this.constructor as typeof Model)._computeCollectionName(),
     );
@@ -396,7 +400,9 @@ export class AutoIncrementModel extends Model {
     if (toSet === null) return false;
 
     if (this.id === undefined) {
-      const connection = AutoIncrementModel.$database.connection();
+      const { connection } = AutoIncrementModel.$database.manager.get(
+        AutoIncrementModel.$database.primaryConnectionName,
+      );
       const counterCollection = await connection.collection<{ count: number }>(
         '__adonis_mongodb_counters',
       );
