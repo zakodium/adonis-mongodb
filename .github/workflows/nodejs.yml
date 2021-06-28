@@ -23,6 +23,8 @@ jobs:
         run: npm run eslint
       - name: Run Prettier
         run: npm run prettier
+      - name: Check types
+        run: npm run check-types
   test:
     timeout-minutes: 30
     runs-on: ubuntu-latest
@@ -43,7 +45,7 @@ jobs:
       - name: Initialize MongoDB
         run: node reset-dev
       - name: Run tests
-        run: npm run test-coverage
+        run: npm run test-only
       - name: Send coverage report to Codecov
         uses: codecov/codecov-action@v1
       - name: Teardown docker
