@@ -1,5 +1,12 @@
 # Changelog
 
+### [0.8.1](https://www.github.com/zakodium/adonis-mongodb/compare/v0.8.0...v0.8.1) (2021-06-28)
+
+
+### Bug Fixes
+
+* treat model instances created from iterator as already saved ([#67](https://www.github.com/zakodium/adonis-mongodb/issues/67)) ([57474a9](https://www.github.com/zakodium/adonis-mongodb/commit/57474a96cd552a1a0c561361790ca0b20a06c136))
+
 ## [0.8.0](https://www.github.com/zakodium/adonis-mongodb/compare/v0.7.0...v0.8.0) (2021-06-15)
 
 
