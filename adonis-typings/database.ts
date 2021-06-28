@@ -1,4 +1,4 @@
-declare module '@ioc:Mongodb/Database' {
+declare module '@ioc:Zakodium/Mongodb/Database' {
   import { MongoClientOptions, Collection, Db, ClientSession } from 'mongodb';
 
   export interface MongodbConnections {

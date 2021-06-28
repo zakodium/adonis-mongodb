@@ -7,11 +7,11 @@ import {
   UserProviderContract,
 } from '@ioc:Adonis/Addons/Auth';
 import { HashContract } from '@ioc:Adonis/Core/Hash';
-import {
+import type {
   Model,
   ModelConstructor,
   MongodbModelAuthProviderConfig,
-} from '@ioc:Mongodb/Model';
+} from '@ioc:Zakodium/Mongodb/Model';
 
 class MongodbModelAuthProviderUser
   implements ProviderUserContract<Model<unknown>>

@@ -7,7 +7,7 @@ import {
   flags,
 } from '@adonisjs/core/build/standalone';
 
-import { MongodbContract } from '@ioc:Mongodb/Database';
+import type { MongodbContract } from '@ioc:Zakodium/Mongodb/Database';
 
 export default class MongodbMakeMigration extends BaseCommand {
   public static commandName = 'mongodb:make:migration';

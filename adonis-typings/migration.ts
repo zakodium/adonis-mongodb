@@ -1,4 +1,4 @@
-declare module '@ioc:Mongodb/Migration' {
+declare module '@ioc:Zakodium/Mongodb/Migration' {
   import { IndexOptions, Db, ClientSession } from 'mongodb';
 
   export default abstract class Migration {

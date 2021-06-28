@@ -5,8 +5,8 @@ import { BaseCommand, flags } from '@adonisjs/core/build/standalone';
 import { Logger } from '@poppinss/cliui/build/src/Logger';
 import { ClientSession } from 'mongodb';
 
-import { MongodbConnectionConfig } from '@ioc:Mongodb/Database';
-import BaseMigration from '@ioc:Mongodb/Migration';
+import type { MongodbConnectionConfig } from '@ioc:Zakodium/Mongodb/Database';
+import type BaseMigration from '@ioc:Zakodium/Mongodb/Migration';
 
 import transformMigrations, {
   MigrationDescription,

@@ -1,7 +1,10 @@
 import { Exception } from '@poppinss/utils';
 
 import { LoggerContract } from '@ioc:Adonis/Core/Logger';
-import { MongodbContract, MongodbConfig } from '@ioc:Mongodb/Database';
+import type {
+  MongodbContract,
+  MongodbConfig,
+} from '@ioc:Zakodium/Mongodb/Database';
 
 import { Connection } from './Connection';
 

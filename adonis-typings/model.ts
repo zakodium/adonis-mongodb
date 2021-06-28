@@ -1,4 +1,4 @@
-declare module '@ioc:Mongodb/Model' {
+declare module '@ioc:Zakodium/Mongodb/Model' {
   import {
     Collection,
     ObjectId,

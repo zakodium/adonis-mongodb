@@ -2,10 +2,10 @@ import { Exception } from '@poppinss/utils';
 import { MongoClient, Db, Collection, ClientSession } from 'mongodb';
 
 import { LoggerContract } from '@ioc:Adonis/Core/Logger';
-import {
+import type {
   MongodbConnectionConfig,
   ConnectionContract,
-} from '@ioc:Mongodb/Database';
+} from '@ioc:Zakodium/Mongodb/Database';
 
 enum ConnectionStatus {
   CONNECTED = 'CONNECTED',
