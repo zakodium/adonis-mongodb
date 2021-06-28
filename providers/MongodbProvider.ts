@@ -10,10 +10,15 @@ import { Mongodb } from '../src/Mongodb';
 export default class MongodbProvider {
   public constructor(protected app: ApplicationContract) {}
 
-  public register(): void {
+  private registerDatabase(): void {
     this.app.container.singleton('Mongodb/Database', () => {
-      return new Mongodb(this.app.config.get('mongodb', {}), this.app.logger);
+      const { config, logger } = this.app;
+      return new Mongodb(config.get('mongodb', {}), logger);
     });
+  }
+
+  public register(): void {
+    this.registerDatabase();
     this.app.container.singleton('Mongodb/Model', () => {
       Model.$setDatabase(this.app.container.use('Mongodb/Database'));
       AutoIncrementModel.$setDatabase(
