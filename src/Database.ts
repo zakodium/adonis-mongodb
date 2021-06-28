@@ -2,21 +2,35 @@ import { Exception } from '@poppinss/utils';
 
 import { LoggerContract } from '@ioc:Adonis/Core/Logger';
 import type {
-  MongodbContract,
+  DatabaseContract,
   MongodbConfig,
 } from '@ioc:Zakodium/Mongodb/Database';
 
 import { Connection } from './Connection';
 
-export class Mongodb implements MongodbContract {
+export class Database implements DatabaseContract {
   private connections: Map<string, Connection>;
-  private defaultConnectionName: string;
+
+  public readonly primaryConnectionName: string;
 
   public constructor(
     private config: MongodbConfig,
     private logger: LoggerContract,
   ) {
-    this.defaultConnectionName = config.connection;
+    if (typeof config.connection !== 'string') {
+      throw new TypeError('config.connection must be a string');
+    }
+    if (typeof config.connections !== 'object' || config.connections === null) {
+      throw new TypeError('config.connections must be an object');
+    }
+
+    this.primaryConnectionName = config.connection;
+    if (typeof config.connections[this.primaryConnectionName] !== 'object') {
+      throw new TypeError(
+        `config.connections must contain a key with the primary connection name (${this.primaryConnectionName})`,
+      );
+    }
+
     this.connections = new Map();
     this._registerConnections();
   }
@@ -36,7 +50,7 @@ export class Mongodb implements MongodbContract {
   }
 
   public connection(
-    connectionName: string = this.defaultConnectionName,
+    connectionName: string = this.primaryConnectionName,
   ): Connection {
     if (!this.hasConnection(connectionName)) {
       throw new Exception(
