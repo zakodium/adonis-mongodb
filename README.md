@@ -9,11 +9,28 @@ MongoDB provider for AdonisJS 5.
 | :warning: This module is unstable and in active development. Use at your own risk. |
 | ---------------------------------------------------------------------------------- |
 
+<h3 align="center">
+
+  <a href="https://www.zakodium.com">
+    <img src="https://www.zakodium.com/brand/zakodium-logo-white.svg" width="50" alt="Zakodium logo" />
+  </a>
+
+  <p>
+    Maintained by <a href="https://www.zakodium.com">Zakodium</a>
+  </p>
+
+[![NPM version][npm-image]][npm-url]
+[![build status][ci-image]][ci-url]
+[![Test coverage][codecov-image]][codecov-url]
+[![npm download][download-image]][download-url]
+
+</h3>
+
 ## Prerequisites
 
-This provider requires Adonis v5 preview and won't work with Adonis v4.
+This provider requires AdonisJS v5 and won't work with AdonisJS v4.
 
-We recommend using mongodb 4.4, because creation of collections and indices in
+We recommend using MongoDB >=4.4, because creation of collections and indexes in
 migrations will be transactional and will be properly rolled back in case of error.
 
 If you use a version < 4.4, you might run into issues with partially applied migrations.
@@ -81,7 +98,7 @@ const authConfig: AuthConfig = {
 export default authConfig;
 ```
 
-## Tests
+## Development
 
 To run tests locally:
 
@@ -100,5 +117,7 @@ docker-compose down
 [npm-url]: https://www.npmjs.com/package/@zakodium/adonis-mongodb
 [ci-image]: https://github.com/zakodium/adonis-mongodb/workflows/Node.js%20CI/badge.svg?branch=main
 [ci-url]: https://github.com/zakodium/adonis-mongodb/actions?query=workflow%3A%22Node.js+CI%22
+[codecov-image]: https://img.shields.io/codecov/c/github/zakodium/adonis-mongodb.svg
+[codecov-url]: https://codecov.io/gh/zakodium/adonis-mongodb
 [download-image]: https://img.shields.io/npm/dm/@zakodium/adonis-mongodb.svg
 [download-url]: https://www.npmjs.com/package/@zakodium/adonis-mongodb
