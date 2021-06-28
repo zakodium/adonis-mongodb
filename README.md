@@ -1,13 +1,6 @@
 # Adonis MongoDB
 
-[![NPM version][npm-image]][npm-url]
-[![build status][ci-image]][ci-url]
-[![npm download][download-image]][download-url]
-
 MongoDB provider for AdonisJS 5.
-
-| :warning: This module is unstable and in active development. Use at your own risk. |
-| ---------------------------------------------------------------------------------- |
 
 <h3 align="center">
 
@@ -23,6 +16,9 @@ MongoDB provider for AdonisJS 5.
 [![build status][ci-image]][ci-url]
 [![Test coverage][codecov-image]][codecov-url]
 [![npm download][download-image]][download-url]
+
+| :warning: This module is unstable and in active development. Use at your own risk. |
+| ---------------------------------------------------------------------------------- |
 
 </h3>
 
