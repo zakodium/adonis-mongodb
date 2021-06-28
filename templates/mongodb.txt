@@ -1,8 +1,8 @@
 import Env from '@ioc:Adonis/Core/Env';
 import { MongodbConfig } from '@ioc:Zakodium/Mongodb/Database';
 
-const config: MongodbConfig = {
-  default: Env.get('MONGODB_CONNECTION'),
+const mongodbConfig: MongodbConfig = {
+  connection: Env.get('MONGODB_CONNECTION'),
   connections: {
     mongodb: {
       url: Env.get('MONGODB_URL'),
@@ -11,4 +11,4 @@ const config: MongodbConfig = {
   },
 };
 
-export default config;
+export default mongodbConfig;

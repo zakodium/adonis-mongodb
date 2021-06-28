@@ -16,7 +16,7 @@ export class Mongodb implements MongodbContract {
     private config: MongodbConfig,
     private logger: LoggerContract,
   ) {
-    this.defaultConnectionName = config.default;
+    this.defaultConnectionName = config.connection;
     this.connections = new Map();
     this._registerConnections();
   }
