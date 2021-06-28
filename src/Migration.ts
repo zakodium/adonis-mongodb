@@ -1,9 +1,10 @@
 import { Logger } from '@poppinss/cliui/build/src/Logger';
 import { IndexOptions, ClientSession, Db } from 'mongodb';
 
-import type { ConnectionContract } from '@ioc:Zakodium/Mongodb/Database';
-
-import { Database } from './Database';
+import type {
+  ConnectionContract,
+  DatabaseContract,
+} from '@ioc:Zakodium/Mongodb/Database';
 
 enum MigrationType {
   CreateCollection = 'CreateCollection',
@@ -34,7 +35,7 @@ type MigrationOperation =
   | CustomOperation;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export default function createMigration(Database: Database): any {
+export default function createMigration(Database: DatabaseContract): any {
   abstract class Migration {
     private $operations: MigrationOperation[] = [];
     private $connection: ConnectionContract;

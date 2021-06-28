@@ -11,12 +11,12 @@ import {
 } from 'mongodb';
 import pluralize from 'pluralize';
 
-import { Database } from '../Database';
+import { DatabaseContract } from '@ioc:Zakodium/Mongodb/Database';
 
 import { proxyHandler } from './proxyHandler';
 
 interface ModelConstructor<M> {
-  $database: Database;
+  $database: DatabaseContract;
   new (...args: any[]): M;
   _computeCollectionName(): string;
   getCollection(): Promise<Collection>;
@@ -113,7 +113,7 @@ function computeCollectionName(constructorName: string): string {
 }
 
 export class Model {
-  public static $database: Database;
+  public static $database: DatabaseContract;
   public static collectionName?: string;
 
   public readonly _id: any;
@@ -151,7 +151,7 @@ export class Model {
     return new Proxy(this, proxyHandler);
   }
 
-  public static $setDatabase(database: Database): void {
+  public static $setDatabase(database: DatabaseContract): void {
     this.$database = database;
   }
 

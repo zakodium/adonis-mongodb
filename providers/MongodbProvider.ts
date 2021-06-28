@@ -19,6 +19,7 @@ export default class MongodbProvider {
 
   public register(): void {
     this.registerDatabase();
+    // @ts-expect-error These errors will be fixed later.
     this.app.container.singleton('Zakodium/Mongodb/Model', () => {
       Model.$setDatabase(this.app.container.use('Zakodium/Mongodb/Database'));
       AutoIncrementModel.$setDatabase(
@@ -45,10 +46,6 @@ export default class MongodbProvider {
 
   public async shutdown(): Promise<void> {
     const Database = this.app.container.use('Zakodium/Mongodb/Database');
-    return Database.closeConnections();
-  }
-
-  public ready(): void {
-    // App is ready
+    return Database.manager.closeAll();
   }
 }

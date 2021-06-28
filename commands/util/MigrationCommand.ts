@@ -7,11 +7,10 @@ import { ClientSession } from 'mongodb';
 
 import type {
   ConnectionContract,
+  DatabaseContract,
   MongodbConnectionConfig,
 } from '@ioc:Zakodium/Mongodb/Database';
 import type BaseMigration from '@ioc:Zakodium/Mongodb/Migration';
-
-import { Database } from '../../src/Database';
 
 import transformMigrations, {
   MigrationDescription,
@@ -42,7 +41,7 @@ export default abstract class MigrationCommand extends BaseCommand {
   @flags.string({ description: 'Database connection to use for the migration' })
   public connection: string;
 
-  protected getConnection(db: Database): ConnectionContract {
+  protected getConnection(db: DatabaseContract): ConnectionContract {
     if (this.connection && !db.manager.has(this.connection)) {
       this.logger.error(
         `No MongoDB connection registered with name "${this.connection}"`,

@@ -1,7 +1,7 @@
 import { inject } from '@adonisjs/core/build/standalone';
 import { ObjectId } from 'mongodb';
 
-import { Database } from '../src/Database';
+import { DatabaseContract } from '@ioc:Zakodium/Mongodb/Database';
 
 import MigrationCommand, {
   migrationCollectionName,
@@ -22,7 +22,7 @@ export default class MongodbMigrate extends MigrationCommand {
     loadApp: true,
   };
 
-  private async _executeMigration(db: Database): Promise<void> {
+  private async _executeMigration(db: DatabaseContract): Promise<void> {
     const connection = this.getConnection(db);
     const migrations = await this.getMigrations(connection.config);
 
@@ -157,7 +157,7 @@ export default class MongodbMigrate extends MigrationCommand {
   }
 
   @inject(['Zakodium/Mongodb/Database'])
-  public async run(db: Database): Promise<void> {
+  public async run(db: DatabaseContract): Promise<void> {
     try {
       await this._executeMigration(db);
     } finally {
