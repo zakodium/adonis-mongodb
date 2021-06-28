@@ -1,7 +1,7 @@
 import { inject } from '@adonisjs/core/build/standalone';
 import CliTable from 'cli-table3';
 
-import { Database } from '../src/Database';
+import { DatabaseContract } from '@ioc:Zakodium/Mongodb/Database';
 
 import MigrationCommand from './util/MigrationCommand';
 
@@ -13,7 +13,7 @@ export default class MongodbListMigrations extends MigrationCommand {
   };
 
   @inject(['Zakodium/Mongodb/Database'])
-  public async run(db: Database): Promise<void> {
+  public async run(db: DatabaseContract): Promise<void> {
     try {
       const connection = this.getConnection(db);
       const database = await connection.database();
