@@ -47,8 +47,8 @@ const db = getMongodb();
 Model.$setDatabase(db);
 
 afterAll(async () => {
-  await (await db.connection('mongo').database()).dropDatabase();
-  await db.closeConnections();
+  await (await db.manager.get('mongo').connection.database()).dropDatabase();
+  await db.manager.closeAll();
 });
 
 test('can create', async () => {
@@ -173,7 +173,7 @@ test('AutoIncrementModel id increments', async () => {
 
 test('passing session should run requests within the same session', async () => {
   const username = nextUsername();
-  await db.connection('mongo').transaction(async (session) => {
+  await db.manager.get('mongo').connection.transaction(async (session) => {
     const user = await User.create(
       {
         username: username,
@@ -254,7 +254,9 @@ test('custom collection name - instance', async () => {
   await something.save();
 
   const found = await (
-    await Model.$database.connection().collection(Something.collectionName)
+    await Model.$database.manager
+      .get(Model.$database.primaryConnectionName)
+      .connection.collection(Something.collectionName)
   ).findOne({ _id: something.id });
 
   expect(found).not.toBeNull();

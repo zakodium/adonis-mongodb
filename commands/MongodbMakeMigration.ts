@@ -1,13 +1,6 @@
 import { join } from 'path';
 
-import {
-  inject,
-  BaseCommand,
-  args,
-  flags,
-} from '@adonisjs/core/build/standalone';
-
-import type { DatabaseContract } from '@ioc:Zakodium/Mongodb/Database';
+import { BaseCommand, args, flags } from '@adonisjs/core/build/standalone';
 
 export default class MongodbMakeMigration extends BaseCommand {
   public static commandName = 'mongodb:make:migration';
@@ -22,19 +15,10 @@ export default class MongodbMakeMigration extends BaseCommand {
   @flags.string({ description: 'Database connection to use for the migration' })
   public connection: string;
 
-  @inject(['Zakodium/Mongodb/Database'])
-  public async run(db: DatabaseContract): Promise<void> {
+  public async run(): Promise<void> {
     const { name } = this;
     if (name.includes('/')) {
       this.logger.error('name argument should not contain any slash');
-      process.exitCode = 1;
-      return;
-    }
-
-    if (this.connection && !db.hasConnection(this.connection)) {
-      this.logger.error(
-        `no MongoDB connection registered with name "${this.connection}"`,
-      );
       process.exitCode = 1;
       return;
     }

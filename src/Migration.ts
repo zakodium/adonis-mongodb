@@ -47,7 +47,9 @@ export default function createMigration(Database: Database): any {
       logger: Logger,
       session: ClientSession,
     ) {
-      this.$connection = Database.connection(connection);
+      this.$connection = Database.manager.get(
+        connection || Database.primaryConnectionName,
+      ).connection;
       this.$logger = logger;
       this.$session = session;
     }

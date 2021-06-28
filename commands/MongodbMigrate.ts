@@ -23,16 +23,14 @@ export default class MongodbMigrate extends MigrationCommand {
   };
 
   private async _executeMigration(db: Database): Promise<void> {
-    const migrations = await this.getMigrations(db.connection().config);
+    const connection = this.getConnection(db);
+    const migrations = await this.getMigrations(connection.config);
 
-    const connectionName = this.connection || undefined;
-    const connection = db.connection(connectionName);
-
-    const migrationLockColl = await connection.collection(
+    const migrationLockColl = await connection.connection.collection(
       migrationLockCollectionName,
     );
 
-    const migrationColl = await connection.collection<IMigration>(
+    const migrationColl = await connection.connection.collection<IMigration>(
       migrationCollectionName,
     );
 
@@ -50,9 +48,8 @@ export default class MongodbMigrate extends MigrationCommand {
 
     if (lock.modifiedCount === 0 && lock.upsertedCount === 0) {
       this.logger.error('A migration is already running');
-      process.exitCode = 1;
-      await db.closeConnections();
-      return;
+      await db.manager.closeAll();
+      process.exit(1);
     }
 
     let migrationDocsCursor = migrationColl.find({});
@@ -86,7 +83,7 @@ export default class MongodbMigrate extends MigrationCommand {
     let lastTransactionError = null;
     for (const { name, file } of unregisteredMigrations) {
       // eslint-disable-next-line @typescript-eslint/no-loop-func
-      await connection.transaction(async (session) => {
+      await connection.connection.transaction(async (session) => {
         try {
           const { Migration, description } = await this.importMigration(file);
 
@@ -95,7 +92,11 @@ export default class MongodbMigrate extends MigrationCommand {
               description ? ` - ${description}` : ''
             }`,
           );
-          const migration = new Migration(connectionName, this.logger, session);
+          const migration = new Migration(
+            connection.name,
+            this.logger,
+            session,
+          );
           await migration.execUp();
 
           await migrationColl.insertOne(
@@ -157,18 +158,10 @@ export default class MongodbMigrate extends MigrationCommand {
 
   @inject(['Zakodium/Mongodb/Database'])
   public async run(db: Database): Promise<void> {
-    if (this.connection && !db.hasConnection(this.connection)) {
-      this.logger.error(
-        `No MongoDB connection registered with name "${this.connection}"`,
-      );
-      process.exitCode = 1;
-      return;
-    }
-
     try {
       await this._executeMigration(db);
     } finally {
-      await db.closeConnections();
+      await db.manager.closeAll();
     }
   }
 }
