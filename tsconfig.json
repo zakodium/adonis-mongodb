@@ -16,6 +16,7 @@
     "types": ["@adonisjs/auth", "@adonisjs/core", "@types/jest"]
   },
   "include": [
+    "./adonis-typings/**/*",
     "./commands/**/*",
     "./src/**/*",
     "./providers/**/*",

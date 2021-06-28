@@ -1,44 +1,3 @@
-declare module '@ioc:Mongodb/Database' {
-  import { MongoClientOptions, Collection, Db, ClientSession } from 'mongodb';
-
-  export interface MongodbConnections {
-    [key: string]: MongodbConnectionConfig;
-  }
-
-  export interface MongodbConfig {
-    default: string;
-    connections: MongodbConnections;
-  }
-
-  export interface MongodbConnectionConfig {
-    url: string;
-    database: string;
-    clientOptions?: MongoClientOptions;
-    migrations?: string[];
-  }
-
-  export interface MongodbContract {
-    hasConnection(connectionName: string): boolean;
-    connection(connectionName?: string): ConnectionContract;
-    closeConnections(): Promise<void>;
-  }
-
-  export interface ConnectionContract {
-    connect(): void;
-    close(): Promise<void>;
-    database(): Promise<Db>;
-    collection<TSchema = any>(
-      collectionName: string,
-    ): Promise<Collection<TSchema>>;
-    transaction<TResult>(
-      handler: (session: ClientSession, db: Db) => Promise<TResult>,
-    ): Promise<TResult>;
-  }
-
-  const mongodb: MongodbContract;
-  export default mongodb;
-}
-
 declare module '@ioc:Mongodb/Model' {
   import {
     Collection,
@@ -49,8 +8,9 @@ declare module '@ioc:Mongodb/Model' {
     CollectionInsertOneOptions,
     CommonOptions,
   } from 'mongodb';
-  import { HashersList } from '@ioc:Adonis/Core/Hash';
+
   import { UserProviderContract } from '@ioc:Adonis/Addons/Auth';
+  import { HashersList } from '@ioc:Adonis/Core/Hash';
 
   export type ModelCreateOptions = CollectionInsertOneOptions;
 
@@ -261,29 +221,5 @@ declare module '@ioc:Mongodb/Model' {
      * Hash driver used to hash the password.
      */
     hashDriver?: keyof HashersList;
-  }
-}
-
-declare module '@ioc:Mongodb/ObjectId' {
-  import { ObjectId } from 'mongodb';
-  export default ObjectId;
-}
-
-declare module '@ioc:Mongodb/Migration' {
-  import { IndexOptions, Db, ClientSession } from 'mongodb';
-
-  export default abstract class Migration {
-    public createCollections(collectionNames: string[]): void;
-    public createCollection(collectionName: string): void;
-    public createIndex(
-      collectionName: string,
-      index: string | object,
-      options?: IndexOptions,
-    ): void;
-    public defer(
-      callback: (db: Db, session: ClientSession) => Promise<void>,
-    ): void;
-    public abstract up(): void;
-    public execUp(): Promise<void>;
   }
 }
