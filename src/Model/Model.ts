@@ -112,7 +112,7 @@ function computeCollectionName(constructorName: string): string {
   return snakeCase(pluralize(constructorName));
 }
 
-export class Model {
+export class BaseModel {
   public static $database: DatabaseContract;
   public static collectionName?: string;
 
@@ -162,7 +162,7 @@ export class Model {
     return computeCollectionName(this.name);
   }
 
-  public static async getCollection<T extends Model>(
+  public static async getCollection<T extends BaseModel>(
     this: ModelConstructor<T>,
   ): Promise<Collection<T>> {
     if (!this.$database) {
@@ -173,7 +173,7 @@ export class Model {
     return connection.collection(collectionName);
   }
 
-  public static async create<T extends Model>(
+  public static async create<T extends BaseModel>(
     this: ModelConstructor<T>,
     value: Omit<T, '_id' | 'id' | ModelReadonlyFields> &
       Partial<Pick<T, '_id'>>,
@@ -188,7 +188,7 @@ export class Model {
     return instance;
   }
 
-  public static async findOne<T extends Model>(
+  public static async findOne<T extends BaseModel>(
     this: ModelConstructor<T>,
     filter: FilterQuery<T>,
     options?: FindOneOptions<Omit<T, ModelReadonlyFields>>,
@@ -202,7 +202,7 @@ export class Model {
     return new this(result, { collection, session: options?.session }, true);
   }
 
-  public static async find<T extends Model>(
+  public static async find<T extends BaseModel>(
     this: ModelConstructor<T>,
     filter: FilterQuery<T>,
     options?: FindOneOptions<Omit<T, ModelReadonlyFields>>,
@@ -212,7 +212,7 @@ export class Model {
     return new FindResult(filter, options, cursor, collection, this);
   }
 
-  public static async findById<T extends Model>(
+  public static async findById<T extends BaseModel>(
     this: ModelConstructor<T>,
     id: unknown,
     options?: FindOneOptions<Omit<T, ModelReadonlyFields>>,
@@ -226,7 +226,7 @@ export class Model {
     return new this(result, { collection, session: options?.session }, true);
   }
 
-  public static async findByIdOrThrow<T extends Model>(
+  public static async findByIdOrThrow<T extends BaseModel>(
     this: ModelConstructor<T>,
     id: unknown,
     options?: FindOneOptions<Omit<T, ModelReadonlyFields>>,
@@ -269,14 +269,14 @@ export class Model {
   }
 
   protected async $ensureCollection() {
-    if (!Model.$database) {
+    if (!BaseModel.$database) {
       throw new Error('Model should only be accessed from IoC container');
     }
     if (this.$collection !== null) return this.$collection;
 
-    const connection = Model.$database.connection();
+    const connection = BaseModel.$database.connection();
     this.$collection = await connection.collection(
-      (this.constructor as typeof Model)._computeCollectionName(),
+      (this.constructor as typeof BaseModel)._computeCollectionName(),
     );
     return this.$collection;
   }
@@ -383,7 +383,7 @@ export class Model {
   }
 }
 
-export class AutoIncrementModel extends Model {
+export class BaseAutoIncrementModel extends BaseModel {
   public constructor(dbObj?: Record<string, unknown>, options?: IModelOptions) {
     super(dbObj, options);
   }
@@ -396,7 +396,7 @@ export class AutoIncrementModel extends Model {
     if (toSet === null) return false;
 
     if (this.id === undefined) {
-      const connection = AutoIncrementModel.$database.connection();
+      const connection = BaseAutoIncrementModel.$database.connection();
       const counterCollection = await connection.collection<{ count: number }>(
         '__adonis_mongodb_counters',
       );

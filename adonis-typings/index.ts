@@ -3,5 +3,5 @@
 /// <reference path="./container.ts" />
 /// <reference path="./database.ts" />
 /// <reference path="./migration.ts" />
-/// <reference path="./model.ts" />
 /// <reference path="./objectid.ts" />
+/// <reference path="./odm.ts" />

@@ -1,7 +1,7 @@
 import { ObjectId } from 'mongodb';
 
 import { getMongodb } from '../../../test-utils/TestUtils';
-import { Model, AutoIncrementModel } from '../Model';
+import { BaseModel, BaseAutoIncrementModel } from '../Model';
 
 interface IUser {
   username: string;
@@ -13,21 +13,21 @@ interface IPost {
   content: string;
 }
 
-class User extends Model implements IUser {
+class User extends BaseModel implements IUser {
   public static collectionName = 'users';
 
   public username: string;
   public password: string;
 }
 
-class Post extends AutoIncrementModel implements IPost {
+class Post extends BaseAutoIncrementModel implements IPost {
   public static collectionName = 'posts';
 
   public title: string;
   public content: string;
 }
 
-class Something extends Model {
+class Something extends BaseModel {
   public static collectionName = 'somethingElse';
 
   public test: boolean;
@@ -44,7 +44,7 @@ function nextTitle() {
 }
 
 const db = getMongodb();
-Model.$setDatabase(db);
+BaseModel.$setDatabase(db);
 
 afterAll(async () => {
   await (await db.connection('mongo').database()).dropDatabase();
@@ -254,8 +254,8 @@ test('custom collection name - instance', async () => {
   await something.save();
 
   const found = await (
-    await Model.$database.manager
-      .get(Model.$database.primaryConnectionName)
+    await BaseModel.$database.manager
+      .get(BaseModel.$database.primaryConnectionName)
       .connection.collection(Something.collectionName)
   ).findOne({ _id: something.id });
 

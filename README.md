@@ -53,7 +53,7 @@ Example of a configuration with the session guard:
 import {
   MongodbModelAuthProviderContract,
   MongodbModelAuthProviderConfig,
-} from '@ioc:Zakodium/Mongodb/Model';
+} from '@ioc:Zakodium/Mongodb/Odm';
 
 import User from 'App/Models/User';
 

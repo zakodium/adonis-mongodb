@@ -1,4 +1,4 @@
-declare module '@ioc:Zakodium/Mongodb/Model' {
+declare module '@ioc:Zakodium/Mongodb/Odm' {
   import {
     Collection,
     ObjectId,
@@ -15,33 +15,33 @@ declare module '@ioc:Zakodium/Mongodb/Model' {
   export type ModelCreateOptions = CollectionInsertOneOptions;
 
   export interface ModelConstructor<IdType = ObjectId> {
-    new (...args: any[]): Model<IdType>;
-    create<T extends Model<IdType>, ValueType = any>(
+    new (...args: any[]): BaseModel<IdType>;
+    create<T extends BaseModel<IdType>, ValueType = any>(
       this: Constructor<T>,
       value: ValueType,
       options?: ModelCreateOptions,
     ): Promise<T>;
-    findOne<T extends Model<IdType>>(
+    findOne<T extends BaseModel<IdType>>(
       this: Constructor<T>,
       filter: FilterQuery<T>,
       options?: FindOneOptions<T>,
     ): Promise<T | null>;
-    find<T extends Model<IdType>>(
+    find<T extends BaseModel<IdType>>(
       this: Constructor<T>,
       filter: FilterQuery<T>,
       options?: FindOneOptions<T>,
     ): Promise<FindResult<T>>;
-    findById<T extends Model<IdType>>(
+    findById<T extends BaseModel<IdType>>(
       this: Constructor<T>,
       id: IdType,
       options?: FindOneOptions<T>,
     ): Promise<T | null>;
-    findByIdOrThrow<T extends Model<IdType>>(
+    findByIdOrThrow<T extends BaseModel<IdType>>(
       this: Constructor<T>,
       id: IdType,
       options?: FindOneOptions<T>,
     ): Promise<T>;
-    getCollection<T extends Model<IdType>>(
+    getCollection<T extends BaseModel<IdType>>(
       this: Constructor<T>,
     ): Promise<Collection<T>>;
   }
@@ -71,11 +71,11 @@ declare module '@ioc:Zakodium/Mongodb/Model' {
   type NoExtraProperties<T, U extends T = T> = U &
     Impossible<Exclude<keyof U, keyof T>>;
 
-  class Model<IdType = ObjectId> {
+  class BaseModel<IdType = ObjectId> {
     /**
      * Create one document and return it.
      */
-    public static create<T extends Model<any>, ValueType = any>(
+    public static create<T extends BaseModel<any>, ValueType = any>(
       this: Constructor<T>,
       value: ValueType,
       options?: ModelCreateOptions,
@@ -84,7 +84,7 @@ declare module '@ioc:Zakodium/Mongodb/Model' {
     /**
      * Find one document and return it.
      */
-    public static findOne<T extends Model<any>>(
+    public static findOne<T extends BaseModel<any>>(
       this: Constructor<T>,
       filter: FilterQuery<T>,
       options?: FindOneOptions<T>,
@@ -93,7 +93,7 @@ declare module '@ioc:Zakodium/Mongodb/Model' {
     /**
      * Find multiple documents.
      */
-    public static find<T extends Model<any>>(
+    public static find<T extends BaseModel<any>>(
       this: Constructor<T>,
       filter: FilterQuery<T>,
       options?: FindOneOptions<T>,
@@ -102,7 +102,7 @@ declare module '@ioc:Zakodium/Mongodb/Model' {
     /**
      * Find a single document with its id.
      */
-    public static findById<T extends Model<any>>(
+    public static findById<T extends BaseModel<any>>(
       this: Constructor<T>,
       id: unknown,
       options?: FindOneOptions<T>,
@@ -112,7 +112,7 @@ declare module '@ioc:Zakodium/Mongodb/Model' {
      * Find a single document with its id.
      * Throws an error if no document was found.
      */
-    public static findByIdOrThrow<T extends Model<any>>(
+    public static findByIdOrThrow<T extends BaseModel<any>>(
       this: Constructor<T>,
       id: unknown,
       options?: FindOneOptions<T>,
@@ -121,7 +121,7 @@ declare module '@ioc:Zakodium/Mongodb/Model' {
     /**
      * Get the Collection object from the mongodb driver.
      */
-    public static getCollection<T extends Model<any>>(
+    public static getCollection<T extends BaseModel<any>>(
       this: Constructor<T>,
     ): Promise<Collection<T>>;
 
@@ -183,7 +183,7 @@ declare module '@ioc:Zakodium/Mongodb/Model' {
     ): this;
   }
 
-  class AutoIncrementModel extends Model<number> {}
+  class BaseAutoIncrementModel extends BaseModel<number> {}
 
   export interface MongodbModelAuthProviderContract<
     User extends ModelConstructor<unknown>,
