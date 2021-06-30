@@ -5,7 +5,7 @@ import { ApplicationContract } from '@ioc:Adonis/Core/Application';
 import { getMongodbModelAuthProvider } from '../src/Auth/MongodbModelAuthProvider';
 import { Database } from '../src/Database';
 import createMigration from '../src/Migration';
-import { Model, AutoIncrementModel } from '../src/Model/Model';
+import { BaseModel, BaseAutoIncrementModel } from '../src/Model/Model';
 
 export default class MongodbProvider {
   public constructor(protected app: ApplicationContract) {}
@@ -20,13 +20,15 @@ export default class MongodbProvider {
   public register(): void {
     this.registerDatabase();
     // @ts-expect-error These errors will be fixed later.
-    this.app.container.singleton('Zakodium/Mongodb/Model', () => {
-      Model.$setDatabase(this.app.container.use('Zakodium/Mongodb/Database'));
-      AutoIncrementModel.$setDatabase(
+    this.app.container.singleton('Zakodium/Mongodb/Odm', () => {
+      BaseModel.$setDatabase(
+        this.app.container.use('Zakodium/Mongodb/Database'),
+      );
+      BaseAutoIncrementModel.$setDatabase(
         this.app.container.use('Zakodium/Mongodb/Database'),
       );
 
-      return { Model, AutoIncrementModel };
+      return { BaseModel, BaseAutoIncrementModel };
     });
 
     this.app.container.singleton('Zakodium/Mongodb/Migration', () => {

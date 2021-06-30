@@ -8,13 +8,13 @@ import {
 } from '@ioc:Adonis/Addons/Auth';
 import { HashContract } from '@ioc:Adonis/Core/Hash';
 import type {
-  Model,
+  BaseModel,
   ModelConstructor,
   MongodbModelAuthProviderConfig,
-} from '@ioc:Zakodium/Mongodb/Model';
+} from '@ioc:Zakodium/Mongodb/Odm';
 
 class MongodbModelAuthProviderUser
-  implements ProviderUserContract<Model<unknown>>
+  implements ProviderUserContract<BaseModel<unknown>>
 {
   public constructor(
     // `this.user` can be any Model, so we use `any` to avoid indexing issues later.
@@ -56,7 +56,7 @@ class MongodbModelAuthProviderUser
 }
 
 class MongodbModelAuthUserProvider
-  implements UserProviderContract<Model<unknown>>
+  implements UserProviderContract<BaseModel<unknown>>
 {
   private uids = ['email'];
   private identifierKey = '_id';
@@ -97,7 +97,9 @@ class MongodbModelAuthUserProvider
     }
   }
 
-  public async getUserFor(user: Model): Promise<MongodbModelAuthProviderUser> {
+  public async getUserFor(
+    user: BaseModel,
+  ): Promise<MongodbModelAuthProviderUser> {
     return new MongodbModelAuthProviderUser(
       user,
       this.identifierKey,
