@@ -1,5 +1,10 @@
 import { Logger } from '@poppinss/cliui/build/src/Logger';
-import { IndexOptions, ClientSession, Db } from 'mongodb';
+import {
+  CreateIndexesOptions,
+  ClientSession,
+  Db,
+  IndexSpecification,
+} from 'mongodb';
 
 import type {
   ConnectionContract,
@@ -20,8 +25,8 @@ interface CreateCollectionOperation {
 interface CreateIndexOperation {
   type: MigrationType.CreateIndex;
   name: string;
-  index: string | Record<string, unknown>;
-  options?: IndexOptions;
+  index: IndexSpecification;
+  options?: CreateIndexesOptions;
 }
 
 interface CustomOperation {
@@ -68,8 +73,8 @@ export default function createMigration(Database: DatabaseContract): any {
 
     public createIndex(
       collectionName: string,
-      index: string | Record<string, unknown>,
-      options?: IndexOptions,
+      index: IndexSpecification,
+      options?: CreateIndexesOptions,
     ): void {
       this.$operations.push({
         type: MigrationType.CreateIndex,

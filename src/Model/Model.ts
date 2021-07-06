@@ -2,12 +2,14 @@ import { cloneDeep, isEqual, pickBy, snakeCase } from 'lodash';
 import {
   ClientSession,
   Collection,
-  CollectionInsertOneOptions,
-  CommonOptions,
-  Cursor,
-  FilterQuery,
-  FindOneOptions,
-  UpdateOneOptions,
+  CountDocumentsOptions,
+  DeleteOptions,
+  Document,
+  Filter,
+  FindCursor,
+  FindOptions,
+  InsertOneOptions,
+  UpdateOptions,
 } from 'mongodb';
 import pluralize from 'pluralize';
 
@@ -19,7 +21,7 @@ interface ModelConstructor<M> {
   $database: DatabaseContract;
   new (...args: any[]): M;
   _computeCollectionName(): string;
-  getCollection(): Promise<Collection>;
+  getCollection(): Promise<Collection<M>>;
 }
 
 interface IModelOptions {
@@ -44,29 +46,29 @@ type ModelReadonlyFields =
   | 'createdAt'
   | 'updatedAt';
 
-class FindResult<T> {
-  private $filter: FilterQuery<T>;
-  private $options: FindOneOptions<T> | undefined;
-  private $cursor: Cursor<T>;
+class FindResult<T extends Document> {
+  private $filter: Filter<T>;
+  private $options: FindOptions<T> | undefined;
+  private $FindCursor: FindCursor<T>;
   private $collection: Collection<T>;
   private $constructor: ModelConstructor<T>;
 
   public constructor(
-    filter: FilterQuery<T>,
-    options: FindOneOptions<T> | undefined,
-    cursor: Cursor<T>,
+    filter: Filter<T>,
+    options: FindOptions<T> | undefined,
+    FindCursor: FindCursor<T>,
     collection: Collection<T>,
     constructor: ModelConstructor<T>,
   ) {
     this.$filter = filter;
     this.$options = options;
-    this.$cursor = cursor;
+    this.$FindCursor = FindCursor;
     this.$collection = collection;
     this.$constructor = constructor;
   }
 
-  public async all(): Promise<T[]> {
-    const result = await this.$cursor.toArray();
+  public async all(): Promise<any[]> {
+    const result = await this.$FindCursor.toArray();
     return result.map(
       (value) =>
         new this.$constructor(
@@ -81,7 +83,7 @@ class FindResult<T> {
   }
 
   public async count(): Promise<number> {
-    const options =
+    const options: CountDocumentsOptions | undefined =
       this.$options !== undefined
         ? {
             limit: this.$options.limit,
@@ -90,12 +92,12 @@ class FindResult<T> {
             session: this.$options.session,
             skip: this.$options.skip,
           }
-        : undefined;
+        : {};
     return this.$collection.countDocuments(this.$filter, options);
   }
 
   public async *[Symbol.asyncIterator](): AsyncIterableIterator<T> {
-    for await (const value of this.$cursor) {
+    for await (const value of this.$FindCursor) {
       yield new this.$constructor(
         value,
         {
@@ -175,10 +177,9 @@ export class BaseModel {
 
   public static async create<T extends BaseModel>(
     this: ModelConstructor<T>,
-    value: Omit<T, '_id' | 'id' | ModelReadonlyFields> &
-      Partial<Pick<T, '_id'>>,
-    options?: CollectionInsertOneOptions,
-  ): Promise<T> {
+    value: any,
+    options?: InsertOneOptions,
+  ): Promise<any> {
     const collection = await this.getCollection();
     const instance = new this(value, {
       collection,
@@ -190,53 +191,51 @@ export class BaseModel {
 
   public static async findOne<T extends BaseModel>(
     this: ModelConstructor<T>,
-    filter: FilterQuery<T>,
-    options?: FindOneOptions<Omit<T, ModelReadonlyFields>>,
-  ): Promise<T | null> {
+    filter: Filter<T>,
+    options?: FindOptions<Omit<T, ModelReadonlyFields>>,
+  ): Promise<any | null> {
     const collection = await this.getCollection();
-    const result = await collection.findOne(
-      filter,
-      options as FindOneOptions<unknown>,
-    );
-    if (result === null) return null;
+    const result = await collection.findOne(filter, options);
+    if (result === undefined) return null;
     return new this(result, { collection, session: options?.session }, true);
   }
 
   public static async find<T extends BaseModel>(
     this: ModelConstructor<T>,
-    filter: FilterQuery<T>,
-    options?: FindOneOptions<Omit<T, ModelReadonlyFields>>,
-  ): Promise<FindResult<T>> {
+    filter: Filter<T>,
+    options?: FindOptions<Omit<T, ModelReadonlyFields>>,
+  ): Promise<FindResult<any>> {
     const collection = await this.getCollection();
-    const cursor = collection.find(filter, options as FindOneOptions<unknown>);
-    return new FindResult(filter, options, cursor, collection, this);
+    const FindCursor = collection.find(filter, options);
+    // @ts-ignore
+    return new FindResult(filter, options, FindCursor, collection, this);
   }
 
   public static async findById<T extends BaseModel>(
     this: ModelConstructor<T>,
     id: unknown,
-    options?: FindOneOptions<Omit<T, ModelReadonlyFields>>,
+    options?: FindOptions<Omit<T, ModelReadonlyFields>>,
   ): Promise<T | null> {
     const collection = await this.getCollection();
     const result = await collection.findOne(
       { _id: id },
-      options as FindOneOptions<unknown>,
+      options as FindOptions<unknown>,
     );
-    if (result === null) return null;
+    if (result === undefined) return null;
     return new this(result, { collection, session: options?.session }, true);
   }
 
   public static async findByIdOrThrow<T extends BaseModel>(
     this: ModelConstructor<T>,
     id: unknown,
-    options?: FindOneOptions<Omit<T, ModelReadonlyFields>>,
+    options?: FindOptions<Omit<T, ModelReadonlyFields>>,
   ): Promise<T> {
     const collection = await this.getCollection();
     const result = await collection.findOne(
       { _id: id },
-      options as FindOneOptions<unknown>,
+      options as FindOptions<unknown>,
     );
-    if (result === null) {
+    if (result === undefined) {
       throw new Error(
         `document ${String(id)} not found in ${this._computeCollectionName()}`,
       );
@@ -315,7 +314,7 @@ export class BaseModel {
     return this.$currentData;
   }
 
-  public async save(options?: UpdateOneOptions): Promise<boolean> {
+  public async save(options?: InsertOneOptions): Promise<boolean> {
     this.$ensureNotDeleted();
     const collection = await this.$ensureCollection();
 
@@ -339,7 +338,7 @@ export class BaseModel {
     return true;
   }
 
-  public async delete(options?: CommonOptions): Promise<boolean> {
+  public async delete(options?: DeleteOptions): Promise<boolean> {
     this.$ensureNotDeleted();
     const collection = await this.$ensureCollection();
     const result = await collection.deleteOne(
@@ -388,7 +387,7 @@ export class BaseAutoIncrementModel extends BaseModel {
     super(dbObj, options);
   }
 
-  public async save(options?: UpdateOneOptions): Promise<boolean> {
+  public async save(options?: UpdateOptions): Promise<boolean> {
     this.$ensureNotDeleted();
     const collection = await this.$ensureCollection();
 

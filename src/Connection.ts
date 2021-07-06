@@ -59,8 +59,6 @@ export class Connection extends EventEmitter implements ConnectionContract {
     this.logger = logger;
     this.status = ConnectionStatus.DISCONNECTED;
     this.client = new MongoClient(this.config.url, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
       ...this.config.clientOptions,
     });
     this.connectPromise = null;
@@ -84,9 +82,7 @@ export class Connection extends EventEmitter implements ConnectionContract {
     }
     this.status = ConnectionStatus.CONNECTED;
     this.connectPromise = this.client.connect().then((client) => {
-      return client.db(this.config.database, {
-        returnNonCachedInstance: true,
-      });
+      return client.db(this.config.database);
     });
     this.connectPromise.catch((error) => {
       this.connectPromise = null;

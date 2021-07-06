@@ -2,44 +2,42 @@ declare module '@ioc:Zakodium/Mongodb/Odm' {
   import {
     Collection,
     ObjectId,
-    FilterQuery,
-    FindOneOptions,
-    UpdateOneOptions,
-    CollectionInsertOneOptions,
-    CommonOptions,
+    Filter,
+    FindOptions,
+    UpdateOptions,
+    InsertOneOptions,
+    DeleteOptions,
   } from 'mongodb';
 
   import { UserProviderContract } from '@ioc:Adonis/Addons/Auth';
   import { HashersList } from '@ioc:Adonis/Core/Hash';
-
-  export type ModelCreateOptions = CollectionInsertOneOptions;
 
   export interface ModelConstructor<IdType = ObjectId> {
     new (...args: any[]): BaseModel<IdType>;
     create<T extends BaseModel<IdType>, ValueType = any>(
       this: Constructor<T>,
       value: ValueType,
-      options?: ModelCreateOptions,
+      options?: InsertOneOptions,
     ): Promise<T>;
     findOne<T extends BaseModel<IdType>>(
       this: Constructor<T>,
-      filter: FilterQuery<T>,
-      options?: FindOneOptions<T>,
+      filter: Filter<T>,
+      options?: FindOptions<T>,
     ): Promise<T | null>;
     find<T extends BaseModel<IdType>>(
       this: Constructor<T>,
-      filter: FilterQuery<T>,
-      options?: FindOneOptions<T>,
+      filter: Filter<T>,
+      options?: FindOptions<T>,
     ): Promise<FindResult<T>>;
     findById<T extends BaseModel<IdType>>(
       this: Constructor<T>,
       id: IdType,
-      options?: FindOneOptions<T>,
+      options?: FindOptions<T>,
     ): Promise<T | null>;
     findByIdOrThrow<T extends BaseModel<IdType>>(
       this: Constructor<T>,
       id: IdType,
-      options?: FindOneOptions<T>,
+      options?: FindOptions<T>,
     ): Promise<T>;
     getCollection<T extends BaseModel<IdType>>(
       this: Constructor<T>,
@@ -78,7 +76,7 @@ declare module '@ioc:Zakodium/Mongodb/Odm' {
     public static create<T extends BaseModel<any>, ValueType = any>(
       this: Constructor<T>,
       value: ValueType,
-      options?: ModelCreateOptions,
+      options?: InsertOneOptions,
     ): Promise<T>;
 
     /**
@@ -86,8 +84,8 @@ declare module '@ioc:Zakodium/Mongodb/Odm' {
      */
     public static findOne<T extends BaseModel<any>>(
       this: Constructor<T>,
-      filter: FilterQuery<T>,
-      options?: FindOneOptions<T>,
+      filter: Filter<T>,
+      options?: FindOptions<T>,
     ): Promise<T | null>;
 
     /**
@@ -95,8 +93,8 @@ declare module '@ioc:Zakodium/Mongodb/Odm' {
      */
     public static find<T extends BaseModel<any>>(
       this: Constructor<T>,
-      filter: FilterQuery<T>,
-      options?: FindOneOptions<T>,
+      filter: Filter<T>,
+      options?: FindOptions<T>,
     ): Promise<FindResult<T>>;
 
     /**
@@ -105,7 +103,7 @@ declare module '@ioc:Zakodium/Mongodb/Odm' {
     public static findById<T extends BaseModel<any>>(
       this: Constructor<T>,
       id: unknown,
-      options?: FindOneOptions<T>,
+      options?: FindOptions<T>,
     ): Promise<T | null>;
 
     /**
@@ -115,7 +113,7 @@ declare module '@ioc:Zakodium/Mongodb/Odm' {
     public static findByIdOrThrow<T extends BaseModel<any>>(
       this: Constructor<T>,
       id: unknown,
-      options?: FindOneOptions<T>,
+      options?: FindOptions<T>,
     ): Promise<T>;
 
     /**
@@ -146,13 +144,13 @@ declare module '@ioc:Zakodium/Mongodb/Odm' {
      * Save the entry to the database.
      * @returns - whether the entry was changed.
      */
-    public save(options?: UpdateOneOptions): Promise<boolean>;
+    public save(options?: UpdateOptions): Promise<boolean>;
 
     /**
      * Delete the entry from the database.
      * @returns - whether the entry was deleted.
      */
-    public delete(options?: CommonOptions): Promise<boolean>;
+    public delete(options?: DeleteOptions): Promise<boolean>;
 
     /**
      * Merge given values into the model instance.
