@@ -1,5 +1,12 @@
 # Changelog
 
+### [0.9.1](https://www.github.com/zakodium/adonis-mongodb/compare/v0.9.0...v0.9.1) (2021-07-06)
+
+
+### Bug Fixes
+
+* implement workaround to allow closing and reopening connections ([48d3ad5](https://www.github.com/zakodium/adonis-mongodb/commit/48d3ad5634e6736e97fdd43309d8c284158b4ef5))
+
 ## [0.9.0](https://www.github.com/zakodium/adonis-mongodb/compare/v0.8.0...v0.9.0) (2021-06-30)
 
 
