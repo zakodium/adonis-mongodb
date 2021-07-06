@@ -78,14 +78,16 @@ export class Connection extends EventEmitter implements ConnectionContract {
     return this.connectPromise;
   }
 
-  public connect(): void {
+  public connect(): Promise<Db> {
     if (this.status === ConnectionStatus.CONNECTED) {
-      return;
+      return this.connectPromise as Promise<Db>;
     }
     this.status = ConnectionStatus.CONNECTED;
-    this.connectPromise = this.client
-      .connect()
-      .then((client) => client.db(this.config.database));
+    this.connectPromise = this.client.connect().then((client) => {
+      return client.db(this.config.database, {
+        returnNonCachedInstance: true,
+      });
+    });
     this.connectPromise.catch((error) => {
       this.connectPromise = null;
       this.status = ConnectionStatus.DISCONNECTED;
@@ -93,6 +95,7 @@ export class Connection extends EventEmitter implements ConnectionContract {
       this.emit('error', error, this);
     });
     this.emit('connect', this);
+    return this.connectPromise;
   }
 
   public async disconnect(): Promise<void> {
