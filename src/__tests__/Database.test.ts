@@ -29,6 +29,15 @@ describe('connection', () => {
     expect(connection.name).toBe('mongo');
     expect(connection).toBe(db.connection('mongo'));
   });
+
+  it('should automatically reconnect', async () => {
+    const connection = db.connection();
+    let collection = await connection.collection('test');
+    await collection.find({}).toArray();
+    await db.manager.closeAll();
+    collection = await connection.collection('test');
+    await collection.find({}).toArray();
+  });
 });
 
 describe('Database constructor errors', () => {
