@@ -22,6 +22,17 @@ test('get collection', async () => {
   expect(collection).toBeDefined();
 });
 
+test('reconnect', async () => {
+  connection.connect();
+  await connection.disconnect();
+  await expect(async () => {
+    await collection.find({}).toArray();
+  }).rejects.toThrow("Cannot access 'collection' before initialization");
+  connection.connect();
+  const collection = await connection.collection('test');
+  expect(collection).toBeDefined();
+});
+
 test('get database', async () => {
   const db = await connection.database();
   expect(db).toBeDefined();
