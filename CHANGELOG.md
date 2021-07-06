@@ -1,5 +1,33 @@
 # Changelog
 
+## [0.9.0](https://www.github.com/zakodium/adonis-mongodb/compare/v0.8.0...v0.9.0) (2021-06-30)
+
+
+### ⚠ BREAKING CHANGES
+
+* implement Connection manager
+* rename DatabaseContract and add primaryConnectionName
+* rename "default" config field to "connection"
+* add Zakodium/ prefix to IoC binding names
+
+### Features
+
+* expose container binding types ([de33f9e](https://www.github.com/zakodium/adonis-mongodb/commit/de33f9edb5fa2bcabfc552e6bb37fbfa5e5eee8a))
+* implement Database.connection method ([91b0686](https://www.github.com/zakodium/adonis-mongodb/commit/91b0686fa218c1c8f26b932c05ba5df8aa02c075))
+
+
+### Bug Fixes
+
+* treat model instances created from iterator as already saved ([#67](https://www.github.com/zakodium/adonis-mongodb/issues/67)) ([57474a9](https://www.github.com/zakodium/adonis-mongodb/commit/57474a96cd552a1a0c561361790ca0b20a06c136))
+
+
+### Code Refactoring
+
+* add Zakodium/ prefix to IoC binding names ([966a7a1](https://www.github.com/zakodium/adonis-mongodb/commit/966a7a10fd6b64ce583e70c1ddf7a048943e0f78))
+* implement Connection manager ([749ccca](https://www.github.com/zakodium/adonis-mongodb/commit/749ccca1dc414a9f2a0b96c8eadcae679d93349c))
+* rename "default" config field to "connection" ([bcfda31](https://www.github.com/zakodium/adonis-mongodb/commit/bcfda3151fb41cdc58ef7bef7ccf89772e9fa237))
+* rename DatabaseContract and add primaryConnectionName ([5a1a914](https://www.github.com/zakodium/adonis-mongodb/commit/5a1a9148681946aad5715d2f5b79086b1bebf91e))
+
 ## [0.8.0](https://www.github.com/zakodium/adonis-mongodb/compare/v0.7.0...v0.8.0) (2021-06-15)
 
 
