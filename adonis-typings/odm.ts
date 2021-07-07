@@ -7,6 +7,7 @@ declare module '@ioc:Zakodium/Mongodb/Odm' {
     UpdateOptions,
     InsertOneOptions,
     DeleteOptions,
+    CountDocumentsOptions,
   } from 'mongodb';
 
   import { UserProviderContract } from '@ioc:Adonis/Addons/Auth';
@@ -14,6 +15,11 @@ declare module '@ioc:Zakodium/Mongodb/Odm' {
 
   export interface ModelConstructor<IdType = ObjectId> {
     new (...args: any[]): BaseModel<IdType>;
+    count<T extends BaseModel<IdType>>(
+      this: Constructor<T>,
+      filter: Filter<T>,
+      options?: CountDocumentsOptions,
+    ): Promise<number>;
     create<T extends BaseModel<IdType>, ValueType = any>(
       this: Constructor<T>,
       value: ValueType,
@@ -28,7 +34,7 @@ declare module '@ioc:Zakodium/Mongodb/Odm' {
       this: Constructor<T>,
       filter: Filter<T>,
       options?: FindOptions<T>,
-    ): Promise<FindResult<T>>;
+    ): FindQueryContract<T>;
     findById<T extends BaseModel<IdType>>(
       this: Constructor<T>,
       id: IdType,
@@ -46,9 +52,8 @@ declare module '@ioc:Zakodium/Mongodb/Odm' {
 
   type Constructor<M> = new (...args: any[]) => M;
 
-  interface FindResult<T> {
+  interface FindQueryContract<T> {
     all(): Promise<T[]>;
-    count(): Promise<number>;
     [Symbol.asyncIterator](): AsyncIterableIterator<T>;
   }
 
@@ -95,7 +100,7 @@ declare module '@ioc:Zakodium/Mongodb/Odm' {
       this: Constructor<T>,
       filter: Filter<T>,
       options?: FindOptions<T>,
-    ): Promise<FindResult<T>>;
+    ): FindQueryContract<T>;
 
     /**
      * Find a single document with its id.

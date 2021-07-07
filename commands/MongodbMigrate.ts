@@ -52,8 +52,7 @@ export default class MongodbMigrate extends MigrationCommand {
       process.exit(1);
     }
 
-    let migrationDocsCursor = migrationColl.find({});
-    const migrationDocs = await migrationDocsCursor.toArray();
+    const migrationDocs = await migrationColl.find({}).toArray();
     const dbMigrationNames = migrationDocs.map((m) => m.name);
 
     // Keep migrations that are not yet registered

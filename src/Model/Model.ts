@@ -6,7 +6,6 @@ import {
   DeleteOptions,
   Document,
   Filter,
-  FindCursor,
   FindOptions,
   InsertOneOptions,
   UpdateOptions,
@@ -14,6 +13,7 @@ import {
 import pluralize from 'pluralize';
 
 import { DatabaseContract } from '@ioc:Zakodium/Mongodb/Database';
+import { FindQueryContract } from '@ioc:Zakodium/Mongodb/Odm';
 
 import { proxyHandler } from './proxyHandler';
 
@@ -46,63 +46,37 @@ type ModelReadonlyFields =
   | 'createdAt'
   | 'updatedAt';
 
-class FindResult<T extends Document> {
-  private $filter: Filter<T>;
-  private $options: FindOptions<T> | undefined;
-  private $FindCursor: FindCursor<T>;
-  private $collection: Collection<T>;
-  private $constructor: ModelConstructor<T>;
-
+class FindQuery<T extends Document> implements FindQueryContract<T> {
   public constructor(
-    filter: Filter<T>,
-    options: FindOptions<T> | undefined,
-    FindCursor: FindCursor<T>,
-    collection: Collection<T>,
-    constructor: ModelConstructor<T>,
-  ) {
-    this.$filter = filter;
-    this.$options = options;
-    this.$FindCursor = FindCursor;
-    this.$collection = collection;
-    this.$constructor = constructor;
-  }
+    private filter: Filter<T>,
+    private options: FindOptions<T> | undefined,
+    private modelConstructor: ModelConstructor<T>,
+  ) {}
 
-  public async all(): Promise<any[]> {
-    const result = await this.$FindCursor.toArray();
+  public async all(): Promise<T[]> {
+    const collection = await this.modelConstructor.getCollection();
+    const result = await collection.find(this.filter, this.options).toArray();
     return result.map(
       (value) =>
-        new this.$constructor(
+        new this.modelConstructor(
           value,
           {
-            collection: this.$collection,
-            session: this.$options?.session,
+            collection,
+            session: this.options?.session,
           },
           true,
         ),
     );
   }
 
-  public async count(): Promise<number> {
-    const options: CountDocumentsOptions | undefined =
-      this.$options !== undefined
-        ? {
-            limit: this.$options.limit,
-            maxTimeMS: this.$options.maxTimeMS,
-            readPreference: this.$options.readPreference,
-            session: this.$options.session,
-            skip: this.$options.skip,
-          }
-        : {};
-    return this.$collection.countDocuments(this.$filter, options);
-  }
-
   public async *[Symbol.asyncIterator](): AsyncIterableIterator<T> {
-    for await (const value of this.$FindCursor) {
-      yield new this.$constructor(
+    const collection = await this.modelConstructor.getCollection();
+    for await (const value of collection.find(this.filter, this.options)) {
+      yield new this.modelConstructor(
         value,
         {
-          collection: this.$collection,
-          session: this.$options?.session,
+          collection,
+          session: this.options?.session,
         },
         true,
       );
@@ -175,6 +149,15 @@ export class BaseModel {
     return connection.collection(collectionName);
   }
 
+  public static async count<T extends BaseModel>(
+    this: ModelConstructor<T>,
+    filter: Filter<T>,
+    options: CountDocumentsOptions = {},
+  ): Promise<number> {
+    const collection = await this.getCollection();
+    return collection.countDocuments(filter, options);
+  }
+
   public static async create<T extends BaseModel>(
     this: ModelConstructor<T>,
     value: any,
@@ -200,15 +183,12 @@ export class BaseModel {
     return new this(result, { collection, session: options?.session }, true);
   }
 
-  public static async find<T extends BaseModel>(
+  public static find<T extends BaseModel>(
     this: ModelConstructor<T>,
     filter: Filter<T>,
-    options?: FindOptions<Omit<T, ModelReadonlyFields>>,
-  ): Promise<FindResult<any>> {
-    const collection = await this.getCollection();
-    const FindCursor = collection.find(filter, options);
-    // @ts-ignore
-    return new FindResult(filter, options, FindCursor, collection, this);
+    options?: FindOptions<any>,
+  ): FindQuery<any> {
+    return new FindQuery(filter, options, this);
   }
 
   public static async findById<T extends BaseModel>(
