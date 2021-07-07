@@ -8,13 +8,13 @@ import {
 } from '@ioc:Adonis/Addons/Auth';
 import { HashContract } from '@ioc:Adonis/Core/Hash';
 import type {
-  BaseModel,
-  ModelConstructor,
+  MongodbDocument,
+  MongodbModel,
   MongodbModelAuthProviderConfig,
 } from '@ioc:Zakodium/Mongodb/Odm';
 
 class MongodbModelAuthProviderUser
-  implements ProviderUserContract<BaseModel<unknown>>
+  implements ProviderUserContract<MongodbDocument<unknown>>
 {
   public constructor(
     // `this.user` can be any Model, so we use `any` to avoid indexing issues later.
@@ -56,7 +56,7 @@ class MongodbModelAuthProviderUser
 }
 
 class MongodbModelAuthUserProvider
-  implements UserProviderContract<BaseModel<unknown>>
+  implements UserProviderContract<MongodbDocument<unknown>>
 {
   private uids = ['email'];
   private identifierKey = '_id';
@@ -65,17 +65,17 @@ class MongodbModelAuthUserProvider
 
   public constructor(
     private auth: AuthManagerContract,
-    private config: MongodbModelAuthProviderConfig<ModelConstructor<unknown>>,
+    private config: MongodbModelAuthProviderConfig<MongodbModel<unknown>>,
   ) {
     if (config.uids) {
       if (config.uids.length === 0) {
         throw new Error('config.uids must have at least one element');
       }
-      this.uids = config.uids;
+      this.uids = config.uids as string[];
     }
 
     if (config.identifierKey) {
-      this.identifierKey = config.identifierKey;
+      this.identifierKey = config.identifierKey as string;
     }
 
     if (config.identifierKeyType) {
@@ -87,7 +87,7 @@ class MongodbModelAuthUserProvider
     this.hash = config.hashDriver ? Hash.use(config.hashDriver) : Hash;
   }
 
-  private async getModel(): Promise<ModelConstructor<unknown>> {
+  private async getModel(): Promise<MongodbModel<unknown>> {
     if (this.config.model) {
       return esmResolver(await this.config.model());
     } else {
@@ -98,7 +98,7 @@ class MongodbModelAuthUserProvider
   }
 
   public async getUserFor(
-    user: BaseModel,
+    user: MongodbDocument<unknown>,
   ): Promise<MongodbModelAuthProviderUser> {
     return new MongodbModelAuthProviderUser(
       user,
@@ -112,10 +112,10 @@ class MongodbModelAuthUserProvider
     id: string | number,
   ): Promise<MongodbModelAuthProviderUser> {
     const Model = await this.getModel();
-    const user = await Model.findOne({
-      [this.identifierKey]:
-        this.identifierKeyType === 'objectid' ? new ObjectId(id) : id,
-    });
+    const user = await Model.findByOrFail(
+      this.identifierKey,
+      this.identifierKeyType === 'objectid' ? new ObjectId(id) : id,
+    );
     return new MongodbModelAuthProviderUser(
       user,
       this.identifierKey,
@@ -129,7 +129,7 @@ class MongodbModelAuthUserProvider
   ): Promise<MongodbModelAuthProviderUser> {
     const Model = await this.getModel();
     const $or = this.uids.map((uidKey) => ({ [uidKey]: uid }));
-    const user = await Model.findOne({ $or });
+    const user = await Model.query({ $or }).first();
     return new MongodbModelAuthProviderUser(
       user,
       this.identifierKey,
@@ -151,7 +151,7 @@ class MongodbModelAuthUserProvider
 export function getMongodbModelAuthProvider(
   auth: AuthManagerContract,
   _mapping: string,
-  config: MongodbModelAuthProviderConfig<ModelConstructor<unknown>>,
+  config: MongodbModelAuthProviderConfig<MongodbModel<unknown>>,
 ) {
   return new MongodbModelAuthUserProvider(auth, config);
 }
