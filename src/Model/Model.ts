@@ -1,10 +1,11 @@
+import { Exception } from '@poppinss/utils';
 import { cloneDeep, isEqual, pickBy, snakeCase } from 'lodash';
 import {
+  BulkWriteOptions,
   ClientSession,
   Collection,
   CountDocumentsOptions,
   DeleteOptions,
-  Document,
   Filter,
   FindOptions,
   InsertOneOptions,
@@ -13,47 +14,54 @@ import {
 import pluralize from 'pluralize';
 
 import { DatabaseContract } from '@ioc:Zakodium/Mongodb/Database';
-import { FindQueryContract } from '@ioc:Zakodium/Mongodb/Odm';
+import {
+  MongodbDocument,
+  QueryContract,
+  NoExtraProperties,
+  ModelReadonlyFields,
+  ModelAttributes,
+} from '@ioc:Zakodium/Mongodb/Odm';
 
 import { proxyHandler } from './proxyHandler';
 
-interface ModelConstructor<M> {
-  $database: DatabaseContract;
-  new (...args: any[]): M;
-  _computeCollectionName(): string;
-  getCollection(): Promise<Collection<M>>;
-}
-
-interface IModelOptions {
-  collection: Collection;
-  session?: ClientSession;
-}
-
-type Impossible<K extends keyof any> = {
-  [P in K]: never;
-};
-
-type NoExtraProperties<T, U extends T = T> = U &
-  Impossible<Exclude<keyof U, keyof T>>;
-
-type ModelReadonlyFields =
-  | 'isDirty'
-  | 'toJSON'
-  | 'save'
-  | 'delete'
-  | 'merge'
-  | 'fill'
-  | 'createdAt'
-  | 'updatedAt';
-
-class FindQuery<T extends Document> implements FindQueryContract<T> {
+class Query<ModelType extends typeof BaseModel>
+  implements QueryContract<InstanceType<ModelType>>
+{
   public constructor(
-    private filter: Filter<T>,
-    private options: FindOptions<T> | undefined,
-    private modelConstructor: ModelConstructor<T>,
+    private filter: Filter<ModelAttributes<InstanceType<ModelType>>>,
+    private options:
+      | FindOptions<ModelAttributes<InstanceType<ModelType>>>
+      | undefined,
+    private modelConstructor: ModelType,
   ) {}
 
-  public async all(): Promise<T[]> {
+  public async first(): Promise<InstanceType<ModelType> | null> {
+    const collection = await this.modelConstructor.getCollection();
+    const result = await collection.findOne(this.filter, this.options);
+    if (result === undefined) {
+      return null;
+    }
+    const instance = new this.modelConstructor(
+      result,
+      {
+        // @ts-expect-error Unavoidable error.
+        collection,
+        session: this.options?.session,
+      },
+      true,
+    ) as InstanceType<ModelType>;
+    return instance;
+  }
+
+  public async firstOrfail(): Promise<InstanceType<ModelType>> {
+    const result = await this.first();
+    if (!result) {
+      throw new Exception('Document not found', 404, 'E_DOCUMENT_NOT_FOUND');
+    }
+    return result;
+  }
+
+  public async all(): Promise<Array<InstanceType<ModelType>>> {
     const collection = await this.modelConstructor.getCollection();
     const result = await collection.find(this.filter, this.options).toArray();
     return result.map(
@@ -61,25 +69,30 @@ class FindQuery<T extends Document> implements FindQueryContract<T> {
         new this.modelConstructor(
           value,
           {
+            // @ts-expect-error Unavoidable error.
             collection,
             session: this.options?.session,
           },
           true,
-        ),
+        ) as InstanceType<ModelType>,
     );
   }
 
-  public async *[Symbol.asyncIterator](): AsyncIterableIterator<T> {
+  public async *[Symbol.asyncIterator](): AsyncIterableIterator<
+    InstanceType<ModelType>
+  > {
     const collection = await this.modelConstructor.getCollection();
     for await (const value of collection.find(this.filter, this.options)) {
+      if (value === null) continue;
       yield new this.modelConstructor(
         value,
         {
+          // @ts-expect-error Unavoidable error.
           collection,
           session: this.options?.session,
         },
         true,
-      );
+      ) as InstanceType<ModelType>;
     }
   }
 }
@@ -88,24 +101,35 @@ function computeCollectionName(constructorName: string): string {
   return snakeCase(pluralize(constructorName));
 }
 
+interface InternalModelConstructorOptions {
+  collection: Collection<ModelAttributes<MongodbDocument<unknown>>>;
+  session?: ClientSession;
+}
+
+function hasOwn(object: unknown, key: string): boolean {
+  return Object.prototype.hasOwnProperty.call(object, key);
+}
+
 export class BaseModel {
-  public static $database: DatabaseContract;
+  public static connection?: string;
   public static collectionName?: string;
 
-  public readonly _id: any;
+  public readonly _id: unknown;
   public readonly createdAt: Date;
   public readonly updatedAt: Date;
 
-  protected $collection: Collection | null = null;
-  protected $originalData: any;
-  protected $currentData: any;
+  protected $collection: Collection<
+    ModelAttributes<MongodbDocument<unknown>>
+  > | null = null;
+  protected $originalData: Record<string, unknown>;
+  protected $currentData: Record<string, unknown>;
   protected $isDeleted: boolean;
-  protected $options: IModelOptions;
+  protected $options: InternalModelConstructorOptions;
   protected $alreadySaved: boolean;
 
   public constructor(
     dbObj?: Record<string, unknown>,
-    options?: IModelOptions,
+    options?: InternalModelConstructorOptions,
     alreadyExists = false,
   ) {
     if (dbObj) {
@@ -127,103 +151,188 @@ export class BaseModel {
     return new Proxy(this, proxyHandler);
   }
 
+  public static $database: DatabaseContract;
   public static $setDatabase(database: DatabaseContract): void {
     this.$database = database;
   }
 
-  public static _computeCollectionName(): string {
-    if (this.collectionName) {
-      return this.collectionName;
+  public static $collectionName: string | undefined;
+  public static $getCollectionName(): string {
+    if (!hasOwn(this, '$collectionName')) {
+      if (hasOwn(this, 'collectionName')) {
+        this.$collectionName = this.collectionName;
+      } else {
+        this.$collectionName = computeCollectionName(this.name);
+      }
     }
-    return computeCollectionName(this.name);
+    return this.$collectionName as string;
   }
 
-  public static async getCollection<T extends BaseModel>(
-    this: ModelConstructor<T>,
-  ): Promise<Collection<T>> {
-    if (!this.$database) {
-      throw new Error('Model should only be accessed from IoC container');
-    }
-    const collectionName = this._computeCollectionName();
-    const connection = this.$database.connection();
-    return connection.collection(collectionName);
-  }
-
-  public static async count<T extends BaseModel>(
-    this: ModelConstructor<T>,
-    filter: Filter<T>,
+  public static async count<ModelType extends typeof BaseModel>(
+    this: ModelType,
+    filter: Filter<ModelAttributes<InstanceType<ModelType>>>,
     options: CountDocumentsOptions = {},
   ): Promise<number> {
     const collection = await this.getCollection();
     return collection.countDocuments(filter, options);
   }
 
-  public static async create<T extends BaseModel>(
-    this: ModelConstructor<T>,
-    value: any,
+  public static async create<ModelType extends typeof BaseModel>(
+    this: ModelType,
+    value: Partial<ModelAttributes<InstanceType<ModelType>>>,
     options?: InsertOneOptions,
-  ): Promise<any> {
+  ): Promise<InstanceType<ModelType>> {
     const collection = await this.getCollection();
     const instance = new this(value, {
+      // @ts-expect-error Unavoidable error.
       collection,
       session: options?.session,
-    });
+    }) as InstanceType<ModelType>;
     await instance.save(options);
     return instance;
   }
 
-  public static async findOne<T extends BaseModel>(
-    this: ModelConstructor<T>,
-    filter: Filter<T>,
-    options?: FindOptions<Omit<T, ModelReadonlyFields>>,
-  ): Promise<any | null> {
+  public static async createMany<ModelType extends typeof BaseModel>(
+    this: ModelType,
+    values: Array<Partial<ModelAttributes<InstanceType<ModelType>>>>,
+    options?: BulkWriteOptions,
+  ): Promise<Array<InstanceType<ModelType>>> {
     const collection = await this.getCollection();
+    const instances = values.map(
+      (value) =>
+        new this(value, {
+          // @ts-expect-error Unavoidable error.
+          collection,
+          session: options?.session,
+        }) as InstanceType<ModelType>,
+    );
+    await Promise.all(instances.map((instance) => instance.save(options)));
+    return instances;
+  }
+
+  public static async find<ModelType extends typeof BaseModel>(
+    this: ModelType,
+    id: InstanceType<ModelType>['_id'],
+    options?: FindOptions<ModelAttributes<InstanceType<ModelType>>>,
+  ): Promise<InstanceType<ModelType> | null> {
+    const collection = await this.getCollection();
+    const filter = { _id: id } as Filter<
+      ModelAttributes<InstanceType<ModelType>>
+    >;
     const result = await collection.findOne(filter, options);
     if (result === undefined) return null;
-    return new this(result, { collection, session: options?.session }, true);
+    const instance = new this(
+      result,
+      // @ts-expect-error Unavoidable error.
+      { collection, session: options?.session },
+      true,
+    ) as InstanceType<ModelType>;
+    return instance;
   }
 
-  public static find<T extends BaseModel>(
-    this: ModelConstructor<T>,
-    filter: Filter<T>,
-    options?: FindOptions<any>,
-  ): FindQuery<any> {
-    return new FindQuery(filter, options, this);
-  }
-
-  public static async findById<T extends BaseModel>(
-    this: ModelConstructor<T>,
-    id: unknown,
-    options?: FindOptions<Omit<T, ModelReadonlyFields>>,
-  ): Promise<T | null> {
-    const collection = await this.getCollection();
-    const result = await collection.findOne(
-      { _id: id },
-      options as FindOptions<unknown>,
-    );
-    if (result === undefined) return null;
-    return new this(result, { collection, session: options?.session }, true);
-  }
-
-  public static async findByIdOrThrow<T extends BaseModel>(
-    this: ModelConstructor<T>,
-    id: unknown,
-    options?: FindOptions<Omit<T, ModelReadonlyFields>>,
-  ): Promise<T> {
-    const collection = await this.getCollection();
-    const result = await collection.findOne(
-      { _id: id },
-      options as FindOptions<unknown>,
-    );
-    if (result === undefined) {
-      throw new Error(
-        `document ${String(id)} not found in ${this._computeCollectionName()}`,
-      );
+  public static async findOrFail<ModelType extends typeof BaseModel>(
+    this: ModelType,
+    id: InstanceType<ModelType>['_id'],
+    options?: FindOptions<ModelAttributes<InstanceType<ModelType>>>,
+  ): Promise<InstanceType<ModelType>> {
+    const result = await this.find(id, options);
+    if (!result) {
+      throw new Exception('Document not found', 404, 'E_DOCUMENT_NOT_FOUND');
     }
-    return new this(result, { collection, session: options?.session }, true);
+    return result;
   }
 
-  protected [Symbol.for('nodejs.util.inspect.custom')](): any {
+  public static async findBy<ModelType extends typeof BaseModel>(
+    this: ModelType,
+    key: string,
+    value: unknown,
+    options?: FindOptions<ModelAttributes<InstanceType<ModelType>>>,
+  ): Promise<InstanceType<ModelType> | null> {
+    const collection = await this.getCollection();
+    const filter = { [key]: value } as Filter<
+      ModelAttributes<InstanceType<ModelType>>
+    >;
+    const result = await collection.findOne(filter, options);
+    if (result === undefined) return null;
+    const instance = new this(
+      result,
+      // @ts-expect-error Unavoidable error.
+      { collection, session: options?.session },
+      true,
+    ) as InstanceType<ModelType>;
+    return instance;
+  }
+
+  public static async findByOrFail<ModelType extends typeof BaseModel>(
+    this: ModelType,
+    key: string,
+    value: unknown,
+    options?: FindOptions<ModelAttributes<InstanceType<ModelType>>>,
+  ): Promise<InstanceType<ModelType>> {
+    const result = await this.findBy(key, value, options);
+    if (!result) {
+      throw new Exception('Document not found', 404, 'E_DOCUMENT_NOT_FOUND');
+    }
+    return result;
+  }
+
+  public static async findMany<ModelType extends typeof BaseModel>(
+    this: ModelType,
+    ids: Array<InstanceType<ModelType>['_id']>,
+    options?: FindOptions<ModelAttributes<InstanceType<ModelType>>>,
+  ): Promise<Array<InstanceType<ModelType>>> {
+    const collection = await this.getCollection();
+    const result = await collection
+      // @ts-expect-error Unavoidable error.
+      .find({ _id: { $in: ids } }, options)
+      .toArray();
+    const instances = result.map(
+      (result) =>
+        new this(result, {
+          // @ts-expect-error Unavoidable error.
+          collection,
+          session: options?.session,
+        }) as InstanceType<ModelType>,
+    );
+    return instances;
+  }
+
+  public static async all<ModelType extends typeof BaseModel>(
+    this: ModelType,
+    options?: FindOptions<ModelAttributes<InstanceType<ModelType>>>,
+  ): Promise<Array<InstanceType<ModelType>>> {
+    const collection = await this.getCollection();
+    const result = await collection.find({}, options).toArray();
+    const instances = result.map(
+      (result) =>
+        new this(result, {
+          // @ts-expect-error Unavoidable error.
+          collection,
+          session: options?.session,
+        }) as InstanceType<ModelType>,
+    );
+    return instances;
+  }
+
+  public static query<ModelType extends typeof BaseModel>(
+    this: ModelType,
+    filter: Filter<ModelAttributes<InstanceType<ModelType>>>,
+    options?: FindOptions<ModelAttributes<InstanceType<ModelType>>>,
+  ): Query<ModelType> {
+    return new Query(filter, options, this);
+  }
+
+  public static async getCollection<ModelType extends typeof BaseModel>(
+    this: ModelType,
+  ): Promise<Collection<ModelAttributes<InstanceType<ModelType>>>> {
+    if (!this.$database) {
+      throw new Error('Model should only be accessed from IoC container');
+    }
+    const connection = this.$database.connection(this.connection);
+    return connection.collection(this.$getCollectionName());
+  }
+
+  public [Symbol.for('nodejs.util.inspect.custom')](): any {
     return {
       model: this.constructor.name,
       originalData: this.$originalData,
@@ -232,7 +341,7 @@ export class BaseModel {
     };
   }
 
-  protected $dirty(): Record<string, unknown> {
+  public $dirty(): Record<string, unknown> {
     return pickBy(this.$currentData, (value, key) => {
       return (
         this.$originalData[key] === undefined ||
@@ -241,26 +350,28 @@ export class BaseModel {
     });
   }
 
-  protected $ensureNotDeleted(): void {
+  public $ensureNotDeleted(): void {
     if (this.$isDeleted) {
       throw new Error('this entry was deleted from the database');
     }
   }
 
-  protected async $ensureCollection() {
-    if (!BaseModel.$database) {
-      throw new Error('Model should only be accessed from IoC container');
+  public async $ensureCollection(): Promise<
+    Collection<ModelAttributes<MongodbDocument<unknown>>>
+  > {
+    if (this.$collection !== null) {
+      return this.$collection;
     }
-    if (this.$collection !== null) return this.$collection;
 
-    const connection = BaseModel.$database.connection();
-    this.$collection = await connection.collection(
-      (this.constructor as typeof BaseModel)._computeCollectionName(),
-    );
+    const constructor = this.constructor as typeof BaseModel;
+    this.$collection =
+      (await constructor.getCollection()) as unknown as Collection<
+        ModelAttributes<MongodbDocument<unknown>>
+      >;
     return this.$collection;
   }
 
-  protected $prepareToSet() {
+  public $prepareToSet() {
     const dirty = this.$dirty();
     const dirtyEntries = Object.entries(dirty);
     if (dirtyEntries.length === 0) {
@@ -363,9 +474,7 @@ export class BaseModel {
 }
 
 export class BaseAutoIncrementModel extends BaseModel {
-  public constructor(dbObj?: Record<string, unknown>, options?: IModelOptions) {
-    super(dbObj, options);
-  }
+  public readonly _id: number;
 
   public async save(options?: UpdateOptions): Promise<boolean> {
     this.$ensureNotDeleted();
@@ -393,7 +502,7 @@ export class BaseAutoIncrementModel extends BaseModel {
       });
       this.$currentData._id = newCount;
     } else {
-      await (this.$collection as Collection).updateOne(
+      await collection.updateOne(
         { _id: this.$currentData._id },
         { $set: toSet },
         { session: this.$options?.session, ...options },

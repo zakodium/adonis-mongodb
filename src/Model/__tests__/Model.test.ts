@@ -14,15 +14,12 @@ interface IPost {
 }
 
 class User extends BaseModel implements IUser {
-  public static collectionName = 'users';
-
+  public _id: ObjectId | string;
   public username: string;
   public password: string;
 }
 
 class Post extends BaseAutoIncrementModel implements IPost {
-  public static collectionName = 'posts';
-
   public title: string;
   public content: string;
 }
@@ -65,17 +62,17 @@ test('get collection by model class', async () => {
 });
 
 test('find one by property', async () => {
-  const user = User.findOne({ username: 'root', password: 'root' });
+  const user = User.findBy('username', 'root');
   expect(user).toBeDefined();
 });
 
-test('find all', async () => {
+test('query all', async () => {
   await User.create({
     username: nextUsername(),
     password: 'root',
   });
 
-  const allUsers = await User.find({}).all();
+  const allUsers = await User.query({}).all();
   expect(allUsers).toHaveLength(2);
   expect(allUsers[0]).toBeInstanceOf(User);
   expect(allUsers[0].username).toBe('root1');
@@ -87,7 +84,7 @@ test('count all', async () => {
 });
 
 test('find async iterator', async () => {
-  const users = User.find({});
+  const users = User.query({});
   let count = 0;
   for await (const user of users) {
     count++;
@@ -105,17 +102,15 @@ test('find by id should work', async () => {
     username: nextUsername(),
     password: 'root',
   });
-  const secondUser = await User.findById(user.id);
+  const secondUser = await User.find(user._id);
   expect(secondUser).not.toBeNull();
 });
 
 test("find by id should throw when doesn't exists", async () => {
   const t = async () => {
-    await User.findByIdOrThrow('notavalidid');
+    await User.findOrFail(new ObjectId());
   };
-  await expect(t).rejects.toStrictEqual(
-    new Error('document notavalidid not found in users'),
-  );
+  await expect(t).rejects.toThrow('E_DOCUMENT_NOT_FOUND: Document not found');
 });
 
 test('saved changes should be sent to database', async () => {
@@ -126,7 +121,7 @@ test('saved changes should be sent to database', async () => {
   user.password = 'rootroot';
   await user.save();
 
-  const sameUser = await User.findById(user.id);
+  const sameUser = await User.find(user._id);
   expect(sameUser).not.toBeNull();
   expect((sameUser as User).password).toStrictEqual('rootroot');
 });
@@ -149,7 +144,7 @@ test('delete on model', async () => {
 
   await user.delete();
 
-  const sameUserButDeleted = await User.findById(user.id);
+  const sameUserButDeleted = await User.find(user._id);
   expect(sameUserButDeleted).toBeNull();
 });
 
@@ -171,7 +166,7 @@ test('AutoIncrementModel id increments', async () => {
     title: nextTitle(),
     content: 'post content',
   });
-  expect(firstPost.id).toBe(secondPost.id - 1);
+  expect(firstPost.id).toBe(secondPost._id - 1);
 });
 
 test('passing session should run requests within the same session', async () => {
@@ -189,11 +184,11 @@ test('passing session should run requests within the same session', async () => 
 
     await user.save();
 
-    const shouldNotExist = await User.findOne({ username });
+    const shouldNotExist = await User.findBy('username', username);
     expect(shouldNotExist).toBeNull();
   });
 
-  const shouldExistNow = await User.findOne({ username });
+  const shouldExistNow = await User.findBy('username', username);
   expect(shouldExistNow).not.toBeNull();
   expect(shouldExistNow?.password).toBe('root');
 });
@@ -204,7 +199,7 @@ test('class instantiation Model should create an entry', async () => {
   user.password = 'rootroot';
   await user.save();
 
-  const shouldExist = await User.findOne({ username: 'root8' });
+  const shouldExist = await User.findBy('username', 'root8');
   expect(shouldExist).not.toBeNull();
   expect(user.id).toBeInstanceOf(ObjectId);
 });
@@ -219,7 +214,7 @@ test('class instantiation Model should be updatable', async () => {
   user.password = 'root';
   await user.save();
 
-  const shouldHaveNewPassword = await User.findOne({ username });
+  const shouldHaveNewPassword = await User.findBy('username', username);
   expect(shouldHaveNewPassword?.password).toBe('root');
 });
 
@@ -230,7 +225,7 @@ test('find one returns should not be dirty', async () => {
     password: 'rootroot',
   });
 
-  const foundUser = await User.findOne({ username });
+  const foundUser = await User.findBy('username', username);
   expect(foundUser?.isDirty).toBe(false);
 });
 
@@ -349,13 +344,13 @@ test('pass custom id', async () => {
 
   await user.save();
 
-  const newUser = await User.findOne({ username });
+  const newUser = await User.findBy('username', username);
   expect(newUser?._id).toBe('test');
 });
 
 test('toJSON method', async () => {
   const post = await Post.create({
-    _id: 'test',
+    _id: 42,
     title: 'mytitle',
     content: 'mycontent',
   });
@@ -363,7 +358,7 @@ test('toJSON method', async () => {
   const jsonPost = post.toJSON();
 
   const expected = {
-    _id: 'test',
+    _id: 42,
     title: 'mytitle',
     content: 'mycontent',
     createdAt: post.createdAt,
