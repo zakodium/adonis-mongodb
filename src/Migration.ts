@@ -101,10 +101,11 @@ export default function createMigration(Database: DatabaseContract): any {
     private async _listCollections() {
       if (this.$collectionList) return this.$collectionList;
       const db = await this.$connection.database();
-      const cursor = db.listCollections(undefined, {
-        nameOnly: true,
-      });
-      const list = await cursor.toArray();
+      const list = await db
+        .listCollections(undefined, {
+          nameOnly: true,
+        })
+        .toArray();
       this.$collectionList = list.map((element) => element.name);
       return this.$collectionList;
     }

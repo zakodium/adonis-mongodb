@@ -75,16 +75,19 @@ test('find all', async () => {
     password: 'root',
   });
 
-  const users = await User.find({});
-  expect(await users.count()).toBe(2);
-  const allUsers = await users.all();
+  const allUsers = await User.find({}).all();
   expect(allUsers).toHaveLength(2);
   expect(allUsers[0]).toBeInstanceOf(User);
   expect(allUsers[0].username).toBe('root1');
 });
 
+test('count all', async () => {
+  const count = await User.count({});
+  expect(count).toBe(2);
+});
+
 test('find async iterator', async () => {
-  const users = await User.find({});
+  const users = User.find({});
   let count = 0;
   for await (const user of users) {
     count++;
