@@ -340,12 +340,13 @@ export class BaseModel {
 
   public static async getCollection<ModelType extends typeof BaseModel>(
     this: ModelType,
+    connection = this.connection,
   ): Promise<Collection<ModelAttributes<InstanceType<ModelType>>>> {
     if (!this.$database) {
       throw new Error('Model should only be accessed from IoC container');
     }
-    const connection = this.$database.connection(this.connection);
-    return connection.collection(this.$getCollectionName());
+    const connectionInstance = this.$database.connection(connection);
+    return connectionInstance.collection(this.$getCollectionName());
   }
 
   public [Symbol.for('nodejs.util.inspect.custom')](): any {
