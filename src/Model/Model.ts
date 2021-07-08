@@ -5,7 +5,9 @@ import {
   ClientSession,
   Collection,
   CountDocumentsOptions,
+  CountOptions,
   DeleteOptions,
+  DistinctOptions,
   Filter,
   FindOptions,
   InsertOneOptions,
@@ -75,6 +77,20 @@ class Query<ModelType extends typeof BaseModel>
           },
           true,
         ) as InstanceType<ModelType>,
+    );
+  }
+
+  public async count(): Promise<number> {
+    const collection = await this.modelConstructor.getCollection();
+    return collection.countDocuments(this.filter, this.options as CountOptions);
+  }
+
+  public async distinct<T = unknown>(key: string): Promise<T[]> {
+    const collection = await this.modelConstructor.getCollection();
+    return collection.distinct(
+      key,
+      this.filter,
+      this.options as DistinctOptions,
     );
   }
 
@@ -316,7 +332,7 @@ export class BaseModel {
 
   public static query<ModelType extends typeof BaseModel>(
     this: ModelType,
-    filter: Filter<ModelAttributes<InstanceType<ModelType>>>,
+    filter: Filter<ModelAttributes<InstanceType<ModelType>>> = {},
     options?: FindOptions<ModelAttributes<InstanceType<ModelType>>>,
   ): Query<ModelType> {
     return new Query(filter, options, this);
