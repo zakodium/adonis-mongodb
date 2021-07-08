@@ -203,6 +203,8 @@ declare module '@ioc:Zakodium/Mongodb/Odm' {
     first(): Promise<DocumentType | null>;
     firstOrFail(): Promise<DocumentType>;
     all(): Promise<DocumentType[]>;
+    count(): Promise<number>;
+    distinct<T = unknown>(key: string): Promise<T[]>;
     [Symbol.asyncIterator](): AsyncIterableIterator<DocumentType>;
   }
 
