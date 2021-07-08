@@ -140,6 +140,7 @@ declare module '@ioc:Zakodium/Mongodb/Odm' {
      */
     getCollection<ModelType extends MongodbModel<IdType>>(
       this: ModelType,
+      connection?: string,
     ): Promise<Collection<ModelAttributes<InstanceType<ModelType>>>>;
 
     new (): MongodbDocument<IdType>;
