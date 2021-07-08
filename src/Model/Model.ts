@@ -53,7 +53,7 @@ class Query<ModelType extends typeof BaseModel>
     return instance;
   }
 
-  public async firstOrfail(): Promise<InstanceType<ModelType>> {
+  public async firstOrFail(): Promise<InstanceType<ModelType>> {
     const result = await this.first();
     if (!result) {
       throw new Exception('Document not found', 404, 'E_DOCUMENT_NOT_FOUND');

@@ -6,6 +6,7 @@ import type { MongodbConfig } from '@ioc:Zakodium/Mongodb/Database';
 
 import { Connection } from '../src/Connection';
 import { Database } from '../src/Database';
+import { BaseAutoIncrementModel, BaseModel } from '../src/Model/Model';
 
 export function getLogger() {
   const loggerConfig = {
@@ -29,7 +30,7 @@ export function getMongodb(logger = getLogger()) {
   const database = `test-runner-${basename(
     expect.getState().testPath,
     '.test.ts',
-  )}`;
+  ).replace(/\./g, '_')}`;
   const mongoConfig: MongodbConfig = {
     connection: 'mongo',
     connections: {
@@ -45,4 +46,17 @@ export function getMongodb(logger = getLogger()) {
   };
 
   return new Database(mongoConfig, logger);
+}
+
+export function setupDatabase() {
+  const db = getMongodb();
+  BaseModel.$setDatabase(db);
+  BaseAutoIncrementModel.$setDatabase(db);
+
+  afterAll(async () => {
+    await (await db.connection('mongo').database()).dropDatabase();
+    await db.manager.closeAll();
+  });
+
+  return db;
 }

@@ -201,7 +201,7 @@ declare module '@ioc:Zakodium/Mongodb/Odm' {
 
   interface QueryContract<DocumentType> {
     first(): Promise<DocumentType | null>;
-    firstOrfail(): Promise<DocumentType>;
+    firstOrFail(): Promise<DocumentType>;
     all(): Promise<DocumentType[]>;
     [Symbol.asyncIterator](): AsyncIterableIterator<DocumentType>;
   }

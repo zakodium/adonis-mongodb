@@ -1,7 +1,9 @@
 import { ObjectId } from 'mongodb';
 
-import { getMongodb } from '../../../test-utils/TestUtils';
+import { setupDatabase } from '../../../test-utils/TestUtils';
 import { BaseModel, BaseAutoIncrementModel } from '../Model';
+
+const db = setupDatabase();
 
 interface IUser {
   username: string;
@@ -40,14 +42,6 @@ function nextTitle() {
   return `post title ${++postTitleCounter}`;
 }
 
-const db = getMongodb();
-BaseModel.$setDatabase(db);
-
-afterAll(async () => {
-  await (await db.connection('mongo').database()).dropDatabase();
-  await db.manager.closeAll();
-});
-
 test('can create', async () => {
   const newUser = await User.create({
     username: nextUsername(),
@@ -66,35 +60,9 @@ test('find one by property', async () => {
   expect(user).toBeDefined();
 });
 
-test('query all', async () => {
-  await User.create({
-    username: nextUsername(),
-    password: 'root',
-  });
-
-  const allUsers = await User.query({}).all();
-  expect(allUsers).toHaveLength(2);
-  expect(allUsers[0]).toBeInstanceOf(User);
-  expect(allUsers[0].username).toBe('root1');
-});
-
 test('count all', async () => {
   const count = await User.count({});
-  expect(count).toBe(2);
-});
-
-test('find async iterator', async () => {
-  const users = User.query({});
-  let count = 0;
-  for await (const user of users) {
-    count++;
-    expect(user).toBeInstanceOf(User);
-    expect(user.password).toBe('root');
-    user.password = 'newroot';
-    await user.save();
-    expect(user.password).toBe('newroot');
-  }
-  expect(count).toBe(2);
+  expect(count).toBe(1);
 });
 
 test('find by id should work', async () => {
@@ -110,7 +78,7 @@ test("find by id should throw when doesn't exists", async () => {
   const t = async () => {
     await User.findOrFail(new ObjectId());
   };
-  await expect(t).rejects.toThrow('E_DOCUMENT_NOT_FOUND: Document not found');
+  await expect(t).rejects.toThrow(/E_DOCUMENT_NOT_FOUND/);
 });
 
 test('saved changes should be sent to database', async () => {
@@ -199,7 +167,7 @@ test('class instantiation Model should create an entry', async () => {
   user.password = 'rootroot';
   await user.save();
 
-  const shouldExist = await User.findBy('username', 'root8');
+  const shouldExist = await User.findBy('username', 'root7');
   expect(shouldExist).not.toBeNull();
   expect(user.id).toBeInstanceOf(ObjectId);
 });
