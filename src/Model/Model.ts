@@ -532,8 +532,8 @@ export class BaseModel {
     return result.deletedCount === 1;
   }
 
-  public merge<T extends Partial<ModelAttributes<this>>>(
-    values: NoExtraProperties<Partial<ModelAttributes<this>>, T>,
+  public merge<T extends Partial<Omit<ModelAttributes<this>, '_id'>>>(
+    values: NoExtraProperties<Partial<Omit<ModelAttributes<this>, '_id'>>, T>,
   ): this {
     Object.entries(values).forEach(([key, value]) => {
       this.$currentData[key] = value;
@@ -541,8 +541,8 @@ export class BaseModel {
     return this;
   }
 
-  public fill<T extends Partial<ModelAttributes<this>>>(
-    values: NoExtraProperties<Partial<ModelAttributes<this>>, T>,
+  public fill<T extends Partial<Omit<ModelAttributes<this>, '_id'>>>(
+    values: NoExtraProperties<Partial<Omit<ModelAttributes<this>, '_id'>>, T>,
   ) {
     const createdAt = this.$currentData.createdAt;
     this.$currentData = {

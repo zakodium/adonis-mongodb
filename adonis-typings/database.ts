@@ -152,7 +152,7 @@ declare module '@ioc:Zakodium/Mongodb/Database' {
     ): this;
 
     database(): Promise<Db>;
-    collection<TSchema = any>(
+    collection<TSchema = unknown>(
       collectionName: string,
     ): Promise<Collection<TSchema>>;
     transaction<TResult>(

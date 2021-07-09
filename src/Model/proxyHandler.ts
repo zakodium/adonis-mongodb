@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 export const proxyHandler = {
   get(target: any, prop: string) {
     if (typeof target[prop] !== 'undefined') {
