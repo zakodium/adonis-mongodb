@@ -37,6 +37,13 @@ function mergeDriverOptions<
   } as DriverOptionType;
 }
 
+function ensureSort(options?: FindOptions): void {
+  if (!options || options.sort) return;
+  options.sort = {
+    _id: -1,
+  };
+}
+
 class Query<ModelType extends typeof BaseModel>
   implements QueryContract<InstanceType<ModelType>>
 {
@@ -53,6 +60,7 @@ class Query<ModelType extends typeof BaseModel>
   public async first(): Promise<InstanceType<ModelType> | null> {
     const collection = await this.modelConstructor.getCollection();
     const driverOptions = mergeDriverOptions(this.options);
+    ensureSort(driverOptions);
     const result = await collection.findOne(this.filter, driverOptions);
     if (result === undefined) {
       return null;
@@ -80,6 +88,7 @@ class Query<ModelType extends typeof BaseModel>
   public async all(): Promise<Array<InstanceType<ModelType>>> {
     const collection = await this.modelConstructor.getCollection();
     const driverOptions = mergeDriverOptions(this.options);
+    ensureSort(driverOptions);
     const result = await collection.find(this.filter, driverOptions).toArray();
     return result.map(
       (value) =>
@@ -119,6 +128,7 @@ class Query<ModelType extends typeof BaseModel>
   > {
     const collection = await this.modelConstructor.getCollection();
     const driverOptions = mergeDriverOptions(this.options);
+    ensureSort(driverOptions);
     for await (const value of collection.find(this.filter, driverOptions)) {
       if (value === null) continue;
       yield new this.modelConstructor(
@@ -246,9 +256,9 @@ export class BaseModel {
           session: driverOptions.session,
         }) as InstanceType<ModelType>,
     );
-    await Promise.all(
-      instances.map((instance) => instance.save({ driverOptions })),
-    );
+    for (const instance of instances) {
+      await instance.save({ driverOptions });
+    }
     return instances;
   }
 
@@ -360,6 +370,7 @@ export class BaseModel {
   ): Promise<Array<InstanceType<ModelType>>> {
     const collection = await this.getCollection();
     const driverOptions = mergeDriverOptions(options);
+    ensureSort(driverOptions);
     const result = await collection.find({}, driverOptions).toArray();
     const instances = result.map(
       (result) =>

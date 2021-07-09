@@ -23,20 +23,20 @@ beforeAll(async () => {
 test('query.all', async () => {
   const results = await TestModel.query().all();
   expect(results).toHaveLength(5);
-  expect(results[0].testField).toContain('test');
+  expect(results[0].testField).toBe('test5');
   expect(results[0]).toBeInstanceOf(TestModel);
 });
 
 test('query.first', async () => {
   const result = await TestModel.query().first();
   expect(result).toBeInstanceOf(TestModel);
-  expect((result as TestModel).testField).toBe('test1');
+  expect((result as TestModel).testField).toBe('test5');
 });
 
 test('query.firstOrFail', async () => {
   const result = await TestModel.query().firstOrFail();
   expect(result).toBeInstanceOf(TestModel);
-  expect(result.testField).toBe('test1');
+  expect(result.testField).toBe('test5');
 });
 
 test('query.firstOrFail - uses the filter', async () => {
@@ -79,12 +79,13 @@ test('query async iterator', async () => {
   const results = TestModel.query();
   let count = 0;
   for await (const result of results) {
-    count++;
     expect(result).toBeInstanceOf(TestModel);
-    expect(result.testField).toContain('test');
+    // It should be sorted by default
+    expect(result.testField).toBe(`test${5 - count}`);
     result.otherField = true;
     await result.save();
     expect(result.otherField).toBe(true);
+    count++;
   }
   expect(count).toBe(5);
 });

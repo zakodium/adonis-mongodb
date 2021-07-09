@@ -81,6 +81,12 @@ test("find by id should throw when doesn't exists", async () => {
   await expect(t).rejects.toThrow(/E_DOCUMENT_NOT_FOUND/);
 });
 
+test('find all', async () => {
+  const users = await User.all();
+  expect(users).toHaveLength(2);
+  expect(users[0].username).toBe('root2');
+});
+
 test('saved changes should be sent to database', async () => {
   const user = await User.create({
     username: nextUsername(),
