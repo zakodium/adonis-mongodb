@@ -178,6 +178,8 @@ declare module '@ioc:Zakodium/Mongodb/Odm' {
 
     readonly $isDeleted: boolean;
 
+    readonly $dirty: Partial<ModelAttributes<this>>;
+
     /**
      * `true` if the entry has unsaved modifications.
      */

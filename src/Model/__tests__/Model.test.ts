@@ -269,6 +269,33 @@ test('$isDirty should reflect the save status', async () => {
   expect(user.$isDirty).toBe(false);
 });
 
+test('$dirty should contain the diff between original and current', async () => {
+  // Empty after fetch.
+  const user = await User.findByOrFail('username', 'root1');
+  expect(user.$dirty).toStrictEqual({});
+
+  // Contains the changed attribute.
+  user.password = 'root';
+  expect(user.$dirty).toStrictEqual({ password: 'root' });
+
+  // Contains all the changed attributes.
+  user.username = 'root2';
+  expect(user.$dirty).toStrictEqual({
+    password: 'root',
+    username: 'root2',
+  });
+
+  // Contains the remaining changed attribute.
+  user.username = 'root1';
+  expect(user.$dirty).toStrictEqual({
+    password: 'root',
+  });
+
+  // Empty after saving.
+  await user.save();
+  expect(user.$dirty).toStrictEqual({});
+});
+
 test('merge method', async () => {
   const username = nextUsername();
   const myContent = {

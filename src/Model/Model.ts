@@ -419,13 +419,13 @@ export class BaseModel {
     };
   }
 
-  public $dirty(): Record<string, unknown> {
+  public get $dirty(): Partial<ModelAttributes<this>> {
     return pickBy(this.$currentData, (value, key) => {
       return (
         this.$originalData[key] === undefined ||
         !isEqual(this.$originalData[key], value)
       );
-    });
+    }) as Partial<ModelAttributes<this>>;
   }
 
   public $ensureNotDeleted(): void {
@@ -450,7 +450,7 @@ export class BaseModel {
   }
 
   public $prepareToSet() {
-    const dirty = this.$dirty();
+    const dirty = this.$dirty;
     const dirtyEntries = Object.entries(dirty);
     if (dirtyEntries.length === 0) {
       return null;
@@ -479,7 +479,7 @@ export class BaseModel {
   }
 
   public get $isDirty(): boolean {
-    return Object.keys(this.$dirty()).length > 0;
+    return Object.keys(this.$dirty).length > 0;
   }
 
   public toJSON(): unknown {
