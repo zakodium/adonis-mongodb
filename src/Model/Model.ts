@@ -19,7 +19,6 @@ import {
   MongodbDocument,
   QueryContract,
   NoExtraProperties,
-  ModelReadonlyFields,
   ModelAttributes,
   ModelAdapterOptions,
   ModelDocumentOptions,
@@ -157,6 +156,12 @@ function hasOwn(object: unknown, key: string): boolean {
   return Object.prototype.hasOwnProperty.call(object, key);
 }
 
+interface DataToSet {
+  [key: string]: unknown;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export class BaseModel {
   public static connection?: string;
   public static collectionName?: string;
@@ -165,12 +170,13 @@ export class BaseModel {
   public readonly createdAt: Date;
   public readonly updatedAt: Date;
 
+  public $isDeleted: boolean;
+
   protected $collection: Collection<
     ModelAttributes<MongodbDocument<unknown>>
   > | null = null;
   protected $originalData: Record<string, unknown>;
   protected $currentData: Record<string, unknown>;
-  protected $isDeleted: boolean;
   protected $options: InternalModelConstructorOptions;
   protected $alreadySaved: boolean;
 
@@ -424,7 +430,7 @@ export class BaseModel {
 
   public $ensureNotDeleted(): void {
     if (this.$isDeleted) {
-      throw new Error('this entry was deleted from the database');
+      throw new Exception('Document was deleted', 500, 'E_DOCUMENT_DELETED');
     }
   }
 
@@ -450,7 +456,10 @@ export class BaseModel {
       return null;
     }
 
-    const toSet: { [key: string]: unknown } = {};
+    // We cheat a little bit with the assertion. This is necessary because the
+    // value returned by this function can be used in a MongoDB update query
+    // which shouldn't reset the createdAt field.
+    const toSet = {} as DataToSet;
     const now = new Date();
     if (this.$currentData.createdAt === undefined) {
       this.$currentData.createdAt = now;
@@ -523,13 +532,8 @@ export class BaseModel {
     return result.deletedCount === 1;
   }
 
-  public merge<
-    T extends Partial<Omit<this, '_id' | 'id' | ModelReadonlyFields>>,
-  >(
-    values: NoExtraProperties<
-      Partial<Omit<this, '_id' | 'id' | ModelReadonlyFields>>,
-      T
-    >,
+  public merge<T extends Partial<ModelAttributes<this>>>(
+    values: NoExtraProperties<Partial<ModelAttributes<this>>, T>,
   ): this {
     Object.entries(values).forEach(([key, value]) => {
       this.$currentData[key] = value;
@@ -537,13 +541,8 @@ export class BaseModel {
     return this;
   }
 
-  public fill<
-    T extends Partial<Omit<this, '_id' | 'id' | ModelReadonlyFields>>,
-  >(
-    values: NoExtraProperties<
-      Partial<Omit<this, '_id' | 'id' | ModelReadonlyFields>>,
-      T
-    >,
+  public fill<T extends Partial<ModelAttributes<this>>>(
+    values: NoExtraProperties<Partial<ModelAttributes<this>>, T>,
   ) {
     const createdAt = this.$currentData.createdAt;
     this.$currentData = {

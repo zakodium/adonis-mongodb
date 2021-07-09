@@ -13,21 +13,21 @@ declare module '@ioc:Zakodium/Mongodb/Odm' {
   import { UserProviderContract } from '@ioc:Adonis/Addons/Auth';
   import { HashersList } from '@ioc:Adonis/Core/Hash';
 
-  type ModelReadonlyFields =
+  type DollarProperties<T> = Extract<keyof T, `$${string}`>;
+
+  type ModelMethods =
     | 'id'
     | 'isDirty'
     | 'toJSON'
     | 'save'
     | 'delete'
     | 'merge'
-    | 'fill'
-    | 'createdAt'
-    | 'updatedAt';
+    | 'fill';
 
   /**
    * TODO: implement this correctly
    */
-  type ModelAttributes<T> = Omit<T, ModelReadonlyFields>;
+  type ModelAttributes<T> = Omit<T, ModelMethods | DollarProperties<T>>;
 
   /**
    * Model adapter options
@@ -183,6 +183,8 @@ declare module '@ioc:Zakodium/Mongodb/Odm' {
     readonly createdAt: Date;
     readonly updatedAt: Date;
 
+    readonly $isDeleted: boolean;
+
     /**
      * Returns the Model's current data
      */
@@ -210,9 +212,9 @@ declare module '@ioc:Zakodium/Mongodb/Odm' {
      * @param values - Values to merge with.
      * @returns - modified model instance.
      */
-    merge<T extends Partial<Omit<this, '_id' | 'id' | ModelReadonlyFields>>>(
+    merge<T extends Partial<Omit<this, '_id' | 'id' | ModelMethods>>>(
       values: NoExtraProperties<
-        Partial<Omit<this, '_id' | 'id' | ModelReadonlyFields>>,
+        Partial<Omit<this, '_id' | 'id' | ModelMethods>>,
         T
       >,
     ): this;
@@ -222,9 +224,9 @@ declare module '@ioc:Zakodium/Mongodb/Odm' {
      * @param values - Values to fill in.
      * @returns - modified model instance.
      */
-    fill<T extends Partial<Omit<this, '_id' | 'id' | ModelReadonlyFields>>>(
+    fill<T extends Partial<Omit<this, '_id' | 'id' | ModelMethods>>>(
       values: NoExtraProperties<
-        Partial<Omit<this, '_id' | 'id' | ModelReadonlyFields>>,
+        Partial<Omit<this, '_id' | 'id' | ModelMethods>>,
         T
       >,
     ): this;
