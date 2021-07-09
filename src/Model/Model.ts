@@ -11,7 +11,6 @@ import {
   Filter,
   FindOptions,
   InsertOneOptions,
-  UpdateOptions,
 } from 'mongodb';
 import pluralize from 'pluralize';
 
@@ -22,9 +21,21 @@ import {
   NoExtraProperties,
   ModelReadonlyFields,
   ModelAttributes,
+  ModelAdapterOptions,
+  ModelDocumentOptions,
 } from '@ioc:Zakodium/Mongodb/Odm';
 
 import { proxyHandler } from './proxyHandler';
+
+function mergeDriverOptions<
+  DriverOptionType extends { session?: ClientSession | undefined },
+>(options?: ModelAdapterOptions<DriverOptionType>): DriverOptionType {
+  if (!options) return {} as DriverOptionType;
+  return {
+    ...options.driverOptions,
+    session: options.client,
+  } as DriverOptionType;
+}
 
 class Query<ModelType extends typeof BaseModel>
   implements QueryContract<InstanceType<ModelType>>
@@ -32,14 +43,17 @@ class Query<ModelType extends typeof BaseModel>
   public constructor(
     private filter: Filter<ModelAttributes<InstanceType<ModelType>>>,
     private options:
-      | FindOptions<ModelAttributes<InstanceType<ModelType>>>
+      | ModelAdapterOptions<
+          FindOptions<ModelAttributes<InstanceType<ModelType>>>
+        >
       | undefined,
     private modelConstructor: ModelType,
   ) {}
 
   public async first(): Promise<InstanceType<ModelType> | null> {
     const collection = await this.modelConstructor.getCollection();
-    const result = await collection.findOne(this.filter, this.options);
+    const driverOptions = mergeDriverOptions(this.options);
+    const result = await collection.findOne(this.filter, driverOptions);
     if (result === undefined) {
       return null;
     }
@@ -48,7 +62,7 @@ class Query<ModelType extends typeof BaseModel>
       {
         // @ts-expect-error Unavoidable error.
         collection,
-        session: this.options?.session,
+        session: driverOptions.session,
       },
       true,
     ) as InstanceType<ModelType>;
@@ -65,7 +79,8 @@ class Query<ModelType extends typeof BaseModel>
 
   public async all(): Promise<Array<InstanceType<ModelType>>> {
     const collection = await this.modelConstructor.getCollection();
-    const result = await collection.find(this.filter, this.options).toArray();
+    const driverOptions = mergeDriverOptions(this.options);
+    const result = await collection.find(this.filter, driverOptions).toArray();
     return result.map(
       (value) =>
         new this.modelConstructor(
@@ -73,7 +88,7 @@ class Query<ModelType extends typeof BaseModel>
           {
             // @ts-expect-error Unavoidable error.
             collection,
-            session: this.options?.session,
+            session: driverOptions.session,
           },
           true,
         ) as InstanceType<ModelType>,
@@ -82,15 +97,20 @@ class Query<ModelType extends typeof BaseModel>
 
   public async count(): Promise<number> {
     const collection = await this.modelConstructor.getCollection();
-    return collection.countDocuments(this.filter, this.options as CountOptions);
+    const driverOptions = mergeDriverOptions(this.options);
+    return collection.countDocuments(
+      this.filter,
+      driverOptions as CountOptions,
+    );
   }
 
   public async distinct<T = unknown>(key: string): Promise<T[]> {
     const collection = await this.modelConstructor.getCollection();
+    const driverOptions = mergeDriverOptions(this.options);
     return collection.distinct(
       key,
       this.filter,
-      this.options as DistinctOptions,
+      driverOptions as DistinctOptions,
     );
   }
 
@@ -98,14 +118,15 @@ class Query<ModelType extends typeof BaseModel>
     InstanceType<ModelType>
   > {
     const collection = await this.modelConstructor.getCollection();
-    for await (const value of collection.find(this.filter, this.options)) {
+    const driverOptions = mergeDriverOptions(this.options);
+    for await (const value of collection.find(this.filter, driverOptions)) {
       if (value === null) continue;
       yield new this.modelConstructor(
         value,
         {
           // @ts-expect-error Unavoidable error.
           collection,
-          session: this.options?.session,
+          session: driverOptions.session,
         },
         true,
       ) as InstanceType<ModelType>;
@@ -187,60 +208,68 @@ export class BaseModel {
   public static async count<ModelType extends typeof BaseModel>(
     this: ModelType,
     filter: Filter<ModelAttributes<InstanceType<ModelType>>>,
-    options: CountDocumentsOptions = {},
+    options?: ModelAdapterOptions<CountDocumentsOptions>,
   ): Promise<number> {
     const collection = await this.getCollection();
-    return collection.countDocuments(filter, options);
+    const driverOptions = mergeDriverOptions(options);
+    return collection.countDocuments(filter, driverOptions);
   }
 
   public static async create<ModelType extends typeof BaseModel>(
     this: ModelType,
     value: Partial<ModelAttributes<InstanceType<ModelType>>>,
-    options?: InsertOneOptions,
+    options?: ModelAdapterOptions<InsertOneOptions>,
   ): Promise<InstanceType<ModelType>> {
     const collection = await this.getCollection();
+    const driverOptions = mergeDriverOptions(options);
     const instance = new this(value, {
       // @ts-expect-error Unavoidable error.
       collection,
-      session: options?.session,
+      session: driverOptions.session,
     }) as InstanceType<ModelType>;
-    await instance.save(options);
+    await instance.save({ driverOptions });
     return instance;
   }
 
   public static async createMany<ModelType extends typeof BaseModel>(
     this: ModelType,
     values: Array<Partial<ModelAttributes<InstanceType<ModelType>>>>,
-    options?: BulkWriteOptions,
+    options?: ModelAdapterOptions<BulkWriteOptions>,
   ): Promise<Array<InstanceType<ModelType>>> {
     const collection = await this.getCollection();
+    const driverOptions = mergeDriverOptions(options);
     const instances = values.map(
       (value) =>
         new this(value, {
           // @ts-expect-error Unavoidable error.
           collection,
-          session: options?.session,
+          session: driverOptions.session,
         }) as InstanceType<ModelType>,
     );
-    await Promise.all(instances.map((instance) => instance.save(options)));
+    await Promise.all(
+      instances.map((instance) => instance.save({ driverOptions })),
+    );
     return instances;
   }
 
   public static async find<ModelType extends typeof BaseModel>(
     this: ModelType,
     id: InstanceType<ModelType>['_id'],
-    options?: FindOptions<ModelAttributes<InstanceType<ModelType>>>,
+    options?: ModelAdapterOptions<
+      FindOptions<ModelAttributes<InstanceType<ModelType>>>
+    >,
   ): Promise<InstanceType<ModelType> | null> {
     const collection = await this.getCollection();
+    const driverOptions = mergeDriverOptions(options);
     const filter = { _id: id } as Filter<
       ModelAttributes<InstanceType<ModelType>>
     >;
-    const result = await collection.findOne(filter, options);
+    const result = await collection.findOne(filter, driverOptions);
     if (result === undefined) return null;
     const instance = new this(
       result,
       // @ts-expect-error Unavoidable error.
-      { collection, session: options?.session },
+      { collection, session: driverOptions.session },
       true,
     ) as InstanceType<ModelType>;
     return instance;
@@ -249,7 +278,9 @@ export class BaseModel {
   public static async findOrFail<ModelType extends typeof BaseModel>(
     this: ModelType,
     id: InstanceType<ModelType>['_id'],
-    options?: FindOptions<ModelAttributes<InstanceType<ModelType>>>,
+    options?: ModelAdapterOptions<
+      FindOptions<ModelAttributes<InstanceType<ModelType>>>
+    >,
   ): Promise<InstanceType<ModelType>> {
     const result = await this.find(id, options);
     if (!result) {
@@ -262,18 +293,21 @@ export class BaseModel {
     this: ModelType,
     key: string,
     value: unknown,
-    options?: FindOptions<ModelAttributes<InstanceType<ModelType>>>,
+    options?: ModelAdapterOptions<
+      FindOptions<ModelAttributes<InstanceType<ModelType>>>
+    >,
   ): Promise<InstanceType<ModelType> | null> {
     const collection = await this.getCollection();
+    const driverOptions = mergeDriverOptions(options);
     const filter = { [key]: value } as Filter<
       ModelAttributes<InstanceType<ModelType>>
     >;
-    const result = await collection.findOne(filter, options);
+    const result = await collection.findOne(filter, driverOptions);
     if (result === undefined) return null;
     const instance = new this(
       result,
       // @ts-expect-error Unavoidable error.
-      { collection, session: options?.session },
+      { collection, session: driverOptions.session },
       true,
     ) as InstanceType<ModelType>;
     return instance;
@@ -283,7 +317,9 @@ export class BaseModel {
     this: ModelType,
     key: string,
     value: unknown,
-    options?: FindOptions<ModelAttributes<InstanceType<ModelType>>>,
+    options?: ModelAdapterOptions<
+      FindOptions<ModelAttributes<InstanceType<ModelType>>>
+    >,
   ): Promise<InstanceType<ModelType>> {
     const result = await this.findBy(key, value, options);
     if (!result) {
@@ -295,19 +331,22 @@ export class BaseModel {
   public static async findMany<ModelType extends typeof BaseModel>(
     this: ModelType,
     ids: Array<InstanceType<ModelType>['_id']>,
-    options?: FindOptions<ModelAttributes<InstanceType<ModelType>>>,
+    options?: ModelAdapterOptions<
+      FindOptions<ModelAttributes<InstanceType<ModelType>>>
+    >,
   ): Promise<Array<InstanceType<ModelType>>> {
     const collection = await this.getCollection();
+    const driverOptions = mergeDriverOptions(options);
     const result = await collection
       // @ts-expect-error Unavoidable error.
-      .find({ _id: { $in: ids } }, options)
+      .find({ _id: { $in: ids } }, driverOptions)
       .toArray();
     const instances = result.map(
       (result) =>
         new this(result, {
           // @ts-expect-error Unavoidable error.
           collection,
-          session: options?.session,
+          session: driverOptions.session,
         }) as InstanceType<ModelType>,
     );
     return instances;
@@ -315,16 +354,19 @@ export class BaseModel {
 
   public static async all<ModelType extends typeof BaseModel>(
     this: ModelType,
-    options?: FindOptions<ModelAttributes<InstanceType<ModelType>>>,
+    options?: ModelAdapterOptions<
+      FindOptions<ModelAttributes<InstanceType<ModelType>>>
+    >,
   ): Promise<Array<InstanceType<ModelType>>> {
     const collection = await this.getCollection();
-    const result = await collection.find({}, options).toArray();
+    const driverOptions = mergeDriverOptions(options);
+    const result = await collection.find({}, driverOptions).toArray();
     const instances = result.map(
       (result) =>
         new this(result, {
           // @ts-expect-error Unavoidable error.
           collection,
-          session: options?.session,
+          session: driverOptions.session,
         }) as InstanceType<ModelType>,
     );
     return instances;
@@ -333,7 +375,9 @@ export class BaseModel {
   public static query<ModelType extends typeof BaseModel>(
     this: ModelType,
     filter: Filter<ModelAttributes<InstanceType<ModelType>>> = {},
-    options?: FindOptions<ModelAttributes<InstanceType<ModelType>>>,
+    options?: ModelAdapterOptions<
+      FindOptions<ModelAttributes<InstanceType<ModelType>>>
+    >,
   ): Query<ModelType> {
     return new Query(filter, options, this);
   }
@@ -349,7 +393,7 @@ export class BaseModel {
     return connectionInstance.collection(this.$getCollectionName());
   }
 
-  public [Symbol.for('nodejs.util.inspect.custom')](): any {
+  public [Symbol.for('nodejs.util.inspect.custom')](): unknown {
     return {
       model: this.constructor.name,
       originalData: this.$originalData,
@@ -422,23 +466,26 @@ export class BaseModel {
     return this.$currentData;
   }
 
-  public async save(options?: InsertOneOptions): Promise<boolean> {
+  public async save(
+    options?: ModelDocumentOptions<InsertOneOptions>,
+  ): Promise<boolean> {
     this.$ensureNotDeleted();
     const collection = await this.$ensureCollection();
 
     const toSet = this.$prepareToSet();
     if (toSet === null) return false;
+    const driverOptions = {
+      ...options?.driverOptions,
+      session: this.$options?.session,
+    };
     if (this.$alreadySaved === false) {
-      const result = await collection.insertOne(toSet, {
-        session: this.$options?.session,
-        ...options,
-      });
+      const result = await collection.insertOne(toSet, driverOptions);
       this.$currentData._id = result.insertedId;
     } else {
       await collection.updateOne(
         { _id: this.$currentData._id },
         { $set: toSet },
-        { session: this.$options?.session, ...options },
+        driverOptions,
       );
     }
     this.$originalData = cloneDeep(this.$currentData);
@@ -446,14 +493,20 @@ export class BaseModel {
     return true;
   }
 
-  public async delete(options?: DeleteOptions): Promise<boolean> {
+  public async delete(
+    options?: ModelDocumentOptions<DeleteOptions>,
+  ): Promise<boolean> {
     this.$ensureNotDeleted();
     const collection = await this.$ensureCollection();
+    const driverOptions = {
+      ...options?.driverOptions,
+      session: this.$options?.session,
+    };
     const result = await collection.deleteOne(
       {
         _id: this.$currentData._id,
       },
-      { session: this.$options.session, ...options },
+      driverOptions,
     );
     this.$isDeleted = true;
     return result.deletedCount === 1;
@@ -493,14 +546,21 @@ export class BaseModel {
 export class BaseAutoIncrementModel extends BaseModel {
   public readonly _id: number;
 
-  public async save(options?: UpdateOptions): Promise<boolean> {
+  public async save(
+    options?: ModelDocumentOptions<InsertOneOptions>,
+  ): Promise<boolean> {
     this.$ensureNotDeleted();
     const collection = await this.$ensureCollection();
 
     const toSet = this.$prepareToSet();
     if (toSet === null) return false;
 
-    if (this.id === undefined) {
+    const driverOptions = {
+      ...options?.driverOptions,
+      session: this.$options?.session,
+    };
+
+    if (this._id === undefined) {
       const connection = BaseAutoIncrementModel.$database.connection();
       const counterCollection = await connection.collection<{ count: number }>(
         '__adonis_mongodb_counters',
@@ -509,20 +569,17 @@ export class BaseAutoIncrementModel extends BaseModel {
       const doc = await counterCollection.findOneAndUpdate(
         { _id: computeCollectionName(this.constructor.name) },
         { $inc: { count: 1 } },
-        { session: options?.session, upsert: true },
+        { ...driverOptions, upsert: true },
       );
       const newCount = doc.value ? doc.value.count + 1 : 1;
       toSet._id = newCount;
-      await collection.insertOne(toSet, {
-        session: this.$options?.session,
-        ...options,
-      });
+      await collection.insertOne(toSet, driverOptions);
       this.$currentData._id = newCount;
     } else {
       await collection.updateOne(
         { _id: this.$currentData._id },
         { $set: toSet },
-        { session: this.$options?.session, ...options },
+        driverOptions,
       );
     }
     this.$originalData = cloneDeep(this.$currentData);

@@ -3,11 +3,11 @@ declare module '@ioc:Zakodium/Mongodb/Odm' {
     Collection,
     Filter,
     FindOptions,
-    UpdateOptions,
     InsertOneOptions,
     DeleteOptions,
     CountDocumentsOptions,
     BulkWriteOptions,
+    ClientSession,
   } from 'mongodb';
 
   import { UserProviderContract } from '@ioc:Adonis/Addons/Auth';
@@ -30,6 +30,18 @@ declare module '@ioc:Zakodium/Mongodb/Odm' {
   type ModelAttributes<T> = Omit<T, ModelReadonlyFields>;
 
   /**
+   * Model adapter options
+   */
+  export interface ModelAdapterOptions<
+    DriverOptionType extends { session?: ClientSession },
+  > {
+    client?: ClientSession;
+    // TODO: add connection option.
+    // https://docs.adonisjs.com/reference/orm/base-model#model-adapter-options
+    driverOptions?: Omit<DriverOptionType, 'session'>;
+  }
+
+  /**
    * Shape of the model static properties.
    *
    */
@@ -50,7 +62,7 @@ declare module '@ioc:Zakodium/Mongodb/Odm' {
     count<ModelType extends MongodbModel<IdType>>(
       this: ModelType,
       filter: Filter<ModelAttributes<InstanceType<ModelType>>>,
-      options?: CountDocumentsOptions,
+      options?: ModelAdapterOptions<CountDocumentsOptions>,
     ): Promise<number>;
 
     /**
@@ -59,7 +71,7 @@ declare module '@ioc:Zakodium/Mongodb/Odm' {
     create<ModelType extends MongodbModel<IdType>>(
       this: ModelType,
       value: Partial<ModelAttributes<InstanceType<ModelType>>>,
-      options?: InsertOneOptions,
+      options?: ModelAdapterOptions<InsertOneOptions>,
     ): Promise<InstanceType<ModelType>>;
 
     /**
@@ -68,7 +80,7 @@ declare module '@ioc:Zakodium/Mongodb/Odm' {
     createMany<ModelType extends MongodbModel<IdType>>(
       this: ModelType,
       values: Array<Partial<ModelAttributes<InstanceType<ModelType>>>>,
-      options?: BulkWriteOptions,
+      options?: ModelAdapterOptions<BulkWriteOptions>,
     ): Promise<Array<InstanceType<ModelType>>>;
 
     /**
@@ -77,7 +89,9 @@ declare module '@ioc:Zakodium/Mongodb/Odm' {
     find<ModelType extends MongodbModel<IdType>>(
       this: ModelType,
       id: InstanceType<ModelType>['_id'],
-      options?: FindOptions<ModelAttributes<InstanceType<ModelType>>>,
+      options?: ModelAdapterOptions<
+        FindOptions<ModelAttributes<InstanceType<ModelType>>>
+      >,
     ): Promise<InstanceType<ModelType> | null>;
 
     /**
@@ -86,7 +100,9 @@ declare module '@ioc:Zakodium/Mongodb/Odm' {
     findOrFail<ModelType extends MongodbModel<IdType>>(
       this: ModelType,
       id: InstanceType<ModelType>['_id'],
-      options?: FindOptions<ModelAttributes<InstanceType<ModelType>>>,
+      options?: ModelAdapterOptions<
+        FindOptions<ModelAttributes<InstanceType<ModelType>>>
+      >,
     ): Promise<InstanceType<ModelType>>;
 
     /**
@@ -96,7 +112,9 @@ declare module '@ioc:Zakodium/Mongodb/Odm' {
       this: ModelType,
       key: string,
       value: unknown,
-      options?: FindOptions<ModelAttributes<InstanceType<ModelType>>>,
+      options?: ModelAdapterOptions<
+        FindOptions<ModelAttributes<InstanceType<ModelType>>>
+      >,
     ): Promise<InstanceType<ModelType> | null>;
 
     /**
@@ -106,7 +124,9 @@ declare module '@ioc:Zakodium/Mongodb/Odm' {
       this: ModelType,
       key: string,
       value: unknown,
-      options?: FindOptions<ModelAttributes<InstanceType<ModelType>>>,
+      options?: ModelAdapterOptions<
+        FindOptions<ModelAttributes<InstanceType<ModelType>>>
+      >,
     ): Promise<InstanceType<ModelType>>;
 
     /**
@@ -115,7 +135,9 @@ declare module '@ioc:Zakodium/Mongodb/Odm' {
     findMany<ModelType extends MongodbModel<IdType>>(
       this: ModelType,
       ids: Array<InstanceType<ModelType>['_id']>,
-      options?: FindOptions<ModelAttributes<InstanceType<ModelType>>>,
+      options?: ModelAdapterOptions<
+        FindOptions<ModelAttributes<InstanceType<ModelType>>>
+      >,
     ): Promise<Array<InstanceType<ModelType>>>;
 
     /**
@@ -123,7 +145,9 @@ declare module '@ioc:Zakodium/Mongodb/Odm' {
      */
     all<ModelType extends MongodbModel<IdType>>(
       this: ModelType,
-      options?: FindOptions<ModelAttributes<InstanceType<ModelType>>>,
+      options?: ModelAdapterOptions<
+        FindOptions<ModelAttributes<InstanceType<ModelType>>>
+      >,
     ): Promise<Array<InstanceType<ModelType>>>;
 
     /**
@@ -132,7 +156,9 @@ declare module '@ioc:Zakodium/Mongodb/Odm' {
     query<ModelType extends MongodbModel<IdType>>(
       this: ModelType,
       filter: Filter<ModelAttributes<InstanceType<ModelType>>>,
-      options?: FindOptions<ModelAttributes<InstanceType<ModelType>>>,
+      options?: ModelAdapterOptions<
+        FindOptions<ModelAttributes<InstanceType<ModelType>>>
+      >,
     ): QueryContract<InstanceType<ModelType>>;
 
     /**
@@ -144,6 +170,10 @@ declare module '@ioc:Zakodium/Mongodb/Odm' {
     ): Promise<Collection<ModelAttributes<InstanceType<ModelType>>>>;
 
     new (): MongodbDocument<IdType>;
+  }
+
+  export interface ModelDocumentOptions<DriverOptionType> {
+    driverOptions?: Omit<DriverOptionType, 'session'>;
   }
 
   export interface MongodbDocument<IdType> {
@@ -167,13 +197,13 @@ declare module '@ioc:Zakodium/Mongodb/Odm' {
      * Save the entry to the database.
      * @returns - whether the entry was changed.
      */
-    save(options?: UpdateOptions): Promise<boolean>;
+    save(options?: ModelDocumentOptions<InsertOneOptions>): Promise<boolean>;
 
     /**
      * Delete the entry from the database.
      * @returns - whether the entry was deleted.
      */
-    delete(options?: DeleteOptions): Promise<boolean>;
+    delete(options?: ModelDocumentOptions<DeleteOptions>): Promise<boolean>;
 
     /**
      * Merge given values into the model instance.
