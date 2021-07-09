@@ -207,11 +207,8 @@ declare module '@ioc:Zakodium/Mongodb/Odm' {
      * @param values - Values to merge with.
      * @returns - modified model instance.
      */
-    merge<T extends Partial<Omit<this, '_id' | 'id' | ModelMethods>>>(
-      values: NoExtraProperties<
-        Partial<Omit<this, '_id' | 'id' | ModelMethods>>,
-        T
-      >,
+    merge<T extends Partial<Omit<ModelAttributes<this>, '_id'>>>(
+      values: NoExtraProperties<Partial<Omit<ModelAttributes<this>, '_id'>>, T>,
     ): this;
 
     /**
@@ -219,11 +216,8 @@ declare module '@ioc:Zakodium/Mongodb/Odm' {
      * @param values - Values to fill in.
      * @returns - modified model instance.
      */
-    fill<T extends Partial<Omit<this, '_id' | 'id' | ModelMethods>>>(
-      values: NoExtraProperties<
-        Partial<Omit<this, '_id' | 'id' | ModelMethods>>,
-        T
-      >,
+    fill<T extends Partial<Omit<ModelAttributes<this>, '_id'>>>(
+      values: NoExtraProperties<Partial<Omit<ModelAttributes<this>, '_id'>>, T>,
     ): this;
   }
 
@@ -236,6 +230,7 @@ declare module '@ioc:Zakodium/Mongodb/Odm' {
     [Symbol.asyncIterator](): AsyncIterableIterator<DocumentType>;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   type Impossible<K extends keyof any> = {
     [P in K]: never;
   };
