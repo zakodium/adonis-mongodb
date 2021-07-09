@@ -116,7 +116,12 @@ test('delete on model', async () => {
     password: 'root',
   });
 
+  expect(user.$isDeleted).toBe(false);
   await user.delete();
+  expect(user.$isDeleted).toBe(true);
+
+  await expect(user.save()).rejects.toThrow(/E_DOCUMENT_DELETED/);
+  await expect(user.delete()).rejects.toThrow(/E_DOCUMENT_DELETED/);
 
   const sameUserButDeleted = await User.find(user._id);
   expect(sameUserButDeleted).toBeNull();
