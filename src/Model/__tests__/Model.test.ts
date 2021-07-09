@@ -137,15 +137,15 @@ test('AutoIncrementModel id increments', async () => {
   expect(firstPost.id).toBe(secondPost._id - 1);
 });
 
-test('passing session should run requests within the same session', async () => {
+test('passing client should run requests within the same transaction session', async () => {
   const username = nextUsername();
-  await db.connection('mongo').transaction(async (session) => {
+  await db.connection('mongo').transaction(async (client) => {
     const user = await User.create(
       {
         username: username,
         password: 'rootroot',
       },
-      { session },
+      { client },
     );
 
     user.password = 'root';

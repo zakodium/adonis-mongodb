@@ -15,7 +15,7 @@ declare module '@ioc:Zakodium/Mongodb/Migration' {
       options?: CreateIndexesOptions,
     ): void;
     public defer(
-      callback: (db: Db, session: ClientSession) => Promise<void>,
+      callback: (db: Db, client: ClientSession) => Promise<void>,
     ): void;
     public abstract up(): void;
     public execUp(): Promise<void>;

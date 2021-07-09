@@ -156,7 +156,7 @@ declare module '@ioc:Zakodium/Mongodb/Database' {
       collectionName: string,
     ): Promise<Collection<TSchema>>;
     transaction<TResult>(
-      handler: (session: ClientSession, db: Db) => Promise<TResult>,
+      handler: (client: ClientSession, db: Db) => Promise<TResult>,
     ): Promise<TResult>;
   }
 
