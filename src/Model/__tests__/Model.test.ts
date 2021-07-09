@@ -204,8 +204,8 @@ test('find one returns should not be dirty', async () => {
     password: 'rootroot',
   });
 
-  const foundUser = await User.findBy('username', username);
-  expect(foundUser?.isDirty).toBe(false);
+  const foundUser = await User.findByOrFail('username', username);
+  expect(foundUser.$isDirty).toBe(false);
 });
 
 test('class instantiation auto incremented model', async () => {
@@ -244,7 +244,29 @@ test('created user should not be dirty', async () => {
     username: nextUsername(),
     password: 'rootroot',
   });
-  expect(user.isDirty).toBe(false);
+  expect(user.$isDirty).toBe(false);
+});
+
+test('$isDirty should reflect the save status', async () => {
+  // Never dirty after fetch.
+  const user = await User.findByOrFail('username', 'root1');
+  expect(user.$isDirty).toBe(false);
+
+  // Dirty after changing an attribute.
+  user.password = 'different';
+  expect(user.$isDirty).toBe(true);
+
+  // Not dirty after restoring attribute to orignal value.
+  user.password = 'root';
+  expect(user.$isDirty).toBe(false);
+
+  // Dirty after changing attribute again.
+  user.password = 'different';
+  expect(user.$isDirty).toBe(true);
+
+  // Not dirty after saving.
+  await user.save();
+  expect(user.$isDirty).toBe(false);
 });
 
 test('merge method', async () => {
