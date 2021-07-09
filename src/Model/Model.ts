@@ -415,7 +415,7 @@ export class BaseModel {
       model: this.constructor.name,
       originalData: this.$originalData,
       currentData: this.$currentData,
-      isDirty: this.isDirty,
+      isDirty: this.$isDirty,
     };
   }
 
@@ -478,7 +478,7 @@ export class BaseModel {
     return this.$currentData._id;
   }
 
-  public get isDirty(): boolean {
+  public get $isDirty(): boolean {
     return Object.keys(this.$dirty()).length > 0;
   }
 

@@ -15,14 +15,7 @@ declare module '@ioc:Zakodium/Mongodb/Odm' {
 
   type DollarProperties<T> = Extract<keyof T, `$${string}`>;
 
-  type ModelMethods =
-    | 'id'
-    | 'isDirty'
-    | 'toJSON'
-    | 'save'
-    | 'delete'
-    | 'merge'
-    | 'fill';
+  type ModelMethods = 'id' | 'toJSON' | 'save' | 'delete' | 'merge' | 'fill';
 
   /**
    * TODO: implement this correctly
@@ -186,14 +179,14 @@ declare module '@ioc:Zakodium/Mongodb/Odm' {
     readonly $isDeleted: boolean;
 
     /**
+     * `true` if the entry has unsaved modifications.
+     */
+    readonly $isDirty: boolean;
+
+    /**
      * Returns the Model's current data
      */
     toJSON(): unknown;
-
-    /**
-     * `true` if the entry has unsaved modifications.
-     */
-    get isDirty(): boolean;
 
     /**
      * Save the entry to the database.
