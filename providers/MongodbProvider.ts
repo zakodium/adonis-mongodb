@@ -6,6 +6,7 @@ import { getMongodbModelAuthProvider } from '../src/Auth/MongodbModelAuthProvide
 import { Database } from '../src/Database';
 import createMigration from '../src/Migration';
 import { BaseModel, BaseAutoIncrementModel } from '../src/Model/Model';
+import { field } from '../src/Odm/decorators';
 
 export default class MongodbProvider {
   public constructor(protected app: ApplicationContract) {}
@@ -28,7 +29,7 @@ export default class MongodbProvider {
         this.app.container.use('Zakodium/Mongodb/Database'),
       );
 
-      return { BaseModel, BaseAutoIncrementModel };
+      return { BaseModel, BaseAutoIncrementModel, field };
     });
 
     this.app.container.singleton('Zakodium/Mongodb/Migration', () => {

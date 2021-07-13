@@ -1,28 +1,27 @@
 import { ObjectId } from 'mongodb';
 
 import { setupDatabase } from '../../../test-utils/TestUtils';
+import { field } from '../../Odm/decorators';
 import { BaseModel, BaseAutoIncrementModel } from '../Model';
 
 const db = setupDatabase();
 
-interface IUser {
-  username: string;
-  password: string;
-}
-
-interface IPost {
-  title: string;
-  content: string;
-}
-
-class User extends BaseModel implements IUser {
+class User extends BaseModel {
+  @field()
   public _id: ObjectId | string;
+
+  @field()
   public username: string;
+
+  @field()
   public password: string;
 }
 
-class Post extends BaseAutoIncrementModel implements IPost {
+class Post extends BaseAutoIncrementModel {
+  @field()
   public title: string;
+
+  @field()
   public content: string;
 }
 

@@ -40,14 +40,45 @@ declare module '@ioc:Zakodium/Mongodb/Odm' {
    */
   export interface MongodbModel<IdType> {
     /**
+     * Map of the fields that exist on the model.
+     */
+    readonly $fieldsDefinitions: Map<string, FieldOptions>;
+
+    /**
+     * Add a field on the model.
+     * This is usually done by the `@field` decorator.
+     */
+    $addField(name: string, options?: Partial<FieldOptions>): FieldOptions;
+
+    /**
+     * Returns whether the field exists on the model.
+     */
+    $hasField(name: string): boolean;
+
+    /**
+     * Returns the field options if it exists.
+     */
+    $getField(name: string): FieldOptions | undefined;
+
+    /**
      * Custom database connection to use.
      */
-    connection?: string;
+    readonly connection?: string;
 
     /**
      * Name of the collection to use.
      */
-    collectionName?: string;
+    readonly collectionName?: string;
+
+    /**
+     * Boot the model.
+     */
+    boot(): void;
+
+    /**
+     * Whether the model has been booted.
+     */
+    readonly booted: boolean;
 
     /**
      * Count the number of documents in the collection that match the filter.

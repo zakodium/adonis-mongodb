@@ -1,14 +1,21 @@
 import { setupDatabase } from '../../../test-utils/TestUtils';
+import { field } from '../../Odm/decorators';
 import { BaseAutoIncrementModel, BaseModel } from '../Model';
 
 setupDatabase();
 
 class TestModel extends BaseAutoIncrementModel {
+  @field()
   public testField: string;
+
+  @field()
   public otherField?: boolean;
 }
 
-class EmptyTestModel extends BaseModel {}
+class EmptyTestModel extends BaseModel {
+  @field()
+  public someField: string;
+}
 
 beforeAll(async () => {
   await TestModel.createMany([
