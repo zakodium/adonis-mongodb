@@ -67,7 +67,7 @@
     "@types/jest": "^26.0.24",
     "@types/lodash": "^4.14.171",
     "@types/pluralize": "0.0.29",
-    "@zakodium/eslint-config": "^3.0.2",
+    "@zakodium/eslint-config": "^3.0.3",
     "eslint": "^7.30.0",
     "jest": "^27.0.6",
     "prettier": "^2.3.2",
