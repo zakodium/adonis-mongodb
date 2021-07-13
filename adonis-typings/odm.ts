@@ -42,12 +42,22 @@ declare module '@ioc:Zakodium/Mongodb/Odm' {
     /**
      * Custom database connection to use.
      */
-    connection?: string;
+    readonly connection?: string;
 
     /**
      * Name of the collection to use.
      */
-    collectionName?: string;
+    readonly collectionName?: string;
+
+    /**
+     * Boot the model.
+     */
+    boot(): void;
+
+    /**
+     * Whether the model has been booted.
+     */
+    readonly booted: boolean;
 
     /**
      * Count the number of documents in the collection that match the filter.
