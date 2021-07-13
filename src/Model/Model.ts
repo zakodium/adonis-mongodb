@@ -1,4 +1,4 @@
-import { Exception } from '@poppinss/utils';
+import { defineStaticProperty, Exception } from '@poppinss/utils';
 import { cloneDeep, isEqual, pickBy, snakeCase } from 'lodash';
 import {
   BulkWriteOptions,
@@ -22,6 +22,7 @@ import {
   ModelAttributes,
   ModelAdapterOptions,
   ModelDocumentOptions,
+  FieldOptions,
 } from '@ioc:Zakodium/Mongodb/Odm';
 
 import { proxyHandler } from './proxyHandler';
@@ -163,8 +164,10 @@ interface DataToSet {
 }
 
 export class BaseModel {
-  public static connection?: string;
-  public static collectionName?: string;
+  public static readonly connection?: string;
+  public static readonly collectionName: string;
+  public static booted: boolean;
+  public static readonly $fieldsDefinitions: Map<string, FieldOptions>;
 
   public readonly _id: unknown;
   public readonly createdAt: Date;
@@ -209,16 +212,51 @@ export class BaseModel {
     this.$database = database;
   }
 
-  public static $collectionName: string | undefined;
-  public static $getCollectionName(): string {
-    if (!hasOwn(this, '$collectionName')) {
-      if (hasOwn(this, 'collectionName')) {
-        this.$collectionName = this.collectionName;
-      } else {
-        this.$collectionName = computeCollectionName(this.name);
-      }
+  public static $addField(
+    name: string,
+    options: Partial<FieldOptions> = {},
+  ): FieldOptions {
+    this.$fieldsDefinitions.set(name, options);
+    return options;
+  }
+
+  public static $hasField(name: string): boolean {
+    return this.$fieldsDefinitions.has(name);
+  }
+
+  public static $getField(name: string): FieldOptions | undefined {
+    return this.$fieldsDefinitions.get(name);
+  }
+
+  public static boot(): void {
+    /**
+     * Define the property when not defined on self. This makes sure that all
+     * subclasses boot on their own.
+     */
+    if (!hasOwn(this, 'booted')) {
+      this.booted = false;
     }
-    return this.$collectionName as string;
+
+    /**
+     * No-op when already booted.
+     */
+    if (this.booted === true) {
+      return;
+    }
+
+    this.booted = true;
+
+    defineStaticProperty(this, BaseModel, {
+      propertyName: 'collectionName',
+      defaultValue: computeCollectionName(this.name),
+      strategy: 'define',
+    });
+
+    defineStaticProperty(this, BaseModel, {
+      propertyName: '$fieldsDefinitions',
+      defaultValue: new Map(),
+      strategy: 'inherit',
+    });
   }
 
   public static async count<ModelType extends typeof BaseModel>(
@@ -407,7 +445,7 @@ export class BaseModel {
       throw new Error('Model should only be accessed from IoC container');
     }
     const connectionInstance = this.$database.connection(connection);
-    return connectionInstance.collection(this.$getCollectionName());
+    return connectionInstance.collection(this.collectionName);
   }
 
   public [Symbol.for('nodejs.util.inspect.custom')](): unknown {
