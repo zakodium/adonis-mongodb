@@ -1,7 +1,7 @@
-version: '3.1'
+version: '3.8'
 services:
   mongodb:
-    image: mongo:4.4
+    image: mongo:${MONGO_VERSION}
     command: --replSet rs0 --port 33333
     ports:
       - 33333:33333
