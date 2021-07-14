@@ -1,6 +1,10 @@
 import { ObjectId } from 'mongodb';
 
 import { ApplicationContract } from '@ioc:Adonis/Core/Application';
+import {
+  BaseModel as BaseModelType,
+  BaseAutoIncrementModel as BaseAutoIncrementModelType,
+} from '@ioc:Zakodium/Mongodb/Odm';
 
 import { getMongodbModelAuthProvider } from '../src/Auth/MongodbModelAuthProvider';
 import { Database } from '../src/Database';
@@ -20,7 +24,6 @@ export default class MongodbProvider {
 
   public register(): void {
     this.registerDatabase();
-    // @ts-expect-error These errors will be fixed later.
     this.app.container.singleton('Zakodium/Mongodb/Odm', () => {
       BaseModel.$setDatabase(
         this.app.container.use('Zakodium/Mongodb/Database'),
@@ -29,7 +32,13 @@ export default class MongodbProvider {
         this.app.container.use('Zakodium/Mongodb/Database'),
       );
 
-      return { BaseModel, BaseAutoIncrementModel, field };
+      return {
+        ObjectId,
+        BaseModel: BaseModel as typeof BaseModelType,
+        BaseAutoIncrementModel:
+          BaseAutoIncrementModel as typeof BaseAutoIncrementModelType,
+        field,
+      };
     });
 
     this.app.container.singleton('Zakodium/Mongodb/Migration', () => {
@@ -37,7 +46,6 @@ export default class MongodbProvider {
         this.app.container.use('Zakodium/Mongodb/Database'),
       );
     });
-    this.app.container.bind('Zakodium/Mongodb/ObjectId', () => ObjectId);
   }
 
   public boot(): void {
