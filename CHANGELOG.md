@@ -1,5 +1,12 @@
 # Changelog
 
+### [0.10.1](https://www.github.com/zakodium/adonis-mongodb/compare/v0.10.0...v0.10.1) (2021-07-14)
+
+
+### Bug Fixes
+
+* update mongodb to 4.0.0 and test on MongDB 5.0 too ([#87](https://www.github.com/zakodium/adonis-mongodb/issues/87)) ([d57f0d8](https://www.github.com/zakodium/adonis-mongodb/commit/d57f0d8030db56f6425a67940fd2b8f28f4203f5))
+
 ## [0.10.0](https://www.github.com/zakodium/adonis-mongodb/compare/v0.9.1...v0.10.0) (2021-07-14)
 
 
