@@ -26,11 +26,12 @@ jobs:
       - name: Check types
         run: npm run check-types
   test:
-    timeout-minutes: 30
+    timeout-minutes: 10
     runs-on: ubuntu-latest
     strategy:
       matrix:
         node-version: [14.x, 16.x]
+        mongo-version: ['4.4', '5.0']
       fail-fast: false
     steps:
       - uses: actions/checkout@v2
@@ -38,6 +39,8 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node-version }}
+      - name: Use MongoDB ${{ matrix.mongo-version }}
+        run: echo "MONGO_VERSION=${{ matrix.mongo-version }}" > .env
       - name: Init docker
         run: docker-compose up -d
       - name: Install dependencies
