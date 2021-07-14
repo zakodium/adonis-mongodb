@@ -1,5 +1,43 @@
 # Changelog
 
+## [0.10.0](https://www.github.com/zakodium/adonis-mongodb/compare/v0.9.1...v0.10.0) (2021-07-14)
+
+
+### ⚠ BREAKING CHANGES
+
+* move ObjectId export to Zakodium/Mongodb/Odm
+* rename isDirty to $isDirty
+* move mongodb driver options to options.driverOptions
+* The model API has been reworked to be closer to Lucid's.
+* move count() method out of find result, make find() method return synchronously
+* The MongoDB driver has been upgraded to version 4. Types are now included and many have changed.
+* rename Model binding to Odm, and rename Model to BaseModel
+
+### Features
+
+* add model boot method and start working on field decorator ([18d41c9](https://www.github.com/zakodium/adonis-mongodb/commit/18d41c98afdfa6206d7f90f50ba5b520d3e32cf5))
+* add model.$dirty ([d218456](https://www.github.com/zakodium/adonis-mongodb/commit/d218456adbbb7cb492b01184c3b3f9a17922a23d))
+* allow to change the connection used in Model.getCollection ([16c4180](https://www.github.com/zakodium/adonis-mongodb/commit/16c4180f8357420eed7f55f17c5b4d5d4ebd34aa))
+* expose model.$isDeleted ([39f01d3](https://www.github.com/zakodium/adonis-mongodb/commit/39f01d364ab4067227fb3e98f9edbe6f7f84df6d))
+* make query filter optional, add query.count and query.distinct ([d7a65b1](https://www.github.com/zakodium/adonis-mongodb/commit/d7a65b17fa1577c21430762d0e4820c93e7b3839))
+* rename Model binding to Odm, and rename Model to BaseModel ([0fa9da6](https://www.github.com/zakodium/adonis-mongodb/commit/0fa9da614ee9d2050dee380ade1ca0b4bc95abf0))
+* sort find results by descending id by default ([d9162b3](https://www.github.com/zakodium/adonis-mongodb/commit/d9162b3cd5110210148d5c22a4755c64c5a3766a))
+* upgrade mongodb driver to version 4 ([1e2e403](https://www.github.com/zakodium/adonis-mongodb/commit/1e2e4038fe447b5f9267379c2aa70b740b81afa4))
+
+
+### Bug Fixes
+
+* correct types and suppress unavoidable anys ([7d95cee](https://www.github.com/zakodium/adonis-mongodb/commit/7d95cee7bb88defdd3090a3bcae9aaf0648c993f))
+
+
+### Code Refactoring
+
+* move count() method out of find result, make find() method return synchronously ([cf07ae7](https://www.github.com/zakodium/adonis-mongodb/commit/cf07ae739cacb5e1d8a547b9a6a76cdc38129200))
+* move mongodb driver options to options.driverOptions ([edb0587](https://www.github.com/zakodium/adonis-mongodb/commit/edb05871d375db2663d84381654505468792f64d))
+* move ObjectId export to Zakodium/Mongodb/Odm ([093eef3](https://www.github.com/zakodium/adonis-mongodb/commit/093eef34799544aedc929837690409fbdbe38582))
+* rename isDirty to $isDirty ([2a3bc6a](https://www.github.com/zakodium/adonis-mongodb/commit/2a3bc6aaa5005fa90e9cf6479d33ec166c98fa5b))
+* rework model API ([4092ca6](https://www.github.com/zakodium/adonis-mongodb/commit/4092ca630367d43064aa4e1c340c3a062950e828))
+
 ### [0.9.1](https://www.github.com/zakodium/adonis-mongodb/compare/v0.9.0...v0.9.1) (2021-07-06)
 
 
