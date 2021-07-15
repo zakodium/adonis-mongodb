@@ -14,13 +14,18 @@ declare module '@ioc:Zakodium/Mongodb/Odm' {
   import { HashersList } from '@ioc:Adonis/Core/Hash';
 
   type DollarProperties<T> = Extract<keyof T, `$${string}`>;
+  type FunctionProperties<T> = {
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    [K in keyof T]: T[K] extends Function ? K : never;
+  }[keyof T];
+  type ModelSpecial = 'id';
 
-  type ModelMethods = 'id' | 'toJSON' | 'save' | 'delete' | 'merge' | 'fill';
-
-  /**
-   * TODO: implement this correctly
-   */
-  type ModelAttributes<T> = Omit<T, ModelMethods | DollarProperties<T>>;
+  type ModelAttributes<T> = Omit<
+    T,
+    | ModelSpecial
+    | DollarProperties<T>
+    | FunctionProperties<Omit<T, DollarProperties<T>>>
+  >;
 
   /**
    * Model adapter options
