@@ -1,5 +1,13 @@
 # Changelog
 
+### [0.10.2](https://www.github.com/zakodium/adonis-mongodb/compare/v0.10.1...v0.10.2) (2021-07-15)
+
+
+### Bug Fixes
+
+* correctly compute ModelAttributes type ([af9d775](https://www.github.com/zakodium/adonis-mongodb/commit/af9d775df7f1e655f27eeaf5e91ef8705d52a623))
+* make `id` reference the type of `_id` ([8148481](https://www.github.com/zakodium/adonis-mongodb/commit/8148481b230e944aad5c99505a14ba496f9c4c41))
+
 ### [0.10.1](https://www.github.com/zakodium/adonis-mongodb/compare/v0.10.0...v0.10.1) (2021-07-14)
 
 
