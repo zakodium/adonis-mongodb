@@ -202,7 +202,7 @@ declare module '@ioc:Zakodium/Mongodb/Odm' {
 
   export interface MongodbDocument<IdType> {
     readonly _id: IdType;
-    readonly id: IdType;
+    readonly id: this['_id'];
 
     readonly createdAt: Date;
     readonly updatedAt: Date;
