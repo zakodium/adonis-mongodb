@@ -1,5 +1,5 @@
 import { getLogger, getMongodb } from '../../test-utils/TestUtils';
-import { Database } from '../Database';
+import { Database } from '../Database/Database';
 
 const db = getMongodb();
 const logger = getLogger();
