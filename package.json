@@ -6,6 +6,7 @@
   "types": "./lib/adonis-typings/index.d.ts",
   "files": [
     "lib",
+    "src",
     "templates",
     "instructions.md"
   ],
