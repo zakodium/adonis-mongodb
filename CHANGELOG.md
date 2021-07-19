@@ -1,5 +1,12 @@
 # Changelog
 
+### [0.10.3](https://www.github.com/zakodium/adonis-mongodb/compare/v0.10.2...v0.10.3) (2021-07-19)
+
+
+### Bug Fixes
+
+* include src in distribution ([4fd53d4](https://www.github.com/zakodium/adonis-mongodb/commit/4fd53d414cd0353164d6cb9d3c23948f3ea7a72c))
+
 ### [0.10.2](https://www.github.com/zakodium/adonis-mongodb/compare/v0.10.1...v0.10.2) (2021-07-15)
 
 
