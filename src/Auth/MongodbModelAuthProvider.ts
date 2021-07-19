@@ -82,7 +82,8 @@ class MongodbModelAuthUserProvider
       this.identifierKeyType = config.identifierKeyType;
     }
 
-    const Hash = this.auth.application.container.use('Adonis/Core/Hash');
+    const Hash =
+      this.auth.application.container.resolveBinding('Adonis/Core/Hash');
     // @ts-expect-error For some reason, BcryptDriver is not compatible with HashDriver.
     this.hash = config.hashDriver ? Hash.use(config.hashDriver) : Hash;
   }

@@ -4,8 +4,8 @@ import { FakeLogger } from '@adonisjs/logger';
 
 import type { MongodbConfig } from '@ioc:Zakodium/Mongodb/Database';
 
-import { Connection } from '../src/Connection';
-import { Database } from '../src/Database';
+import { Connection } from '../src/Database/Connection';
+import { Database } from '../src/Database/Database';
 import { BaseAutoIncrementModel, BaseModel } from '../src/Model/Model';
 
 export function getLogger() {
