@@ -184,7 +184,7 @@ declare module '@ioc:Zakodium/Mongodb/Odm' {
      */
     query<ModelType extends MongodbModel<IdType>>(
       this: ModelType,
-      filter: Filter<ModelAttributes<InstanceType<ModelType>>>,
+      filter?: Filter<ModelAttributes<InstanceType<ModelType>>>,
       options?: ModelAdapterOptions<
         FindOptions<ModelAttributes<InstanceType<ModelType>>>
       >,
