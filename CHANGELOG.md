@@ -1,5 +1,12 @@
 # Changelog
 
+### [0.10.4](https://www.github.com/zakodium/adonis-mongodb/compare/v0.10.3...v0.10.4) (2021-07-20)
+
+
+### Bug Fixes
+
+* **typings:** make query filter optional ([#94](https://www.github.com/zakodium/adonis-mongodb/issues/94)) ([fc1c6f6](https://www.github.com/zakodium/adonis-mongodb/commit/fc1c6f61586fee88d02318375960ceefbba1bf07))
+
 ### [0.10.3](https://www.github.com/zakodium/adonis-mongodb/compare/v0.10.2...v0.10.3) (2021-07-19)
 
 
