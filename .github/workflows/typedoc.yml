@@ -7,7 +7,7 @@ on:
 
 env:
   NODE_VERSION: 16.x
-  ENTRY_FILE: 'adonis-typings/index.ts'
+  ENTRY_FILE: 'adonis-typings/database.ts adonis-typings/migration.ts adonis-typings/odm.ts'
 
 jobs:
   deploy:
