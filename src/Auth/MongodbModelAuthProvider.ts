@@ -6,7 +6,7 @@ import {
   ProviderUserContract,
   UserProviderContract,
 } from '@ioc:Adonis/Addons/Auth';
-import { HashContract } from '@ioc:Adonis/Core/Hash';
+import { HashDriverContract } from '@ioc:Adonis/Core/Hash';
 import type {
   MongodbDocument,
   MongodbModel,
@@ -22,7 +22,7 @@ class MongodbModelAuthProviderUser
     public user: any,
     private identifierKey: string,
     private identifierKeyType: 'objectid' | 'string' | 'number',
-    private hash: HashContract,
+    private hash: HashDriverContract,
   ) {}
 
   public getId(): string | number | null {
@@ -61,7 +61,7 @@ class MongodbModelAuthUserProvider
   private uids = ['email'];
   private identifierKey = '_id';
   private identifierKeyType: 'objectid' | 'string' | 'number' = 'objectid';
-  private hash: HashContract;
+  private hash: HashDriverContract;
 
   public constructor(
     private auth: AuthManagerContract,
@@ -84,7 +84,6 @@ class MongodbModelAuthUserProvider
 
     const Hash =
       this.auth.application.container.resolveBinding('Adonis/Core/Hash');
-    // @ts-expect-error For some reason, BcryptDriver is not compatible with HashDriver.
     this.hash = config.hashDriver ? Hash.use(config.hashDriver) : Hash;
   }
 
