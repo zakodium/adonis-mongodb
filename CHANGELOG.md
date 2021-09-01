@@ -1,5 +1,12 @@
 # Changelog
 
+### [0.10.5](https://www.github.com/zakodium/adonis-mongodb/compare/v0.10.4...v0.10.5) (2021-09-01)
+
+
+### Bug Fixes
+
+* update mongodb client to v4.1.1 ([#102](https://www.github.com/zakodium/adonis-mongodb/issues/102)) ([32edca2](https://www.github.com/zakodium/adonis-mongodb/commit/32edca2831d2eb21f77e312c3f2eaccf2bd64e71))
+
 ### [0.10.4](https://www.github.com/zakodium/adonis-mongodb/compare/v0.10.3...v0.10.4) (2021-07-20)
 
 
