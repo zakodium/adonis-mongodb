@@ -1,5 +1,12 @@
 # Changelog
 
+### [0.10.6](https://www.github.com/zakodium/adonis-mongodb/compare/v0.10.5...v0.10.6) (2021-09-01)
+
+
+### Bug Fixes
+
+* correct types of MongodbModelAuthProvider ([#104](https://www.github.com/zakodium/adonis-mongodb/issues/104)) ([e913e53](https://www.github.com/zakodium/adonis-mongodb/commit/e913e5314ae01a2e53e5a60ae41bc86a1241fa7d))
+
 ### [0.10.5](https://www.github.com/zakodium/adonis-mongodb/compare/v0.10.4...v0.10.5) (2021-09-01)
 
 
