@@ -61,26 +61,26 @@
   },
   "homepage": "https://github.com/zakodium/adonis-mongodb#readme",
   "devDependencies": {
-    "@adonisjs/auth": "^8.0.7",
-    "@adonisjs/core": "^5.1.9",
-    "@adonisjs/logger": "^4.0.5",
+    "@adonisjs/auth": "^8.0.9",
+    "@adonisjs/core": "^5.3.2",
+    "@adonisjs/logger": "^4.1.0",
     "@poppinss/cliui": "^2.2.5",
-    "@types/jest": "^26.0.24",
-    "@types/lodash": "^4.14.171",
+    "@types/jest": "^27.0.1",
+    "@types/lodash": "^4.14.172",
     "@types/pluralize": "0.0.29",
     "@zakodium/eslint-config": "^3.0.3",
-    "eslint": "^7.31.0",
-    "jest": "^27.0.6",
+    "eslint": "^7.32.0",
+    "jest": "^27.1.0",
     "prettier": "^2.3.2",
     "rimraf": "^3.0.2",
-    "ts-jest": "^27.0.3",
-    "typescript": "^4.3.5"
+    "ts-jest": "^27.0.5",
+    "typescript": "^4.4.2"
   },
   "dependencies": {
-    "@poppinss/utils": "^3.1.4",
+    "@poppinss/utils": "^3.2.0",
     "cli-table3": "^0.6.0",
     "lodash": "^4.17.21",
-    "mongodb": "^4.0.0",
+    "mongodb": "^4.1.1",
     "pluralize": "^8.0.0"
   }
 }
