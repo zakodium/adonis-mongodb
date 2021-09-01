@@ -62,7 +62,7 @@ class Query<ModelType extends typeof BaseModel>
     const driverOptions = mergeDriverOptions(this.options);
     ensureSort(driverOptions);
     const result = await collection.findOne(this.filter, driverOptions);
-    if (result === undefined) {
+    if (result === null) {
       return null;
     }
     const instance = new this.modelConstructor(
@@ -319,7 +319,7 @@ export class BaseModel {
       ModelAttributes<InstanceType<ModelType>>
     >;
     const result = await collection.findOne(filter, driverOptions);
-    if (result === undefined) return null;
+    if (result === null) return null;
     const instance = new this(
       result,
       // @ts-expect-error Unavoidable error.
@@ -357,7 +357,7 @@ export class BaseModel {
       ModelAttributes<InstanceType<ModelType>>
     >;
     const result = await collection.findOne(filter, driverOptions);
-    if (result === undefined) return null;
+    if (result === null) return null;
     const instance = new this(
       result,
       // @ts-expect-error Unavoidable error.
