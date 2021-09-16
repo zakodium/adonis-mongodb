@@ -173,7 +173,9 @@ export class BaseModel {
   public readonly createdAt: Date;
   public readonly updatedAt: Date;
 
-  public $isDeleted: boolean;
+  public $isPersisted = false;
+  public $isLocal = true;
+  public $isDeleted = false;
 
   protected $collection: Collection<
     ModelAttributes<MongodbDocument<unknown>>
@@ -181,7 +183,6 @@ export class BaseModel {
   protected $originalData: Record<string, unknown>;
   protected $currentData: Record<string, unknown>;
   protected $options: InternalModelConstructorOptions;
-  protected $alreadySaved: boolean;
 
   public constructor(
     dbObj?: Record<string, unknown>,
@@ -201,8 +202,11 @@ export class BaseModel {
       this.$collection = options.collection;
     }
 
-    this.$alreadySaved = alreadyExists;
-    this.$isDeleted = false;
+    if (alreadyExists) {
+      this.$isPersisted = true;
+      this.$isLocal = false;
+    }
+
     // eslint-disable-next-line no-constructor-return
     return new Proxy(this, proxyHandler);
   }
@@ -457,6 +461,10 @@ export class BaseModel {
     };
   }
 
+  public get $isNew(): boolean {
+    return !this.$isPersisted;
+  }
+
   public get $dirty(): Partial<ModelAttributes<this>> {
     return pickBy(this.$currentData, (value, key) => {
       return (
@@ -490,7 +498,7 @@ export class BaseModel {
   public $prepareToSet() {
     const dirty = this.$dirty;
     const dirtyEntries = Object.entries(dirty);
-    if (dirtyEntries.length === 0) {
+    if (dirtyEntries.length === 0 && this.$isPersisted) {
       return null;
     }
 
@@ -536,9 +544,10 @@ export class BaseModel {
       ...options?.driverOptions,
       session: this.$options?.session,
     };
-    if (this.$alreadySaved === false) {
+    if (!this.$isPersisted) {
       const result = await collection.insertOne(toSet, driverOptions);
       this.$currentData._id = result.insertedId;
+      this.$isPersisted = true;
     } else {
       await collection.updateOne(
         { _id: this.$currentData._id },
@@ -547,7 +556,6 @@ export class BaseModel {
       );
     }
     this.$originalData = cloneDeep(this.$currentData);
-    this.$alreadySaved = true;
     return true;
   }
 
@@ -602,7 +610,6 @@ export class BaseAutoIncrementModel extends BaseModel {
 
     const toSet = this.$prepareToSet();
     if (toSet === null) return false;
-
     const driverOptions = {
       ...options?.driverOptions,
       session: this.$options?.session,
@@ -615,14 +622,17 @@ export class BaseAutoIncrementModel extends BaseModel {
       );
 
       const doc = await counterCollection.findOneAndUpdate(
-        { _id: computeCollectionName(this.constructor.name) },
+        { _id: (this.constructor as typeof BaseModel).collectionName },
         { $inc: { count: 1 } },
-        { ...driverOptions, upsert: true },
+        { ...driverOptions, upsert: true, returnDocument: 'after' },
       );
-      const newCount = doc.value ? doc.value.count + 1 : 1;
-      toSet._id = newCount;
+      if (!doc.value) {
+        throw new Error('upsert should always create a document');
+      }
+      toSet._id = doc.value.count;
       await collection.insertOne(toSet, driverOptions);
-      this.$currentData._id = newCount;
+      this.$currentData._id = doc.value.count;
+      this.$isPersisted = true;
     } else {
       await collection.updateOne(
         { _id: this.$currentData._id },

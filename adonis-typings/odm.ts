@@ -212,8 +212,30 @@ declare module '@ioc:Zakodium/Mongodb/Odm' {
     readonly createdAt: Date;
     readonly updatedAt: Date;
 
+    /**
+     * `true` if the entry has been persisted to the database.
+     */
+    readonly $isPersisted: boolean;
+
+    /**
+     * Opposite of `$isPersisted`.
+     */
+    readonly $isNew: boolean;
+
+    /**
+     * `true` if the entry has been created locally. Similar to `$isNew`, but
+     * stays `true` after the entry is persisted to the database.
+     */
+    readonly $isLocal: boolean;
+
+    /**
+     * `true` if the entry has been removed from the database.
+     */
     readonly $isDeleted: boolean;
 
+    /**
+     * `true` if the entry has been changed since it was loaded from the database.
+     */
     readonly $dirty: Partial<ModelAttributes<this>>;
 
     /**

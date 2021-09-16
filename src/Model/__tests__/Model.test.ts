@@ -25,6 +25,9 @@ class Post extends BaseAutoIncrementModel {
   public content: string;
 }
 
+class Empty extends BaseAutoIncrementModel {}
+Empty.boot();
+
 class Something extends BaseModel {
   public static collectionName = 'somethingElse';
 
@@ -124,6 +127,28 @@ test('delete on model', async () => {
 
   const sameUserButDeleted = await User.find(user._id);
   expect(sameUserButDeleted).toBeNull();
+});
+
+test('persistence boolean properties should behave correctly with new instances', async () => {
+  const user = new User();
+  user.username = nextUsername();
+  user.password = 'root';
+  expect(user.$isPersisted).toBe(false);
+  expect(user.$isNew).toBe(true);
+  expect(user.$isLocal).toBe(true);
+  await user.save();
+  expect(user.$isPersisted).toBe(true);
+  expect(user.$isNew).toBe(false);
+  expect(user.$isLocal).toBe(true);
+});
+
+test('create an empty document', async () => {
+  const empty = await Empty.create({});
+  expect(empty).toBeDefined();
+  expect(empty.$isNew).toBe(false);
+  expect(empty.$isPersisted).toBe(true);
+  expect(empty.$isLocal).toBe(true);
+  expect(empty.id).toBe(1);
 });
 
 test('id is a number on AutoIncrementModel', async () => {
