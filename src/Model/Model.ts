@@ -11,6 +11,7 @@ import {
   Filter,
   FindOptions,
   InsertOneOptions,
+  SortDirection,
 } from 'mongodb';
 import pluralize from 'pluralize';
 
@@ -23,6 +24,7 @@ import {
   ModelAdapterOptions,
   ModelDocumentOptions,
   FieldOptions,
+  QuerySortObject,
 } from '@ioc:Zakodium/Mongodb/Odm';
 
 import { proxyHandler } from './proxyHandler';
@@ -37,30 +39,80 @@ function mergeDriverOptions<
   } as DriverOptionType;
 }
 
-function ensureSort(options?: FindOptions): void {
-  if (!options || options.sort) return;
-  options.sort = {
-    _id: -1,
-  };
+interface QueryLocalOptions {
+  sort: QuerySortObject;
+  skip?: number;
+  limit?: number;
 }
 
 class Query<ModelType extends typeof BaseModel>
   implements QueryContract<InstanceType<ModelType>>
 {
+  private localCustomSort = false;
+  private localOptions: QueryLocalOptions = {
+    sort: {
+      _id: 'descending',
+    },
+  };
+
+  private getDriverOptions(): FindOptions<
+    ModelAttributes<InstanceType<ModelType>>
+  > {
+    return { ...mergeDriverOptions(this.options), ...this.localOptions };
+  }
+
   public constructor(
     private filter: Filter<ModelAttributes<InstanceType<ModelType>>>,
     private options:
       | ModelAdapterOptions<
-          FindOptions<ModelAttributes<InstanceType<ModelType>>>
+          Omit<
+            FindOptions<ModelAttributes<InstanceType<ModelType>>>,
+            'sort' | 'skip' | 'limit'
+          >
         >
       | undefined,
     private modelConstructor: ModelType,
   ) {}
 
+  public sort(sort: QuerySortObject): this {
+    if (!this.localCustomSort) {
+      this.localCustomSort = true;
+      this.localOptions.sort = sort;
+    } else {
+      Object.assign(this.localOptions.sort, sort);
+    }
+    return this;
+  }
+
+  public sortBy(field: string, direction: SortDirection = 'ascending'): this {
+    return this.sort({ [field]: direction });
+  }
+
+  public skip(skip: number): this {
+    if (!Number.isInteger(skip)) {
+      throw new TypeError(`skip must be an integer`);
+    }
+    if (skip < 0) {
+      throw new TypeError(`skip must be at least zero`);
+    }
+    this.localOptions.skip = skip;
+    return this;
+  }
+
+  public limit(limit: number): this {
+    if (!Number.isInteger(limit)) {
+      throw new TypeError(`limit must be an integer`);
+    }
+    if (limit < 1) {
+      throw new TypeError(`limit must be at least one`);
+    }
+    this.localOptions.limit = limit;
+    return this;
+  }
+
   public async first(): Promise<InstanceType<ModelType> | null> {
     const collection = await this.modelConstructor.getCollection();
-    const driverOptions = mergeDriverOptions(this.options);
-    ensureSort(driverOptions);
+    const driverOptions = this.getDriverOptions();
     const result = await collection.findOne(this.filter, driverOptions);
     if (result === null) {
       return null;
@@ -87,8 +139,7 @@ class Query<ModelType extends typeof BaseModel>
 
   public async all(): Promise<Array<InstanceType<ModelType>>> {
     const collection = await this.modelConstructor.getCollection();
-    const driverOptions = mergeDriverOptions(this.options);
-    ensureSort(driverOptions);
+    const driverOptions = this.getDriverOptions();
     const result = await collection.find(this.filter, driverOptions).toArray();
     return result.map(
       (value) =>
@@ -106,7 +157,7 @@ class Query<ModelType extends typeof BaseModel>
 
   public async count(): Promise<number> {
     const collection = await this.modelConstructor.getCollection();
-    const driverOptions = mergeDriverOptions(this.options);
+    const driverOptions = this.getDriverOptions();
     return collection.countDocuments(
       this.filter,
       driverOptions as CountOptions,
@@ -115,7 +166,7 @@ class Query<ModelType extends typeof BaseModel>
 
   public async distinct<T = unknown>(key: string): Promise<T[]> {
     const collection = await this.modelConstructor.getCollection();
-    const driverOptions = mergeDriverOptions(this.options);
+    const driverOptions = this.getDriverOptions();
     return collection.distinct(
       key,
       this.filter,
@@ -127,8 +178,7 @@ class Query<ModelType extends typeof BaseModel>
     InstanceType<ModelType>
   > {
     const collection = await this.modelConstructor.getCollection();
-    const driverOptions = mergeDriverOptions(this.options);
-    ensureSort(driverOptions);
+    const driverOptions = this.getDriverOptions();
     for await (const value of collection.find(this.filter, driverOptions)) {
       if (value === null) continue;
       yield new this.modelConstructor(
@@ -151,6 +201,13 @@ function computeCollectionName(constructorName: string): string {
 interface InternalModelConstructorOptions {
   collection: Collection<ModelAttributes<MongodbDocument<unknown>>>;
   session?: ClientSession;
+}
+
+function ensureSort(options?: FindOptions): void {
+  if (!options || options.sort) return;
+  options.sort = {
+    _id: -1,
+  };
 }
 
 function hasOwn(object: unknown, key: string): boolean {

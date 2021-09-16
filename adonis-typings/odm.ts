@@ -8,6 +8,7 @@ declare module '@ioc:Zakodium/Mongodb/Odm' {
     CountDocumentsOptions,
     BulkWriteOptions,
     ClientSession,
+    SortDirection,
   } from 'mongodb';
 
   import { UserProviderContract } from '@ioc:Adonis/Addons/Auth';
@@ -186,7 +187,10 @@ declare module '@ioc:Zakodium/Mongodb/Odm' {
       this: ModelType,
       filter?: Filter<ModelAttributes<InstanceType<ModelType>>>,
       options?: ModelAdapterOptions<
-        FindOptions<ModelAttributes<InstanceType<ModelType>>>
+        Omit<
+          FindOptions<ModelAttributes<InstanceType<ModelType>>>,
+          'sort' | 'skip' | 'limit'
+        >
       >,
     ): QueryContract<InstanceType<ModelType>>;
 
@@ -279,12 +283,62 @@ declare module '@ioc:Zakodium/Mongodb/Odm' {
     ): this;
   }
 
-  interface QueryContract<DocumentType> {
+  export interface QuerySortObject {
+    [key: string]: SortDirection;
+  }
+
+  export interface QueryContract<DocumentType> {
+    /**
+     * Add new criteria to the sort.
+     */
+    sort(sort: QuerySortObject): this;
+
+    /**
+     * Add a new criterion to the sort.
+     */
+    sortBy(field: string, direction?: SortDirection): this;
+
+    /**
+     * Skip `number` entries.
+     * Cancels any previous skip call.
+     */
+    skip(number: number): this;
+
+    /**
+     * Limit the result to `number` entries.
+     * Cancels any previous limit call.
+     */
+    limit(number: number): this;
+
+    /**
+     * Returns the first matching document or null.
+     */
     first(): Promise<DocumentType | null>;
+
+    /**
+     * Returns the first matching document or throws.
+     */
     firstOrFail(): Promise<DocumentType>;
+
+    /**
+     * Returns all matching documents.
+     */
     all(): Promise<DocumentType[]>;
+
+    /**
+     * Counts all matching documents.
+     * Calling this method after `skip` or `limit` might not count everything.
+     */
     count(): Promise<number>;
+
+    /**
+     * Performs a `distinct` query.
+     */
     distinct<T = unknown>(key: string): Promise<T[]>;
+
+    /**
+     * Returns an iterator on all matching documents.
+     */
     [Symbol.asyncIterator](): AsyncIterableIterator<DocumentType>;
   }
 
