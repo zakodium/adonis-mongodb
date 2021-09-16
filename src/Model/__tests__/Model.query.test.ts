@@ -204,3 +204,9 @@ test('query.explain', async () => {
   const result = await TestModel.query().explain();
   expect(result.queryPlanner.winningPlan.inputStage.stage).toBe('IXSCAN');
 });
+
+test('query should throw if forbidden options are passed', () => {
+  expect(() =>
+    TestModel.query({}, { driverOptions: { sort: 'test' } }),
+  ).toThrow(/sort is not allowed in query's driverOptions/);
+});

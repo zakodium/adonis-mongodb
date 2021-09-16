@@ -30,6 +30,8 @@ declare module '@ioc:Zakodium/Mongodb/Odm' {
     | FunctionProperties<Omit<T, DollarProperties<T>>>
   >;
 
+  export type ForbiddenQueryOptions = 'sort' | 'skip' | 'limit' | 'explain';
+
   /**
    * Model adapter options
    */
@@ -191,7 +193,7 @@ declare module '@ioc:Zakodium/Mongodb/Odm' {
       options?: ModelAdapterOptions<
         Omit<
           FindOptions<ModelAttributes<InstanceType<ModelType>>>,
-          'sort' | 'skip' | 'limit' | 'explain'
+          ForbiddenQueryOptions
         >
       >,
     ): QueryContract<InstanceType<ModelType>>;
