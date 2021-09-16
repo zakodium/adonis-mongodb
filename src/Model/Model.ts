@@ -27,6 +27,7 @@ import {
   ModelDocumentOptions,
   FieldOptions,
   QuerySortObject,
+  ForbiddenQueryOptions,
 } from '@ioc:Zakodium/Mongodb/Odm';
 
 import { proxyHandler } from './proxyHandler';
@@ -46,6 +47,13 @@ interface QueryLocalOptions {
   skip?: number;
   limit?: number;
 }
+
+const forbiddenQueryOptions: ForbiddenQueryOptions[] = [
+  'sort',
+  'skip',
+  'limit',
+  'explain',
+];
 
 class Query<ModelType extends typeof BaseModel>
   implements QueryContract<InstanceType<ModelType>>
@@ -69,12 +77,20 @@ class Query<ModelType extends typeof BaseModel>
       | ModelAdapterOptions<
           Omit<
             FindOptions<ModelAttributes<InstanceType<ModelType>>>,
-            'sort' | 'skip' | 'limit'
+            ForbiddenQueryOptions
           >
         >
       | undefined,
     private modelConstructor: ModelType,
-  ) {}
+  ) {
+    if (options?.driverOptions) {
+      for (const key of forbiddenQueryOptions) {
+        if (key in options.driverOptions) {
+          throw new TypeError(`${key} is not allowed in query's driverOptions`);
+        }
+      }
+    }
+  }
 
   public sort(sort: QuerySortObject): this {
     if (!this.localCustomSort) {
