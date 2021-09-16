@@ -189,7 +189,7 @@ describe('query.limit', () => {
   });
 });
 
-test('sort/skip/limit', async () => {
+test('query.sort/skip/limit', async () => {
   const result = await TestModel.query()
     .sort({ _id: 'desc' })
     .skip(1)
@@ -198,4 +198,9 @@ test('sort/skip/limit', async () => {
   expect(result).toHaveLength(2);
   expect(result[0]._id).toBe(4);
   expect(result[1]._id).toBe(3);
+});
+
+test('query.explain', async () => {
+  const result = await TestModel.query().explain();
+  expect(result.queryPlanner.winningPlan.inputStage.stage).toBe('IXSCAN');
 });

@@ -1,6 +1,7 @@
 declare module '@ioc:Zakodium/Mongodb/Odm' {
   import {
     Collection,
+    Document,
     Filter,
     FindOptions,
     InsertOneOptions,
@@ -9,6 +10,7 @@ declare module '@ioc:Zakodium/Mongodb/Odm' {
     BulkWriteOptions,
     ClientSession,
     SortDirection,
+    ExplainVerbosityLike,
   } from 'mongodb';
 
   import { UserProviderContract } from '@ioc:Adonis/Addons/Auth';
@@ -189,7 +191,7 @@ declare module '@ioc:Zakodium/Mongodb/Odm' {
       options?: ModelAdapterOptions<
         Omit<
           FindOptions<ModelAttributes<InstanceType<ModelType>>>,
-          'sort' | 'skip' | 'limit'
+          'sort' | 'skip' | 'limit' | 'explain'
         >
       >,
     ): QueryContract<InstanceType<ModelType>>;
@@ -335,6 +337,11 @@ declare module '@ioc:Zakodium/Mongodb/Odm' {
      * Performs a `distinct` query.
      */
     distinct<T = unknown>(key: string): Promise<T[]>;
+
+    /**
+     * Performs an `explain` query.
+     */
+    explain(verbosity?: ExplainVerbosityLike): Promise<Document>;
 
     /**
      * Returns an iterator on all matching documents.
