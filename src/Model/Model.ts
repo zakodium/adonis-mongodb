@@ -8,6 +8,8 @@ import {
   CountOptions,
   DeleteOptions,
   DistinctOptions,
+  Document,
+  ExplainVerbosityLike,
   Filter,
   FindOptions,
   InsertOneOptions,
@@ -172,6 +174,12 @@ class Query<ModelType extends typeof BaseModel>
       this.filter,
       driverOptions as DistinctOptions,
     );
+  }
+
+  public async explain(verbosity?: ExplainVerbosityLike): Promise<Document> {
+    const collection = await this.modelConstructor.getCollection();
+    const driverOptions = this.getDriverOptions();
+    return collection.find(this.filter, driverOptions).explain(verbosity);
   }
 
   public async *[Symbol.asyncIterator](): AsyncIterableIterator<
