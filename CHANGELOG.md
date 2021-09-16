@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.11.0](https://www.github.com/zakodium/adonis-mongodb/compare/v0.10.6...v0.11.0) (2021-09-16)
+
+
+### ⚠ BREAKING CHANGES
+
+* It is no longer possible to pass explain to the query() method's driver options. Use the new `explain` method instead.
+* It is no longer possible to pass sort, skip or limit to the query() method's driver options. Use the new `sort`, `sortBy`, `skip` and `limit` methods instead.
+
+### Features
+
+* add explain query method ([42491b5](https://www.github.com/zakodium/adonis-mongodb/commit/42491b59106aaf9748ead305cbfbda3b09acd068))
+* add sort, sortBy, skip and limit query methods ([29cc49c](https://www.github.com/zakodium/adonis-mongodb/commit/29cc49c2011b4f5717674523d282d83e7c6e644c))
+* implement $isPersisted, $isNew and $isLocal model properties ([4c7b36e](https://www.github.com/zakodium/adonis-mongodb/commit/4c7b36eb054163c7a7b78eb6dd63e5bea9b7e7cf))
+
 ### [0.10.6](https://www.github.com/zakodium/adonis-mongodb/compare/v0.10.5...v0.10.6) (2021-09-01)
 
 
