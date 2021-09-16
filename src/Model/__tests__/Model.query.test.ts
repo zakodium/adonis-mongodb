@@ -10,6 +10,9 @@ class TestModel extends BaseAutoIncrementModel {
 
   @field()
   public otherField?: boolean;
+
+  @field()
+  public numberField: number;
 }
 
 class EmptyTestModel extends BaseModel {
@@ -19,11 +22,11 @@ class EmptyTestModel extends BaseModel {
 
 beforeAll(async () => {
   await TestModel.createMany([
-    { testField: 'test1' },
-    { testField: 'test2' },
-    { testField: 'test3' },
-    { testField: 'test4' },
-    { testField: 'test5' },
+    { testField: 'test1', numberField: 1 },
+    { testField: 'test2', numberField: 1 },
+    { testField: 'test3', numberField: 1 },
+    { testField: 'test4', numberField: 2 },
+    { testField: 'test5', numberField: 2 },
   ]);
 });
 
@@ -95,4 +98,104 @@ test('query async iterator', async () => {
     count++;
   }
   expect(count).toBe(5);
+});
+
+describe('query.sort', () => {
+  it('should sort by descending _id by default', async () => {
+    expect((await TestModel.query().firstOrFail())._id).toBe(5);
+  });
+
+  it('should sort by custom field with sort()', async () => {
+    expect(
+      (await TestModel.query().sort({ numberField: 1 }).firstOrFail())._id,
+    ).toBe(1);
+  });
+
+  it('should sort by custom field with sortBy()', async () => {
+    expect(
+      (await TestModel.query().sortBy('numberField', -1).firstOrFail())._id,
+    ).toBe(4);
+  });
+
+  it('should sort by combination of fields', async () => {
+    expect(
+      (
+        await TestModel.query()
+          .sortBy('numberField', 1)
+          .sort({ _id: 'desc' })
+          .firstOrFail()
+      )._id,
+    ).toBe(3);
+  });
+});
+
+describe('query.skip', () => {
+  it('should not skip by default', async () => {
+    expect(await TestModel.query().count()).toBe(5);
+  });
+
+  it('should not skip anything if zero is passed', async () => {
+    expect(await TestModel.query().skip(0).count()).toBe(5);
+  });
+
+  it('should skip everything if a big number is passed', async () => {
+    expect(await TestModel.query().skip(1000).count()).toBe(0);
+  });
+
+  it('should skip properly with smaller number', async () => {
+    expect(await TestModel.query().skip(2).count()).toBe(3);
+  });
+
+  it('should throw if skip is smaller than zero', async () => {
+    expect(() => TestModel.query().skip(-1).count()).toThrow(
+      /skip must be at least zero/,
+    );
+  });
+
+  it('should throw if skip is not an integer', async () => {
+    expect(() => TestModel.query().skip(1.5).count()).toThrow(
+      /skip must be an integer/,
+    );
+  });
+});
+
+describe('query.limit', () => {
+  it('should not limit by default', async () => {
+    expect(await TestModel.query().count()).toBe(5);
+  });
+
+  it('should return everything with large limit', async () => {
+    expect(await TestModel.query().limit(1000).count()).toBe(5);
+  });
+
+  it('should limit properly with exact number', async () => {
+    expect(await TestModel.query().limit(5).count()).toBe(5);
+  });
+
+  it('should limit properly with smaller number', async () => {
+    expect(await TestModel.query().limit(2).count()).toBe(2);
+  });
+
+  it('should throw if limit is smaller than one', async () => {
+    expect(() => TestModel.query().limit(0)).toThrow(
+      /limit must be at least one/,
+    );
+  });
+
+  it('should throw if limit is not an integer', async () => {
+    expect(() => TestModel.query().limit(1.5)).toThrow(
+      /limit must be an integer/,
+    );
+  });
+});
+
+test('sort/skip/limit', async () => {
+  const result = await TestModel.query()
+    .sort({ _id: 'desc' })
+    .skip(1)
+    .limit(2)
+    .all();
+  expect(result).toHaveLength(2);
+  expect(result[0]._id).toBe(4);
+  expect(result[1]._id).toBe(3);
 });
