@@ -245,7 +245,7 @@ declare module '@ioc:Zakodium/Mongodb/Odm' {
     readonly $isDeleted: boolean;
 
     /**
-     * `true` if the entry has been changed since it was loaded from the database.
+     * Returns an object with the field values that have been changed.
      */
     readonly $dirty: Partial<ModelAttributes<this>>;
 

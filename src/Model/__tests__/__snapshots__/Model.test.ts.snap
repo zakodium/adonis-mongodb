@@ -1,0 +1,15 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`custom inspect function 1`] = `
+"{
+  Model: 'Post',
+  '$original': { _id: 4, title: 'post title 4', content: 'post content' },
+  '$attributes': { _id: 4, title: 'post title 4', content: 'new content' },
+  '$isPersisted': true,
+  '$isNew': false,
+  '$isLocal': false,
+  '$isDeleted': false,
+  '$dirty': { content: 'new content' },
+  '$isDirty': true
+}"
+`;

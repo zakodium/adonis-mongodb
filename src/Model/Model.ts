@@ -539,6 +539,11 @@ export class BaseModel {
       Model: this.constructor.name,
       $original: this.$original,
       $attributes: this.$attributes,
+      $isPersisted: this.$isPersisted,
+      $isNew: this.$isNew,
+      $isLocal: this.$isLocal,
+      $isDeleted: this.$isDeleted,
+      $dirty: this.$dirty,
       $isDirty: this.$isDirty,
     };
   }
