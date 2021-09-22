@@ -26,9 +26,9 @@ export default class MongodbProvider {
 
       return {
         ObjectId,
-        BaseModel: BaseModel as typeof BaseModelType,
+        BaseModel: BaseModel as unknown as typeof BaseModelType,
         BaseAutoIncrementModel:
-          BaseAutoIncrementModel as typeof BaseAutoIncrementModelType,
+          BaseAutoIncrementModel as unknown as typeof BaseAutoIncrementModelType,
         field,
       };
     });
