@@ -419,3 +419,8 @@ test('toJSON method', async () => {
 
   expect(JSON.stringify(jsonPost)).toStrictEqual(JSON.stringify(expected));
 });
+
+test('spreading a model should throw', async () => {
+  const post = await Post.query().firstOrFail();
+  expect(() => ({ ...post })).toThrow(/Getting model keys is disallowed/);
+});
