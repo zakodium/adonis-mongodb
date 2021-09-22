@@ -1,3 +1,5 @@
+import { inspect } from 'util';
+
 import { ObjectId } from 'mongodb';
 
 import { setupDatabase } from '../../../test-utils/TestUtils';
@@ -423,4 +425,18 @@ test('toJSON method', async () => {
 test('spreading a model should throw', async () => {
   const post = await Post.query().firstOrFail();
   expect(() => ({ ...post })).toThrow(/Getting model keys is disallowed/);
+});
+
+test('custom inspect function', async () => {
+  const post = await Post.query().firstOrFail();
+  post.content = 'new content';
+
+  // Delete dates to have a reproducible snapshot.
+  delete post.$original.createdAt;
+  delete post.$original.updatedAt;
+  delete post.$attributes.createdAt;
+  delete post.$attributes.updatedAt;
+
+  const inspected = inspect(post);
+  expect(inspected).toMatchSnapshot();
 });
