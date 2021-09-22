@@ -127,6 +127,12 @@ describe('query.sort', () => {
       )._id,
     ).toBe(3);
   });
+
+  it('should sort by custom field ascending by default', async () => {
+    expect(
+      (await TestModel.query().sortBy('numberField').firstOrFail())._id,
+    ).toBe(1);
+  });
 });
 
 describe('query.skip', () => {
@@ -205,8 +211,22 @@ test('query.explain', async () => {
   expect(result.queryPlanner.winningPlan.inputStage.stage).toBe('IXSCAN');
 });
 
+test('query should pass additional driver options', async () => {
+  const query = TestModel.query(
+    { _id: 1 },
+    {
+      driverOptions: {
+        showRecordId: true,
+      },
+    },
+  );
+  const result = await query.firstOrFail();
+  expect(result.$attributes.$recordId).toBe(1);
+});
+
 test('query should throw if forbidden options are passed', () => {
   expect(() =>
+    // @ts-expect-error
     TestModel.query({}, { driverOptions: { sort: 'test' } }),
   ).toThrow(/sort is not allowed in query's driverOptions/);
 });

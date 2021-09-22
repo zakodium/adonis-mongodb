@@ -519,7 +519,10 @@ export class BaseModel {
     this: ModelType,
     filter: Filter<ModelAttributes<InstanceType<ModelType>>> = {},
     options?: ModelAdapterOptions<
-      FindOptions<ModelAttributes<InstanceType<ModelType>>>
+      Omit<
+        FindOptions<ModelAttributes<InstanceType<ModelType>>>,
+        ForbiddenQueryOptions
+      >
     >,
   ): Query<ModelType> {
     return new Query(filter, options, this);

@@ -25,6 +25,8 @@ class Post extends BaseAutoIncrementModel {
 
   @field()
   public content: string;
+
+  public notAField?: string;
 }
 
 class Empty extends BaseAutoIncrementModel {}
@@ -46,6 +48,28 @@ function nextTitle() {
   return `post title ${++postTitleCounter}`;
 }
 
+describe('$hasField', () => {
+  it('should return true if field exists', () => {
+    expect(Post.$hasField('title')).toBe(true);
+  });
+
+  it('should return false if field does not exist', () => {
+    expect(Post.$hasField('notAField')).toBe(false);
+  });
+});
+
+describe('$getField', () => {
+  it('should return the field if it exists', () => {
+    const field = Post.$getField('title');
+    expect(field).toStrictEqual({});
+  });
+
+  it('should return undefined if the field does not exist', () => {
+    const field = Post.$getField('notAField');
+    expect(field).toBeUndefined();
+  });
+});
+
 test('can create', async () => {
   const newUser = await User.create({
     username: nextUsername(),
@@ -57,11 +81,6 @@ test('can create', async () => {
 test('get collection by model class', async () => {
   const collection = await User.getCollection();
   expect(collection).toBeDefined();
-});
-
-test('find one by property', async () => {
-  const user = User.findBy('username', 'root');
-  expect(user).toBeDefined();
 });
 
 test('count all', async () => {
@@ -76,13 +95,6 @@ test('find by id should work', async () => {
   });
   const secondUser = await User.find(user._id);
   expect(secondUser).not.toBeNull();
-});
-
-test("find by id should throw when doesn't exists", async () => {
-  const t = async () => {
-    await User.findOrFail(new ObjectId());
-  };
-  await expect(t).rejects.toThrow(/E_DOCUMENT_NOT_FOUND/);
 });
 
 test('find all', async () => {
@@ -439,4 +451,79 @@ test('custom inspect function', async () => {
 
   const inspected = inspect(post);
   expect(inspected).toMatchSnapshot();
+});
+
+describe('findMany', () => {
+  it('should accept an empty list', async () => {
+    expect(await Post.findMany([])).toStrictEqual([]);
+  });
+
+  it('should find all results', async () => {
+    const results = await Post.findMany([2, 1, 3]);
+    expect(results).toHaveLength(3);
+    expect(results[0]).toBeInstanceOf(Post);
+    expect(results.map((value) => value.id)).toStrictEqual([1, 2, 3]);
+  });
+
+  it('should not duplicate results', async () => {
+    const results = await Post.findMany([1, 1, 1]);
+    expect(results).toHaveLength(1);
+    expect(results[0].id).toBe(1);
+  });
+});
+
+describe('findOrFail', () => {
+  it('should return instance if found', async () => {
+    const post = await Post.findOrFail(1);
+    expect(post).toBeInstanceOf(Post);
+    expect(post.id).toBe(1);
+  });
+
+  it('should throw if not found', async () => {
+    await expect(Post.findOrFail(-1)).rejects.toThrow(/E_DOCUMENT_NOT_FOUND/);
+  });
+});
+
+describe('findBy', () => {
+  it('should return instance if found', async () => {
+    const user = await User.findBy('username', 'root1');
+    expect(user).toBeInstanceOf(User);
+    // @ts-expect-error
+    expect(user.username).toBe('root1');
+  });
+
+  it('should return null if not found', async () => {
+    const user = await User.findBy('username', 'bad');
+    expect(user).toBeNull();
+  });
+});
+
+describe('findByOrFail', () => {
+  it('should return instance if found', async () => {
+    const user = await User.findByOrFail('username', 'root1');
+    expect(user).toBeInstanceOf(User);
+    expect(user.username).toBe('root1');
+  });
+
+  it('should throw if not found', async () => {
+    await expect(User.findByOrFail('username', 'bad')).rejects.toThrow(
+      /E_DOCUMENT_NOT_FOUND/,
+    );
+  });
+});
+
+describe('save', () => {
+  it('should return true if something was saved', async () => {
+    const post = await Post.findOrFail(1);
+    post.title = 'new title';
+    expect(await post.save()).toBe(true);
+  });
+
+  it('should return false if nothing was saved', async () => {
+    const post = await Post.findOrFail(1);
+    const title = post.title;
+    // no-op
+    post.title = title;
+    expect(await post.save()).toBe(false);
+  });
 });
