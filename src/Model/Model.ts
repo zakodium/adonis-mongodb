@@ -1,3 +1,5 @@
+import assert from 'assert';
+
 import { defineStaticProperty, Exception } from '@poppinss/utils';
 import { cloneDeep, isEqual, pickBy, snakeCase } from 'lodash';
 import {
@@ -526,9 +528,7 @@ export class BaseModel {
     this: ModelType,
     connection = this.connection,
   ): Promise<Collection<ModelAttributes<InstanceType<ModelType>>>> {
-    if (!this.$database) {
-      throw new Error('Model should only be accessed from IoC container');
-    }
+    assert(this.$database, 'Model should only be accessed from IoC container');
     const connectionInstance = this.$database.connection(connection);
     return connectionInstance.collection(this.collectionName);
   }
@@ -707,9 +707,7 @@ export class BaseAutoIncrementModel extends BaseModel {
         { $inc: { count: 1 } },
         { ...driverOptions, upsert: true, returnDocument: 'after' },
       );
-      if (!doc.value) {
-        throw new Error('upsert should always create a document');
-      }
+      assert(doc.value, 'upsert should always create a document');
       toSet._id = doc.value.count;
       await collection.insertOne(toSet, driverOptions);
       this.$currentData._id = doc.value.count;
