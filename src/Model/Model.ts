@@ -256,6 +256,9 @@ export class BaseModel {
   public readonly createdAt: Date;
   public readonly updatedAt: Date;
 
+  public $original: Record<string, unknown>;
+  public $attributes: Record<string, unknown>;
+
   public $isPersisted = false;
   public $isLocal = true;
   public $isDeleted = false;
@@ -263,8 +266,6 @@ export class BaseModel {
   protected $collection: Collection<
     ModelAttributes<MongodbDocument<unknown>>
   > | null = null;
-  protected $originalData: Record<string, unknown>;
-  protected $currentData: Record<string, unknown>;
   protected $options: InternalModelConstructorOptions;
 
   public constructor(
@@ -273,11 +274,11 @@ export class BaseModel {
     alreadyExists = false,
   ) {
     if (dbObj) {
-      this.$originalData = alreadyExists === true ? cloneDeep(dbObj) : {};
-      this.$currentData = dbObj;
+      this.$original = alreadyExists === true ? cloneDeep(dbObj) : {};
+      this.$attributes = dbObj;
     } else {
-      this.$originalData = {};
-      this.$currentData = {};
+      this.$original = {};
+      this.$attributes = {};
     }
 
     if (options !== undefined) {
@@ -535,10 +536,10 @@ export class BaseModel {
 
   public [Symbol.for('nodejs.util.inspect.custom')](): unknown {
     return {
-      model: this.constructor.name,
-      originalData: this.$originalData,
-      currentData: this.$currentData,
-      isDirty: this.$isDirty,
+      Model: this.constructor.name,
+      $original: this.$original,
+      $attributes: this.$attributes,
+      $isDirty: this.$isDirty,
     };
   }
 
@@ -547,10 +548,10 @@ export class BaseModel {
   }
 
   public get $dirty(): Partial<ModelAttributes<this>> {
-    return pickBy(this.$currentData, (value, key) => {
+    return pickBy(this.$attributes, (value, key) => {
       return (
-        this.$originalData[key] === undefined ||
-        !isEqual(this.$originalData[key], value)
+        this.$original[key] === undefined ||
+        !isEqual(this.$original[key], value)
       );
     }) as Partial<ModelAttributes<this>>;
   }
@@ -588,11 +589,11 @@ export class BaseModel {
     // which shouldn't reset the createdAt field.
     const toSet = {} as DataToSet;
     const now = new Date();
-    if (this.$currentData.createdAt === undefined) {
-      this.$currentData.createdAt = now;
+    if (this.$attributes.createdAt === undefined) {
+      this.$attributes.createdAt = now;
       toSet.createdAt = now;
     }
-    this.$currentData.updatedAt = now;
+    this.$attributes.updatedAt = now;
     toSet.updatedAt = now;
 
     for (const [dirtyKey, dirtyValue] of dirtyEntries) {
@@ -602,7 +603,7 @@ export class BaseModel {
   }
 
   public get id() {
-    return this.$currentData._id;
+    return this.$attributes._id;
   }
 
   public get $isDirty(): boolean {
@@ -610,7 +611,7 @@ export class BaseModel {
   }
 
   public toJSON(): unknown {
-    return this.$currentData;
+    return this.$attributes;
   }
 
   public async save(
@@ -627,16 +628,16 @@ export class BaseModel {
     };
     if (!this.$isPersisted) {
       const result = await collection.insertOne(toSet, driverOptions);
-      this.$currentData._id = result.insertedId;
+      this.$attributes._id = result.insertedId;
       this.$isPersisted = true;
     } else {
       await collection.updateOne(
-        { _id: this.$currentData._id },
+        { _id: this.$attributes._id },
         { $set: toSet },
         driverOptions,
       );
     }
-    this.$originalData = cloneDeep(this.$currentData);
+    this.$original = cloneDeep(this.$attributes);
     return true;
   }
 
@@ -651,7 +652,7 @@ export class BaseModel {
     };
     const result = await collection.deleteOne(
       {
-        _id: this.$currentData._id,
+        _id: this.$attributes._id,
       },
       driverOptions,
     );
@@ -663,7 +664,7 @@ export class BaseModel {
     values: NoExtraProperties<Partial<Omit<ModelAttributes<this>, '_id'>>, T>,
   ): this {
     Object.entries(values).forEach(([key, value]) => {
-      this.$currentData[key] = value;
+      this.$attributes[key] = value;
     });
     return this;
   }
@@ -671,11 +672,11 @@ export class BaseModel {
   public fill<T extends Partial<Omit<ModelAttributes<this>, '_id'>>>(
     values: NoExtraProperties<Partial<Omit<ModelAttributes<this>, '_id'>>, T>,
   ) {
-    const createdAt = this.$currentData.createdAt;
-    this.$currentData = {
+    const createdAt = this.$attributes.createdAt;
+    this.$attributes = {
       _id: this.id,
     };
-    if (createdAt) this.$currentData.createdAt = createdAt;
+    if (createdAt) this.$attributes.createdAt = createdAt;
     return this.merge(values);
   }
 }
@@ -710,16 +711,16 @@ export class BaseAutoIncrementModel extends BaseModel {
       assert(doc.value, 'upsert should always create a document');
       toSet._id = doc.value.count;
       await collection.insertOne(toSet, driverOptions);
-      this.$currentData._id = doc.value.count;
+      this.$attributes._id = doc.value.count;
       this.$isPersisted = true;
     } else {
       await collection.updateOne(
-        { _id: this.$currentData._id },
+        { _id: this.$attributes._id },
         { $set: toSet },
         driverOptions,
       );
     }
-    this.$originalData = cloneDeep(this.$currentData);
+    this.$original = cloneDeep(this.$attributes);
     return true;
   }
 }

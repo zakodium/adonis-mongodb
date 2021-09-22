@@ -220,6 +220,9 @@ declare module '@ioc:Zakodium/Mongodb/Odm' {
     readonly createdAt: Date;
     readonly updatedAt: Date;
 
+    readonly $original: ModelAttributes<this>;
+    readonly $attributes: ModelAttributes<this>;
+
     /**
      * `true` if the entry has been persisted to the database.
      */
