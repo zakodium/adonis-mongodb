@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.12.0](https://www.github.com/zakodium/adonis-mongodb/compare/v0.11.0...v0.12.0) (2021-09-23)
+
+
+### Features
+
+* implement `model.$original` and `model.$attributes` ([952a139](https://www.github.com/zakodium/adonis-mongodb/commit/952a13904160b5cc163e8555f1c170182b766d44))
+* improve custom inspect output ([7fb3a3e](https://www.github.com/zakodium/adonis-mongodb/commit/7fb3a3e7544e8e455437839e8f0d406acda2cbd2))
+
+
+### Bug Fixes
+
+* throw an error when user attempts to spread a model ([ffacaca](https://www.github.com/zakodium/adonis-mongodb/commit/ffacacad0c598cff59c4a63eaebdddb1cf967592))
+
 ## [0.11.0](https://www.github.com/zakodium/adonis-mongodb/compare/v0.10.6...v0.11.0) (2021-09-16)
 
 
