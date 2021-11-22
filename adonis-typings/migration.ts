@@ -4,6 +4,7 @@ declare module '@ioc:Zakodium/Mongodb/Migration' {
     ClientSession,
     IndexSpecification,
     CreateIndexesOptions,
+    DropIndexesOptions,
   } from 'mongodb';
 
   export default abstract class Migration {
@@ -12,7 +13,12 @@ declare module '@ioc:Zakodium/Mongodb/Migration' {
     public createIndex(
       collectionName: string,
       index: IndexSpecification,
-      options?: CreateIndexesOptions,
+      options?: Omit<CreateIndexesOptions, 'session'>,
+    ): void;
+    public dropIndex(
+      collectionName: string,
+      indexName: string,
+      options?: Omit<DropIndexesOptions, 'session'>,
     ): void;
     public defer(
       callback: (db: Db, client: ClientSession) => Promise<void>,
