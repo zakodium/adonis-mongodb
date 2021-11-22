@@ -20,7 +20,7 @@ export function getLogger() {
 
 export function getConnection(logger = getLogger()) {
   const connectionConfig = {
-    url: 'mongodb://localhost:33333',
+    url: 'mongodb://localhost:33333?directConnection=true',
     database: `test-runner-${basename(expect.getState().testPath, '.test.ts')}`,
   };
   return new Connection('mongo', connectionConfig, logger);
@@ -35,11 +35,11 @@ export function getMongodb(logger = getLogger()) {
     connection: 'mongo',
     connections: {
       mongo: {
-        url: 'mongodb://127.0.0.1:33333',
+        url: 'mongodb://127.0.0.1:33333?directConnection=true',
         database,
       },
       other: {
-        url: 'mongodb://127.0.0.1:33333',
+        url: 'mongodb://127.0.0.1:33333?directConnection=true',
         database,
       },
     },

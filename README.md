@@ -100,7 +100,7 @@ To run tests locally:
 
 ```bash
 docker-compose up -d
-node reset-dev.js
+node reset-dev.mjs
 npm test
 docker-compose down
 ```
