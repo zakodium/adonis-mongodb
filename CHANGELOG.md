@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.13.0](https://www.github.com/zakodium/adonis-mongodb/compare/v0.12.0...v0.13.0) (2021-11-22)
+
+
+### Features
+
+* **migrations:** add dropIndex method ([16652d8](https://www.github.com/zakodium/adonis-mongodb/commit/16652d8c136758f9a8758fe3f0bc97917fcbf5fc))
+
 ## [0.12.0](https://www.github.com/zakodium/adonis-mongodb/compare/v0.11.0...v0.12.0) (2021-09-23)
 
 
