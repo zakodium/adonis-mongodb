@@ -1,6 +1,5 @@
-'use strict';
-
-const childProcess = require('child_process');
+/* eslint-env node */
+import childProcess from 'child_process';
 
 try {
   childProcess.execFileSync(

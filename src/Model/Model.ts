@@ -16,6 +16,7 @@ import {
   FindOptions,
   InsertOneOptions,
   SortDirection,
+  WithId,
 } from 'mongodb';
 import pluralize from 'pluralize';
 
@@ -160,7 +161,12 @@ class Query<ModelType extends typeof BaseModel>
   public async all(): Promise<Array<InstanceType<ModelType>>> {
     const collection = await this.modelConstructor.getCollection();
     const driverOptions = this.getDriverOptions();
-    const result = await collection.find(this.filter, driverOptions).toArray();
+    const result = await collection
+      .find(
+        this.filter as Filter<WithId<ModelAttributes<InstanceType<ModelType>>>>,
+        driverOptions,
+      )
+      .toArray();
     return result.map(
       (value) =>
         new this.modelConstructor(
@@ -197,7 +203,12 @@ class Query<ModelType extends typeof BaseModel>
   public async explain(verbosity?: ExplainVerbosityLike): Promise<Document> {
     const collection = await this.modelConstructor.getCollection();
     const driverOptions = this.getDriverOptions();
-    return collection.find(this.filter, driverOptions).explain(verbosity);
+    return collection
+      .find(
+        this.filter as Filter<WithId<ModelAttributes<InstanceType<ModelType>>>>,
+        driverOptions,
+      )
+      .explain(verbosity);
   }
 
   public async *[Symbol.asyncIterator](): AsyncIterableIterator<
@@ -205,7 +216,10 @@ class Query<ModelType extends typeof BaseModel>
   > {
     const collection = await this.modelConstructor.getCollection();
     const driverOptions = this.getDriverOptions();
-    for await (const value of collection.find(this.filter, driverOptions)) {
+    for await (const value of collection.find(
+      this.filter as Filter<WithId<ModelAttributes<InstanceType<ModelType>>>>,
+      driverOptions,
+    )) {
       if (value === null) continue;
       yield new this.modelConstructor(
         value,

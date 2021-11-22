@@ -113,7 +113,7 @@ test('saved changes should be sent to database', async () => {
 
   const sameUser = await User.find(user._id);
   expect(sameUser).not.toBeNull();
-  expect((sameUser as User).password).toStrictEqual('rootroot');
+  expect((sameUser as User).password).toBe('rootroot');
 });
 
 test('id is an ObjectId', async () => {
