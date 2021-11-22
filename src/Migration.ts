@@ -4,6 +4,7 @@ import {
   ClientSession,
   Db,
   IndexSpecification,
+  DropIndexesOptions,
 } from 'mongodb';
 
 import type {
@@ -13,18 +14,26 @@ import type {
 
 enum MigrationType {
   CreateCollection = 'CreateCollection',
+  DropIndex = 'DropIndex',
   CreateIndex = 'CreateIndex',
   Custom = 'Custom',
 }
 
 interface CreateCollectionOperation {
   type: MigrationType.CreateCollection;
-  name: string;
+  collectionName: string;
+}
+
+interface DropIndexOperation {
+  type: MigrationType.DropIndex;
+  collectionName: string;
+  indexName: string;
+  options?: DropIndexesOptions;
 }
 
 interface CreateIndexOperation {
   type: MigrationType.CreateIndex;
-  name: string;
+  collectionName: string;
   index: IndexSpecification;
   options?: CreateIndexesOptions;
 }
@@ -36,6 +45,7 @@ interface CustomOperation {
 
 type MigrationOperation =
   | CreateCollectionOperation
+  | DropIndexOperation
   | CreateIndexOperation
   | CustomOperation;
 
@@ -67,7 +77,20 @@ export default function createMigration(Database: DatabaseContract): any {
     public createCollection(collectionName: string): void {
       this.$operations.push({
         type: MigrationType.CreateCollection,
-        name: collectionName,
+        collectionName,
+      });
+    }
+
+    public dropIndex(
+      collectionName: string,
+      indexName: string,
+      options?: DropIndexesOptions,
+    ): void {
+      this.$operations.push({
+        type: MigrationType.DropIndex,
+        collectionName,
+        indexName,
+        options,
       });
     }
 
@@ -78,7 +101,7 @@ export default function createMigration(Database: DatabaseContract): any {
     ): void {
       this.$operations.push({
         type: MigrationType.CreateIndex,
-        name: collectionName,
+        collectionName,
         index,
         options,
       });
@@ -94,6 +117,7 @@ export default function createMigration(Database: DatabaseContract): any {
     public async execUp(): Promise<void> {
       this.up();
       await this._createCollections();
+      await this._dropIndexes();
       await this._createIndexes();
       await this._executeDeferred();
     }
@@ -113,8 +137,10 @@ export default function createMigration(Database: DatabaseContract): any {
     private async _createCollections(): Promise<void> {
       const db = await this.$connection.database();
       for (const op of this.$operations.filter(isCreateCollection)) {
-        this.$logger.info(`Creating collection ${op.name}`);
-        await db.createCollection(op.name, { session: this.$session });
+        this.$logger.info(`Creating collection ${op.collectionName}`);
+        await db.createCollection(op.collectionName, {
+          session: this.$session,
+        });
       }
     }
 
@@ -125,15 +151,29 @@ export default function createMigration(Database: DatabaseContract): any {
       }
     }
 
+    private async _dropIndexes(): Promise<void> {
+      const db = await this.$connection.database();
+      for (const op of this.$operations.filter(isDropIndex)) {
+        this.$logger.info(
+          `Dropping index ${op.indexName} on ${op.collectionName}`,
+        );
+        const collection = db.collection(op.collectionName);
+        // Index deletion cannot be done in a transaction.
+        await collection.dropIndex(op.indexName, { ...op.options });
+      }
+    }
+
     private async _createIndexes(): Promise<void> {
       const db = await this.$connection.database();
       const collections = await this._listCollections();
       for (const op of this.$operations.filter(isCreateIndex)) {
-        this.$logger.info(`Creating index on ${op.name}`);
-        await db.createIndex(op.name, op.index, {
+        this.$logger.info(`Creating index on ${op.collectionName}`);
+        await db.createIndex(op.collectionName, op.index, {
           ...op.options,
-          // index creation will fail if collection pre-exists the transaction
-          session: collections.includes(op.name) ? undefined : this.$session,
+          // Index creation will fail if collection pre-exists the transaction.
+          session: collections.includes(op.collectionName)
+            ? undefined
+            : this.$session,
         });
       }
     }
@@ -152,6 +192,10 @@ function isCreateCollection(
 
 function isCreateIndex(op: MigrationOperation): op is CreateIndexOperation {
   return op.type === MigrationType.CreateIndex;
+}
+
+function isDropIndex(op: MigrationOperation): op is DropIndexOperation {
+  return op.type === MigrationType.DropIndex;
 }
 
 function isCustom(op: MigrationOperation): op is CustomOperation {
