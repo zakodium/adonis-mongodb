@@ -1,5 +1,5 @@
 declare module '@ioc:Zakodium/Mongodb/Database' {
-  import { EventEmitter } from 'events';
+  import { EventEmitter } from 'node:events';
 
   import {
     MongoClientOptions,
@@ -7,6 +7,7 @@ declare module '@ioc:Zakodium/Mongodb/Database' {
     Db,
     ClientSession,
     MongoClient,
+    Document,
   } from 'mongodb';
 
   /**
@@ -152,7 +153,7 @@ declare module '@ioc:Zakodium/Mongodb/Database' {
     ): this;
 
     database(): Promise<Db>;
-    collection<TSchema = unknown>(
+    collection<TSchema extends Document>(
       collectionName: string,
     ): Promise<Collection<TSchema>>;
     transaction<TResult>(

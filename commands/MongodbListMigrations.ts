@@ -15,7 +15,7 @@ export default class MongodbListMigrations extends MigrationCommand {
   @inject(['Zakodium/Mongodb/Database'])
   public async run(db: DatabaseContract): Promise<void> {
     try {
-      const connection = this.getConnection(db);
+      const connection = await this.getConnection(db);
       const database = await connection.database();
       const coll = database.collection('__adonis_mongodb');
       const migrations = await this.getMigrations(connection.config);
@@ -33,7 +33,7 @@ export default class MongodbListMigrations extends MigrationCommand {
       /**
        * Push a new row to the table
        */
-      migrations.forEach(({ name, file }, idx) => {
+      for (const [idx, { name, file }] of migrations.entries()) {
         const document = migrationDocuments.find((doc) => doc.name === name);
 
         const { description } = imports[idx];
@@ -45,7 +45,7 @@ export default class MongodbListMigrations extends MigrationCommand {
           document ? document.batch : 'NA',
           description || '',
         ]);
-      });
+      }
 
       // eslint-disable-next-line no-console
       console.log(table.toString());

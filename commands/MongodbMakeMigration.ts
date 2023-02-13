@@ -1,4 +1,4 @@
-import { join } from 'path';
+import path from 'node:path';
 
 import { BaseCommand, args, flags } from '@adonisjs/core/build/standalone';
 
@@ -16,8 +16,7 @@ export default class MongodbMakeMigration extends BaseCommand {
   public connection: string;
 
   public async run(): Promise<void> {
-    const { name } = this;
-    if (name.includes('/')) {
+    if (this.name.includes('/')) {
       this.logger.error('name argument should not contain any slash');
       process.exitCode = 1;
       return;
@@ -25,15 +24,17 @@ export default class MongodbMakeMigration extends BaseCommand {
 
     const folder = 'mongodb/migrations';
 
-    const stub = join(__dirname, '../../templates/migration.txt');
+    const stub = path.join(__dirname, '../../templates/migration.txt');
 
     this.generator
-      .addFile(name, { prefix: String(Date.now()), pattern: 'snakecase' })
+      .addFile(this.name, { prefix: String(Date.now()), pattern: 'snakecase' })
       .stub(stub)
       .destinationDir(folder)
-      .appRoot(this.application.makePathFromCwd())
+      .appRoot(this.application.appRoot)
       .apply({
-        className: `${name[0].toUpperCase()}${name.slice(1)}Migration`,
+        className: `${this.name[0].toUpperCase()}${this.name.slice(
+          1,
+        )}Migration`,
       });
     await this.generator.run();
   }

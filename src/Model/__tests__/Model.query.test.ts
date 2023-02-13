@@ -74,7 +74,7 @@ test('query.count - all', async () => {
 
 test('query.count - with filter', async () => {
   const count = await TestModel.query({
-    testField: { $regex: /test[123]/ },
+    testField: { $regex: /test[1-3]/ },
   }).count();
   expect(count).toBe(3);
 });
@@ -102,36 +102,35 @@ test('query async iterator', async () => {
 
 describe('query.sort', () => {
   it('should sort by descending _id by default', async () => {
-    expect((await TestModel.query().firstOrFail())._id).toBe(5);
+    const result = await TestModel.query().firstOrFail();
+    expect(result._id).toBe(5);
   });
 
   it('should sort by custom field with sort()', async () => {
-    expect(
-      (await TestModel.query().sort({ numberField: 1 }).firstOrFail())._id,
-    ).toBe(1);
+    const result = await TestModel.query()
+      .sort({ numberField: 1 })
+      .firstOrFail();
+    expect(result._id).toBe(1);
   });
 
   it('should sort by custom field with sortBy()', async () => {
-    expect(
-      (await TestModel.query().sortBy('numberField', -1).firstOrFail())._id,
-    ).toBe(4);
+    const result = await TestModel.query()
+      .sortBy('numberField', -1)
+      .firstOrFail();
+    expect(result._id).toBe(4);
   });
 
   it('should sort by combination of fields', async () => {
-    expect(
-      (
-        await TestModel.query()
-          .sortBy('numberField', 1)
-          .sort({ _id: 'desc' })
-          .firstOrFail()
-      )._id,
-    ).toBe(3);
+    const result = await TestModel.query()
+      .sortBy('numberField', 1)
+      .sort({ _id: 'desc' })
+      .firstOrFail();
+    expect(result._id).toBe(3);
   });
 
   it('should sort by custom field ascending by default', async () => {
-    expect(
-      (await TestModel.query().sortBy('numberField').firstOrFail())._id,
-    ).toBe(1);
+    const result = await TestModel.query().sortBy('numberField').firstOrFail();
+    expect(result._id).toBe(1);
   });
 });
 
@@ -226,7 +225,7 @@ test('query should pass additional driver options', async () => {
 
 test('query should throw if forbidden options are passed', () => {
   expect(() =>
-    // @ts-expect-error
+    // @ts-expect-error Testing bad options
     TestModel.query({}, { driverOptions: { sort: 'test' } }),
   ).toThrow(/sort is not allowed in query's driverOptions/);
 });

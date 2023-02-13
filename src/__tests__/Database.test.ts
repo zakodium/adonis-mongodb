@@ -45,7 +45,7 @@ describe('Database constructor errors', () => {
     'error if connection is not a string (%s)',
     (value) => {
       expect(
-        // @ts-expect-error
+        // @ts-expect-error Testing invalid input
         () => new Database({ connection: value, connections: {} }, logger),
       ).toThrow('config.connection must be a string');
     },
@@ -55,7 +55,7 @@ describe('Database constructor errors', () => {
     'error if connections is not an object (%s)',
     (value) => {
       expect(
-        // @ts-expect-error
+        // @ts-expect-error Testing invalid input
         () => new Database({ connection: 'test', connections: value }, logger),
       ).toThrow('config.connections must be an object');
     },

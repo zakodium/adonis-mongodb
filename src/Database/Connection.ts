@@ -1,7 +1,7 @@
-import { EventEmitter } from 'events';
+import { EventEmitter } from 'node:events';
 
 import { Exception } from '@poppinss/utils';
-import { MongoClient, Db, Collection, ClientSession } from 'mongodb';
+import { MongoClient, Db, Collection, ClientSession, Document } from 'mongodb';
 
 import { LoggerContract } from '@ioc:Adonis/Core/Logger';
 import type {
@@ -114,7 +114,7 @@ export class Connection extends EventEmitter implements ConnectionContract {
     return this._ensureDb();
   }
 
-  public async collection<TSchema = unknown>(
+  public async collection<TSchema extends Document>(
     collectionName: string,
   ): Promise<Collection<TSchema>> {
     const db = await this._ensureDb();
