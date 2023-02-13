@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.14.0](https://github.com/zakodium/adonis-mongodb/compare/v0.13.0...v0.14.0) (2023-02-13)
+
+
+### ⚠ BREAKING CHANGES
+
+* Drop support for Node.js 14.x and MongoDB 4.x
+
+### Miscellaneous Chores
+
+* update dependencies ([#129](https://github.com/zakodium/adonis-mongodb/issues/129)) ([9be758c](https://github.com/zakodium/adonis-mongodb/commit/9be758ca4b536467bf2cbdcefda24bd7e804372e))
+
 ## [0.13.0](https://www.github.com/zakodium/adonis-mongodb/compare/v0.12.0...v0.13.0) (2021-11-22)
 
 
