@@ -1,8 +1,6 @@
-import { promisify } from 'util';
+import { setTimeout as sleep } from 'node:timers/promises';
 
 import { getConnection, getLogger } from '../../test-utils/TestUtils';
-
-const sleep = promisify(setTimeout);
 
 const logger = getLogger();
 const connection = getConnection(logger);

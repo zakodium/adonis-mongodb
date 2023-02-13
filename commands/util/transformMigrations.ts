@@ -1,4 +1,4 @@
-import { basename, extname } from 'path';
+import path from 'node:path';
 
 import { Logger } from '@poppinss/cliui/build/src/Logger';
 
@@ -17,16 +17,18 @@ export default function transformMigrations(
   const migrations: MigrationDescription[] = rawMigrations
     .flat()
     .sort((a, b) =>
-      basename(a, extname(a)).localeCompare(basename(b, extname(a))),
+      path
+        .basename(a, path.extname(a))
+        .localeCompare(path.basename(b, path.extname(a))),
     )
     .map((migrationFile) => ({
-      name: basename(migrationFile, extname(migrationFile)),
+      name: path.basename(migrationFile, path.extname(migrationFile)),
       file: migrationFile,
     }));
 
   // Check migration file names
   let hadBadName = false;
-  migrations.forEach(({ name, file }) => {
+  for (const { name, file } of migrations) {
     const match = matchTimestamp.exec(name);
     const timestamp = Number(match?.groups?.timestamp);
     if (Number.isNaN(timestamp) || timestamp === 0) {
@@ -37,7 +39,7 @@ export default function transformMigrations(
         );
       }
     }
-  });
+  }
   if (hadBadName) {
     throw new Error('some migration files are malformed');
   }

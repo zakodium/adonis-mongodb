@@ -15,6 +15,11 @@ interface IMigration {
   batch: number;
 }
 
+interface MigrationLock {
+  _id: string;
+  running: boolean;
+}
+
 export default class MongodbMigrate extends MigrationCommand {
   public static commandName = 'mongodb:migration:run';
   public static description = 'Execute pending migrations';
@@ -23,10 +28,10 @@ export default class MongodbMigrate extends MigrationCommand {
   };
 
   private async _executeMigration(db: DatabaseContract): Promise<void> {
-    const connection = this.getConnection(db);
+    const connection = await this.getConnection(db);
     const migrations = await this.getMigrations(connection.config);
 
-    const migrationLockColl = await connection.collection(
+    const migrationLockColl = await connection.collection<MigrationLock>(
       migrationLockCollectionName,
     );
 
@@ -48,16 +53,17 @@ export default class MongodbMigrate extends MigrationCommand {
 
     if (lock.modifiedCount === 0 && lock.upsertedCount === 0) {
       this.logger.error('A migration is already running');
+      this.exitCode = 1;
       await db.manager.closeAll();
-      process.exit(1);
+      await this.exit();
     }
 
     const migrationDocs = await migrationColl.find({}).toArray();
-    const dbMigrationNames = migrationDocs.map((m) => m.name);
+    const dbMigrationNames = new Set(migrationDocs.map((m) => m.name));
 
     // Keep migrations that are not yet registered
     const unregisteredMigrations = migrations.filter(
-      (migration) => !dbMigrationNames.includes(migration.name),
+      (migration) => !dbMigrationNames.has(migration.name),
     );
 
     // Keep migrations that are not yet registered
@@ -100,14 +106,15 @@ export default class MongodbMigrate extends MigrationCommand {
 
           await migrationColl.insertOne(
             {
+              _id: new ObjectId(),
               name,
               date: new Date(),
               batch: newBatch,
             },
             { session },
           );
-        } catch (err) {
-          lastTransactionError = err;
+        } catch (error) {
+          lastTransactionError = error;
           await session.abortTransaction();
         }
       });

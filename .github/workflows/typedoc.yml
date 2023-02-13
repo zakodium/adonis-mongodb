@@ -6,15 +6,15 @@ on:
     types: [published]
 
 env:
-  NODE_VERSION: 16.x
+  NODE_VERSION: 18.x
   ENTRY_FILE: 'adonis-typings/database.ts adonis-typings/migration.ts adonis-typings/odm.ts'
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
         with:
           node-version: ${{ env.NODE_VERSION }}
       - name: Install dependencies

@@ -69,9 +69,9 @@ export default function createMigration(Database: DatabaseContract): any {
     }
 
     public createCollections(collectionNames: string[]): void {
-      collectionNames.forEach((collectionName) =>
-        this.createCollection(collectionName),
-      );
+      for (const collectionName of collectionNames) {
+        this.createCollection(collectionName);
+      }
     }
 
     public createCollection(collectionName: string): void {

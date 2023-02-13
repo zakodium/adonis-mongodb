@@ -1,4 +1,4 @@
-import { inspect } from 'util';
+import { inspect } from 'node:util';
 
 import { ObjectId } from 'mongodb';
 
@@ -191,7 +191,7 @@ test('passing client should run requests within the same transaction session', a
   await db.connection('mongo').transaction(async (client) => {
     const user = await User.create(
       {
-        username: username,
+        username,
         password: 'rootroot',
       },
       { client },
@@ -258,9 +258,8 @@ test('class instantiation auto incremented model', async () => {
 test('custom collection name - class', async () => {
   const something = await Something.create({ test: false });
   await something.save();
-  expect((await Something.getCollection()).collectionName).toBe(
-    Something.collectionName,
-  );
+  const collection = await Something.getCollection();
+  expect(collection.collectionName).toBe(Something.collectionName);
 });
 
 test('custom collection name - instance', async () => {
@@ -268,11 +267,12 @@ test('custom collection name - instance', async () => {
   something.test = true;
   await something.save();
 
-  const found = await (
-    await BaseModel.$database.manager
-      .get(BaseModel.$database.primaryConnectionName)
-      .connection.collection(Something.collectionName)
-  ).findOne({ _id: something.id });
+  const collection = await BaseModel.$database.manager
+    .get(BaseModel.$database.primaryConnectionName)
+    .connection.collection(Something.collectionName);
+
+  // @ts-expect-error _id is unknown here but that's internal.
+  const found = await collection.findOne({ _id: something.id });
 
   expect(found).not.toBeNull();
 });
@@ -366,7 +366,7 @@ test('merge and fill accept no extra properties', async () => {
 
   user.merge({
     username: 'test',
-    // @ts-expect-error
+    // @ts-expect-error Testing extra property
     bad: 'property',
   });
 
@@ -375,16 +375,16 @@ test('merge and fill accept no extra properties', async () => {
     other: 'bad',
   };
 
-  // @ts-expect-error
+  // @ts-expect-error Testing extra property
   user.merge(bad);
 
   user.fill({
     username: 'test',
-    // @ts-expect-error
+    // @ts-expect-error Testing extra property
     bad: 'property',
   });
 
-  // @ts-expect-error
+  // @ts-expect-error Testing extra property
   user.merge(bad);
 });
 
@@ -488,8 +488,7 @@ describe('findBy', () => {
   it('should return instance if found', async () => {
     const user = await User.findBy('username', 'root1');
     expect(user).toBeInstanceOf(User);
-    // @ts-expect-error
-    expect(user.username).toBe('root1');
+    expect(user?.username).toBe('root1');
   });
 
   it('should return null if not found', async () => {

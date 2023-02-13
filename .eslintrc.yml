@@ -1,1 +1,4 @@
-extends: '@zakodium/eslint-config/adonis'
+extends:
+  - zakodium/ts
+  - zakodium/unicorn
+  - zakodium/adonis-v5

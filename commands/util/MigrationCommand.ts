@@ -1,5 +1,5 @@
-import { readdir } from 'fs/promises';
-import { join, extname } from 'path';
+import { readdir } from 'node:fs/promises';
+import path from 'node:path';
 
 import { BaseCommand, flags } from '@adonisjs/core/build/standalone';
 import { Logger } from '@poppinss/cliui/build/src/Logger';
@@ -41,12 +41,15 @@ export default abstract class MigrationCommand extends BaseCommand {
   @flags.string({ description: 'Database connection to use for the migration' })
   public connection: string;
 
-  protected getConnection(db: DatabaseContract): ConnectionContract {
+  protected async getConnection(
+    db: DatabaseContract,
+  ): Promise<ConnectionContract> {
     if (this.connection && !db.manager.has(this.connection)) {
       this.logger.error(
         `No MongoDB connection registered with name "${this.connection}"`,
       );
-      process.exit(1);
+      this.exitCode = 1;
+      await this.exit();
     }
     return db.connection(this.connection);
   }
@@ -61,15 +64,16 @@ export default abstract class MigrationCommand extends BaseCommand {
 
     const rawMigrationFiles = await Promise.all(
       folders
-        .map((folder) => join(this.application.appRoot, folder))
+        .map((folder) => path.join(this.application.appRoot, folder))
         .map(async (migrationsPath) => {
           try {
             const files = await readdir(migrationsPath);
             return files
               .filter(
-                (file) => extname(file) === '.js' || extname(file) === '.ts',
+                (file) =>
+                  path.extname(file) === '.js' || path.extname(file) === '.ts',
               )
-              .map((file) => join(migrationsPath, file));
+              .map((file) => path.join(migrationsPath, file));
           } catch {
             return [];
           }

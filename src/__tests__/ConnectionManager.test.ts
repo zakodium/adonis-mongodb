@@ -15,15 +15,13 @@ test('has should return true if connection exists', () => {
 });
 
 test("connection should throw an error if connection doesn't exist", () => {
-  const t = () => {
+  expect(() => {
     manager.get('idontexist');
-  };
-  expect(t).toThrow('no MongoDB connection registered with name "idontexist"');
+  }).toThrow('no MongoDB connection registered with name "idontexist"');
 });
 
 test('connection should return a connection if it exists', () => {
-  const t = () => {
+  expect(() => {
     manager.get('mongo');
-  };
-  expect(t).not.toThrow();
+  }).not.toThrow();
 });

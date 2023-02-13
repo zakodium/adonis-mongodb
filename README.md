@@ -26,10 +26,7 @@ MongoDB provider for AdonisJS 5.
 
 This provider requires AdonisJS v5 and won't work with AdonisJS v4.
 
-We recommend using MongoDB >=4.4, because creation of collections and indexes in
-migrations will be transactional and will be properly rolled back in case of error.
-
-If you use a version < 4.4, you might run into issues with partially applied migrations.
+We recommend using MongoDB >=5.0. Earlier versions are not tested.
 
 ## Installation
 

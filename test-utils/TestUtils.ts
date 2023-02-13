@@ -1,4 +1,4 @@
-import { basename } from 'path';
+import path from 'node:path';
 
 import { FakeLogger } from '@adonisjs/logger';
 
@@ -21,16 +21,18 @@ export function getLogger() {
 export function getConnection(logger = getLogger()) {
   const connectionConfig = {
     url: 'mongodb://localhost:33333?directConnection=true',
-    database: `test-runner-${basename(expect.getState().testPath, '.test.ts')}`,
+    database: `test-runner-${path.basename(
+      expect.getState().testPath as string,
+      '.test.ts',
+    )}`,
   };
   return new Connection('mongo', connectionConfig, logger);
 }
 
 export function getMongodb(logger = getLogger()) {
-  const database = `test-runner-${basename(
-    expect.getState().testPath,
-    '.test.ts',
-  ).replace(/\./g, '_')}`;
+  const database = `test-runner-${path
+    .basename(expect.getState().testPath as string, '.test.ts')
+    .replace(/\./g, '_')}`;
   const mongoConfig: MongodbConfig = {
     connection: 'mongo',
     connections: {
@@ -54,7 +56,8 @@ export function setupDatabase() {
   BaseAutoIncrementModel.$setDatabase(db);
 
   afterAll(async () => {
-    await (await db.connection('mongo').database()).dropDatabase();
+    const database = await db.connection('mongo').database();
+    await database.dropDatabase();
     await db.manager.closeAll();
   });
 

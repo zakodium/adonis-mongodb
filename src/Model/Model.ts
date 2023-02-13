@@ -1,4 +1,4 @@
-import assert from 'assert';
+import assert from 'node:assert';
 
 import { defineStaticProperty, Exception } from '@poppinss/utils';
 import { cloneDeep, isEqual, pickBy, snakeCase } from 'lodash';
@@ -16,7 +16,6 @@ import {
   FindOptions,
   InsertOneOptions,
   SortDirection,
-  WithId,
 } from 'mongodb';
 import pluralize from 'pluralize';
 
@@ -84,7 +83,8 @@ class Query<ModelType extends typeof BaseModel>
           >
         >
       | undefined,
-    private modelConstructor: ModelType,
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    private ModelConstructor: ModelType,
   ) {
     if (options?.driverOptions) {
       for (const key of forbiddenQueryOptions) {
@@ -132,13 +132,13 @@ class Query<ModelType extends typeof BaseModel>
   }
 
   public async first(): Promise<InstanceType<ModelType> | null> {
-    const collection = await this.modelConstructor.getCollection();
+    const collection = await this.ModelConstructor.getCollection();
     const driverOptions = this.getDriverOptions();
     const result = await collection.findOne(this.filter, driverOptions);
     if (result === null) {
       return null;
     }
-    const instance = new this.modelConstructor(
+    const instance = new this.ModelConstructor(
       result,
       {
         // @ts-expect-error Unavoidable error.
@@ -159,17 +159,12 @@ class Query<ModelType extends typeof BaseModel>
   }
 
   public async all(): Promise<Array<InstanceType<ModelType>>> {
-    const collection = await this.modelConstructor.getCollection();
+    const collection = await this.ModelConstructor.getCollection();
     const driverOptions = this.getDriverOptions();
-    const result = await collection
-      .find(
-        this.filter as Filter<WithId<ModelAttributes<InstanceType<ModelType>>>>,
-        driverOptions,
-      )
-      .toArray();
+    const result = await collection.find(this.filter, driverOptions).toArray();
     return result.map(
       (value) =>
-        new this.modelConstructor(
+        new this.ModelConstructor(
           value,
           {
             // @ts-expect-error Unavoidable error.
@@ -182,7 +177,7 @@ class Query<ModelType extends typeof BaseModel>
   }
 
   public async count(): Promise<number> {
-    const collection = await this.modelConstructor.getCollection();
+    const collection = await this.ModelConstructor.getCollection();
     const driverOptions = this.getDriverOptions();
     return collection.countDocuments(
       this.filter,
@@ -191,37 +186,30 @@ class Query<ModelType extends typeof BaseModel>
   }
 
   public async distinct<T = unknown>(key: string): Promise<T[]> {
-    const collection = await this.modelConstructor.getCollection();
+    const collection = await this.ModelConstructor.getCollection();
     const driverOptions = this.getDriverOptions();
-    return collection.distinct(
+    const result = await collection.distinct(
       key,
       this.filter,
       driverOptions as DistinctOptions,
     );
+    return result;
   }
 
   public async explain(verbosity?: ExplainVerbosityLike): Promise<Document> {
-    const collection = await this.modelConstructor.getCollection();
+    const collection = await this.ModelConstructor.getCollection();
     const driverOptions = this.getDriverOptions();
-    return collection
-      .find(
-        this.filter as Filter<WithId<ModelAttributes<InstanceType<ModelType>>>>,
-        driverOptions,
-      )
-      .explain(verbosity);
+    return collection.find(this.filter, driverOptions).explain(verbosity);
   }
 
   public async *[Symbol.asyncIterator](): AsyncIterableIterator<
     InstanceType<ModelType>
   > {
-    const collection = await this.modelConstructor.getCollection();
+    const collection = await this.ModelConstructor.getCollection();
     const driverOptions = this.getDriverOptions();
-    for await (const value of collection.find(
-      this.filter as Filter<WithId<ModelAttributes<InstanceType<ModelType>>>>,
-      driverOptions,
-    )) {
+    for await (const value of collection.find(this.filter, driverOptions)) {
       if (value === null) continue;
-      yield new this.modelConstructor(
+      yield new this.ModelConstructor(
         value,
         {
           // @ts-expect-error Unavoidable error.
@@ -288,7 +276,7 @@ export class BaseModel {
     alreadyExists = false,
   ) {
     if (dbObj) {
-      this.$original = alreadyExists === true ? cloneDeep(dbObj) : {};
+      this.$original = alreadyExists ? cloneDeep(dbObj) : {};
       this.$attributes = dbObj;
     } else {
       this.$original = {};
@@ -342,7 +330,7 @@ export class BaseModel {
     /**
      * No-op when already booted.
      */
-    if (this.booted === true) {
+    if (this.booted) {
       return;
     }
 
@@ -649,11 +637,13 @@ export class BaseModel {
       session: this.$options?.session,
     };
     if (!this.$isPersisted) {
+      // @ts-expect-error Unavoidable error, as _id is unknown here.
       const result = await collection.insertOne(toSet, driverOptions);
       this.$attributes._id = result.insertedId;
       this.$isPersisted = true;
     } else {
       await collection.updateOne(
+        // @ts-expect-error Unavoidable error, as _id is unknown here.
         { _id: this.$attributes._id },
         { $set: toSet },
         driverOptions,
@@ -674,6 +664,7 @@ export class BaseModel {
     };
     const result = await collection.deleteOne(
       {
+        // @ts-expect-error Unavoidable error, as _id is unknown here.
         _id: this.$attributes._id,
       },
       driverOptions,
@@ -685,9 +676,9 @@ export class BaseModel {
   public merge<T extends Partial<Omit<ModelAttributes<this>, '_id'>>>(
     values: NoExtraProperties<Partial<Omit<ModelAttributes<this>, '_id'>>, T>,
   ): this {
-    Object.entries(values).forEach(([key, value]) => {
+    for (const [key, value] of Object.entries(values)) {
       this.$attributes[key] = value;
-    });
+    }
     return this;
   }
 
@@ -726,17 +717,20 @@ export class BaseAutoIncrementModel extends BaseModel {
       );
 
       const doc = await counterCollection.findOneAndUpdate(
+        // @ts-expect-error Unavoidable error, as _id is unknown here.
         { _id: (this.constructor as typeof BaseModel).collectionName },
         { $inc: { count: 1 } },
         { ...driverOptions, upsert: true, returnDocument: 'after' },
       );
       assert(doc.value, 'upsert should always create a document');
       toSet._id = doc.value.count;
+      // @ts-expect-error Unavoidable error, as _id is unknown here.
       await collection.insertOne(toSet, driverOptions);
       this.$attributes._id = doc.value.count;
       this.$isPersisted = true;
     } else {
       await collection.updateOne(
+        // @ts-expect-error Unavoidable error, as _id is unknown here.
         { _id: this.$attributes._id },
         { $set: toSet },
         driverOptions,
