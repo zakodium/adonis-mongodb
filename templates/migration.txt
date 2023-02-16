@@ -1,7 +1,7 @@
 import BaseMigration from '@ioc:Zakodium/Mongodb/Migration';
 
 export default class ${className} extends BaseMigration {
-  public up(): void {
+  public override up(): void {
     // Write your migration here.
     // For example:
     // this.createCollection('my_coll');
