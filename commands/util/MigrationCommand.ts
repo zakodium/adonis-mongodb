@@ -69,10 +69,12 @@ export default abstract class MigrationCommand extends BaseCommand {
           try {
             const files = await readdir(migrationsPath);
             return files
-              .filter(
-                (file) =>
-                  path.extname(file) === '.js' || path.extname(file) === '.ts',
-              )
+              .filter((file) => {
+                return (
+                  // Only include code and exclude type declaration files.
+                  /\.[cm]?[jt]s$/.test(file) && !/\.d\.[cm]?ts$/.test(file)
+                );
+              })
               .map((file) => path.join(migrationsPath, file));
           } catch {
             return [];
