@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.14.1](https://github.com/zakodium/adonis-mongodb/compare/v0.14.0...v0.14.1) (2023-03-06)
+
+
+### Bug Fixes
+
+* add "override" to migration template ([#132](https://github.com/zakodium/adonis-mongodb/issues/132)) ([d8f8dc7](https://github.com/zakodium/adonis-mongodb/commit/d8f8dc73efc0afd0a0e538052c4fec7ca9094527))
+* ignore type declaration files in migrations directory ([#137](https://github.com/zakodium/adonis-mongodb/issues/137)) ([b7eda71](https://github.com/zakodium/adonis-mongodb/commit/b7eda718256c295ca3117f6ba16ef87db6e56c3c))
+
 ## [0.14.0](https://github.com/zakodium/adonis-mongodb/compare/v0.13.0...v0.14.0) (2023-02-13)
 
 
