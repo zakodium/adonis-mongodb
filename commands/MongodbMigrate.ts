@@ -54,8 +54,7 @@ export default class MongodbMigrate extends MigrationCommand {
     if (lock.modifiedCount === 0 && lock.upsertedCount === 0) {
       this.logger.error('A migration is already running');
       this.exitCode = 1;
-      await db.manager.closeAll();
-      await this.exit();
+      return;
     }
 
     const migrationDocs = await migrationColl.find({}).toArray();
@@ -156,6 +155,7 @@ export default class MongodbMigrate extends MigrationCommand {
       // TODO: See if there can be a way in Ace commands to print error stack traces
       // eslint-disable-next-line no-console
       console.error(lastTransactionError);
+      this.exitCode = 1;
     }
   }
 
