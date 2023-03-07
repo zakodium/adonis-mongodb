@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.14.3](https://github.com/zakodium/adonis-mongodb/compare/v0.14.2...v0.14.3) (2023-03-07)
+
+
+### Bug Fixes
+
+* set exit code to 1 if migration failed ([#140](https://github.com/zakodium/adonis-mongodb/issues/140)) ([f07017c](https://github.com/zakodium/adonis-mongodb/commit/f07017ca95cd87795dfc815ccbb8377f9884e94b))
+
 ## [0.14.2](https://github.com/zakodium/adonis-mongodb/compare/v0.14.1...v0.14.2) (2023-03-07)
 
 
