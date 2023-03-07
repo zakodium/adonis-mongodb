@@ -71,18 +71,15 @@ export default class MongodbMigrate extends MigrationCommand {
 
     // Get the next incremental batch value
     const value = await migrationColl
-      .aggregate<{ maxBatch: number }>([
-        {
-          $project: {
-            maxBatch: { $max: '$batch' },
-          },
-        },
-      ])
+      .find({})
+      .sort({ batch: -1 })
+      .project<{ batch: number }>({ batch: 1 })
+      .limit(1)
       .toArray();
 
     let newBatch = 1;
     if (value.length === 1) {
-      newBatch = value[0].maxBatch + 1;
+      newBatch = value[0].batch + 1;
     }
 
     let lastTransactionError = null;
