@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.14.2](https://github.com/zakodium/adonis-mongodb/compare/v0.14.1...v0.14.2) (2023-03-07)
+
+
+### Bug Fixes
+
+* find highest batch correctly ([#138](https://github.com/zakodium/adonis-mongodb/issues/138)) ([cffa673](https://github.com/zakodium/adonis-mongodb/commit/cffa6739cd2a5fb8f6da093643c975cc2141d7ee))
+
 ## [0.14.1](https://github.com/zakodium/adonis-mongodb/compare/v0.14.0...v0.14.1) (2023-03-06)
 
 
