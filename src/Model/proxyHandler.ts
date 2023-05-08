@@ -2,13 +2,13 @@
 
 export const proxyHandler: ProxyHandler<any> = {
   get(target: any, prop: string | symbol) {
-    if (typeof target[prop] !== 'undefined') {
+    if (target[prop] !== undefined) {
       return Reflect.get(target, prop);
     }
     return Reflect.get(target.$attributes, prop);
   },
   set(target: any, prop: string | symbol, value: any) {
-    if (typeof target[prop] !== 'undefined') {
+    if (target[prop] !== undefined) {
       return Reflect.set(target, prop, value);
     }
     return Reflect.set(target.$attributes, prop, value);

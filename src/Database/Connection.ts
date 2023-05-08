@@ -65,7 +65,7 @@ export class Connection extends EventEmitter implements ConnectionContract {
   }
 
   private async _ensureDb(): Promise<Db> {
-    this.connect();
+    void this.connect();
     if (!this.connectPromise) {
       throw new Exception(
         `unexpected MongoDB connection error`,
