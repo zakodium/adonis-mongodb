@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.14.4](https://github.com/zakodium/adonis-mongodb/compare/v0.14.3...v0.14.4) (2023-05-08)
+
+
+### Bug Fixes
+
+* publish on npm and GPR ([51c6370](https://github.com/zakodium/adonis-mongodb/commit/51c63704c3927de6d6efbfdd16f6934e11c64e2b))
+
 ## [0.14.3](https://github.com/zakodium/adonis-mongodb/compare/v0.14.2...v0.14.3) (2023-03-07)
 
 
