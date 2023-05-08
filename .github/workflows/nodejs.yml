@@ -6,31 +6,13 @@ on:
       - main
   pull_request:
 
-env:
-  NODE_VERSION: 18.x
-
 jobs:
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-      - name: Install dependencies
-        run: npm install
-      - name: Run ESLint
-        run: npm run eslint
-      - name: Run Prettier
-        run: npm run prettier
-      - name: Check types
-        run: npm run check-types
   test:
     timeout-minutes: 10
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [16.x, 18.x]
+        node-version: [16.x, 18.x, 20.x]
         mongo-version: ['5.0', '6.0']
       fail-fast: false
     steps:

@@ -10,7 +10,7 @@ afterAll(async () => {
 });
 
 test('try to connect with good config', async () => {
-  connection.connect();
+  await connection.connect();
   await sleep(500);
   expect(logger.logs[logger.logs.length - 1]).toBeUndefined();
 });
@@ -21,7 +21,6 @@ test('get collection', async () => {
 });
 
 test('reconnect automatically', async () => {
-  connection.connect();
   let collection = await connection.collection('test');
   await collection.find({}).toArray();
   await connection.disconnect();
