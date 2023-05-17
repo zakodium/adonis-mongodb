@@ -55,17 +55,11 @@ export default function createMigration(Database: DatabaseContract): any {
     private $operations: MigrationOperation[] = [];
     private $connection: ConnectionContract;
     private $logger: Logger;
-    private $session: ClientSession;
     private $collectionList: string[];
 
-    public constructor(
-      connection: string | undefined,
-      logger: Logger,
-      session: ClientSession,
-    ) {
+    public constructor(connection: string | undefined, logger: Logger) {
       this.$connection = Database.connection(connection);
       this.$logger = logger;
-      this.$session = session;
     }
 
     public createCollections(collectionNames: string[]): void {
@@ -114,12 +108,12 @@ export default function createMigration(Database: DatabaseContract): any {
       });
     }
 
-    public async execUp(): Promise<void> {
+    public async execUp(session: ClientSession): Promise<void> {
       this.up();
-      await this._createCollections();
-      await this._dropIndexes();
-      await this._createIndexes();
-      await this._executeDeferred();
+      await this._createCollections(session);
+      await this._dropIndexes(session);
+      await this._createIndexes(session);
+      await this._executeDeferred(session);
     }
 
     private async _listCollections() {
@@ -134,24 +128,24 @@ export default function createMigration(Database: DatabaseContract): any {
       return this.$collectionList;
     }
 
-    private async _createCollections(): Promise<void> {
+    private async _createCollections(session: ClientSession): Promise<void> {
       const db = await this.$connection.database();
       for (const op of this.$operations.filter(isCreateCollection)) {
         this.$logger.info(`Creating collection ${op.collectionName}`);
         await db.createCollection(op.collectionName, {
-          session: this.$session,
+          session,
         });
       }
     }
 
-    private async _executeDeferred(): Promise<void> {
+    private async _executeDeferred(session: ClientSession): Promise<void> {
       const db = await this.$connection.database();
       for (const op of this.$operations.filter(isCustom)) {
-        await op.callback(db, this.$session);
+        await op.callback(db, session);
       }
     }
 
-    private async _dropIndexes(): Promise<void> {
+    private async _dropIndexes(session: ClientSession): Promise<void> {
       const db = await this.$connection.database();
       for (const op of this.$operations.filter(isDropIndex)) {
         this.$logger.info(
@@ -159,11 +153,11 @@ export default function createMigration(Database: DatabaseContract): any {
         );
         const collection = db.collection(op.collectionName);
         // Index deletion cannot be done in a transaction.
-        await collection.dropIndex(op.indexName, { ...op.options });
+        await collection.dropIndex(op.indexName, { ...op.options, session });
       }
     }
 
-    private async _createIndexes(): Promise<void> {
+    private async _createIndexes(session: ClientSession): Promise<void> {
       const db = await this.$connection.database();
       const collections = await this._listCollections();
       for (const op of this.$operations.filter(isCreateIndex)) {
@@ -173,7 +167,7 @@ export default function createMigration(Database: DatabaseContract): any {
           // Index creation will fail if collection pre-exists the transaction.
           session: collections.includes(op.collectionName)
             ? undefined
-            : this.$session,
+            : session,
         });
       }
     }
