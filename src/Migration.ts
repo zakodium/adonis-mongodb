@@ -173,6 +173,7 @@ export default function createMigration(Database: DatabaseContract): any {
     }
 
     public abstract up(): void;
+    public afterUpSuccess?(): void;
   }
 
   return Migration;

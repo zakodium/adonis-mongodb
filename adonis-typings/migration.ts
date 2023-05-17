@@ -24,6 +24,7 @@ declare module '@ioc:Zakodium/Mongodb/Migration' {
       callback: (db: Db, client: ClientSession) => Promise<void>,
     ): void;
     public abstract up(): void;
+    public afterUpSuccess?(): unknown;
     public execUp(session: ClientSession): Promise<void>;
   }
 }

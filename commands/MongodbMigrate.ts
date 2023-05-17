@@ -2,12 +2,12 @@ import { inject } from '@adonisjs/core/build/standalone';
 import { ObjectId } from 'mongodb';
 
 import { DatabaseContract } from '@ioc:Zakodium/Mongodb/Database';
+import Migration from '@ioc:Zakodium/Mongodb/Migration';
 
 import MigrationCommand, {
   migrationCollectionName,
   migrationLockCollectionName,
 } from './util/MigrationCommand';
-import Migration from '@ioc:Zakodium/Mongodb/Migration';
 
 interface IMigration {
   _id: ObjectId | undefined;
@@ -121,6 +121,17 @@ export default class MongodbMigrate extends MigrationCommand {
 
       if (lastMigrationError) {
         break;
+      }
+
+      if (migration.afterUpSuccess) {
+        try {
+          await migration.afterUpSuccess();
+        } catch (error) {
+          this.logger.warning(`Migration's afterUpSuccess call failed`);
+          // TODO: See if there can be a way in Ace commands to print error stack traces
+          // eslint-disable-next-line no-console
+          console.warn(error);
+        }
       }
 
       successfullyExecuted++;
