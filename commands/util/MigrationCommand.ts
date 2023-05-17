@@ -3,7 +3,6 @@ import path from 'node:path';
 
 import { BaseCommand, flags } from '@adonisjs/core/build/standalone';
 import { Logger } from '@poppinss/cliui/build/src/Logger';
-import { ClientSession } from 'mongodb';
 
 import type {
   ConnectionContract,
@@ -25,7 +24,6 @@ interface MigrationModule {
   default: new (
     connection: string | undefined,
     logger: Logger,
-    session: ClientSession,
   ) => BaseMigration;
   description?: string;
 }

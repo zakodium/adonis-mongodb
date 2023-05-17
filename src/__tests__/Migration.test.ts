@@ -1,5 +1,4 @@
 import { Logger } from '@poppinss/cliui/build/src/Logger';
-import { ClientSession } from 'mongodb';
 
 import { getMongodb } from '../../test-utils/TestUtils';
 import createMigration from '../Migration';
@@ -9,12 +8,8 @@ const db = getMongodb();
 const BaseMigration = createMigration(db);
 
 class TestMigration extends BaseMigration {
-  public constructor(
-    connection: string | undefined,
-    logger: Logger,
-    session: ClientSession,
-  ) {
-    super(connection, logger, session);
+  public constructor(connection: string | undefined, logger: Logger) {
+    super(connection, logger);
   }
   public up(): void {
     this.createCollection('migration');
@@ -29,8 +24,8 @@ afterAll(async () => {
 
 test('runs a migration correctly edit database', async () => {
   await db.connection('mongo').transaction(async (session) => {
-    const migration = new TestMigration('mongo', logger, session);
-    await migration.execUp();
+    const migration = new TestMigration('mongo', logger);
+    await migration.execUp(session);
   });
   const database = await db.connection('mongo').database();
   const collections = await database.listCollections().toArray();

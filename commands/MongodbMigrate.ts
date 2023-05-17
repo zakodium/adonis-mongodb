@@ -7,6 +7,7 @@ import MigrationCommand, {
   migrationCollectionName,
   migrationLockCollectionName,
 } from './util/MigrationCommand';
+import Migration from '@ioc:Zakodium/Mongodb/Migration';
 
 interface IMigration {
   _id: ObjectId | undefined;
@@ -81,24 +82,27 @@ export default class MongodbMigrate extends MigrationCommand {
       newBatch = value[0].batch + 1;
     }
 
-    let lastTransactionError = null;
+    let lastMigrationError = null;
     for (const { name, file } of unregisteredMigrations) {
+      let migration: Migration;
+      try {
+        const { Migration: MigrationConstructor, description } =
+          await this.importMigration(file);
+        this.logger.info(
+          `Executing migration: ${name}${
+            description ? ` - ${description}` : ''
+          }`,
+        );
+        migration = new MigrationConstructor(connection.name, this.logger);
+      } catch (error) {
+        lastMigrationError = error;
+        break;
+      }
+
       // eslint-disable-next-line @typescript-eslint/no-loop-func
       await connection.transaction(async (session) => {
         try {
-          const { Migration, description } = await this.importMigration(file);
-
-          this.logger.info(
-            `Executing migration: ${name}${
-              description ? ` - ${description}` : ''
-            }`,
-          );
-          const migration = new Migration(
-            connection.name,
-            this.logger,
-            session,
-          );
-          await migration.execUp();
+          await migration.execUp(session);
 
           await migrationColl.insertOne(
             {
@@ -110,12 +114,12 @@ export default class MongodbMigrate extends MigrationCommand {
             { session },
           );
         } catch (error) {
-          lastTransactionError = error;
+          lastMigrationError = error;
           await session.abortTransaction();
         }
       });
 
-      if (lastTransactionError) {
+      if (lastMigrationError) {
         break;
       }
 
@@ -137,24 +141,24 @@ export default class MongodbMigrate extends MigrationCommand {
         unregisteredMigrations.length - successfullyExecuted;
       this.logger.info(
         `Successfully executed ${successfullyExecuted} migrations${
-          lastTransactionError ? `, 1 migration failed` : ''
+          lastMigrationError ? `, 1 migration failed` : ''
         }${
           remainingMigrations > 0
             ? `, ${
-                remainingMigrations - (lastTransactionError ? 1 : 0)
+                remainingMigrations - (lastMigrationError ? 1 : 0)
               } pending migrations remaining`
             : ''
         }`,
       );
-    } else if (lastTransactionError === null) {
+    } else if (lastMigrationError === null) {
       this.logger.info('No pending migration');
     }
 
-    if (lastTransactionError) {
+    if (lastMigrationError) {
       this.logger.error('Migration failed');
       // TODO: See if there can be a way in Ace commands to print error stack traces
       // eslint-disable-next-line no-console
-      console.error(lastTransactionError);
+      console.error(lastMigrationError);
       this.exitCode = 1;
     }
   }
