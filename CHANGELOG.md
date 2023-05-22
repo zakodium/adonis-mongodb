@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.15.0](https://github.com/zakodium/adonis-mongodb/compare/v0.14.4...v0.15.0) (2023-05-22)
+
+
+### Features
+
+* add `afterUpSuccess` method to migrations ([8e70e59](https://github.com/zakodium/adonis-mongodb/commit/8e70e593c99050ef10b91b771c00e005f78d3ebe))
+
 ## [0.14.4](https://github.com/zakodium/adonis-mongodb/compare/v0.14.3...v0.14.4) (2023-05-08)
 
 
