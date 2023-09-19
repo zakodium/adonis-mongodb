@@ -290,9 +290,7 @@ declare module '@ioc:Zakodium/Mongodb/Odm' {
     ): this;
   }
 
-  export interface QuerySortObject {
-    [key: string]: SortDirection;
-  }
+  export type QuerySortObject = Record<string, SortDirection>;
 
   export interface QueryContract<DocumentType> {
     /**
@@ -386,7 +384,7 @@ declare module '@ioc:Zakodium/Mongodb/Odm' {
      * List of keys used to search the user.
      * @default ['email']
      */
-    uids?: (keyof ModelAttributes<InstanceType<User>>)[];
+    uids?: Array<keyof ModelAttributes<InstanceType<User>>>;
     /**
      * Unique key on the user object.
      * @default _id

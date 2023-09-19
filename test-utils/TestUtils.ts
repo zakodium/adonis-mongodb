@@ -32,7 +32,7 @@ export function getConnection(logger = getLogger()) {
 export function getMongodb(logger = getLogger()) {
   const database = `test-runner-${path
     .basename(expect.getState().testPath as string, '.test.ts')
-    .replace(/\./g, '_')}`;
+    .replaceAll('.', '_')}`;
   const mongoConfig: MongodbConfig = {
     connection: 'mongo',
     connections: {

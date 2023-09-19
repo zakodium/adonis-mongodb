@@ -14,6 +14,7 @@ enum ConnectionStatus {
   DISCONNECTED = 'DISCONNECTED',
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
 export declare interface Connection {
   on(
     event: 'connect',
@@ -37,6 +38,7 @@ export declare interface Connection {
   ): this;
 }
 
+// eslint-disable-next-line unicorn/prefer-event-target, @typescript-eslint/no-unsafe-declaration-merging
 export class Connection extends EventEmitter implements ConnectionContract {
   public readonly client: MongoClient;
   public readonly name: string;
