@@ -12,7 +12,7 @@ afterAll(async () => {
 test('try to connect with good config', async () => {
   await connection.connect();
   await sleep(500);
-  expect(logger.logs[logger.logs.length - 1]).toBeUndefined();
+  expect(logger.logs.at(-1)).toBeUndefined();
 });
 
 test('get collection', async () => {

@@ -722,11 +722,11 @@ export class BaseAutoIncrementModel extends BaseModel {
         { $inc: { count: 1 } },
         { ...driverOptions, upsert: true, returnDocument: 'after' },
       );
-      assert(doc.value, 'upsert should always create a document');
-      toSet._id = doc.value.count;
+      assert(doc, 'upsert should always create a document');
+      toSet._id = doc.count;
       // @ts-expect-error Unavoidable error, as _id is unknown here.
       await collection.insertOne(toSet, driverOptions);
-      this.$attributes._id = doc.value.count;
+      this.$attributes._id = doc.count;
       this.$isPersisted = true;
     } else {
       await collection.updateOne(
