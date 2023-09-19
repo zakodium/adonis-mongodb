@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.16.0](https://github.com/zakodium/adonis-mongodb/compare/v0.15.0...v0.16.0) (2023-09-19)
+
+
+### ⚠ BREAKING CHANGES
+
+* `mongodb` was updated to v6. See the changelog at https://github.com/mongodb/node-mongodb-native/releases/tag/v6.0.0
+
+### Features
+
+* update dependencies ([#149](https://github.com/zakodium/adonis-mongodb/issues/149)) ([546051d](https://github.com/zakodium/adonis-mongodb/commit/546051dbdc5d29132e34f9dfdb6034ea637d8b2c))
+
 ## [0.15.0](https://github.com/zakodium/adonis-mongodb/compare/v0.14.4...v0.15.0) (2023-05-22)
 
 
