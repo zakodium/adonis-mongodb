@@ -1,11 +1,13 @@
+import { ClientSession, Db, TransactionOptions } from 'mongodb';
+
 import { LoggerContract } from '@ioc:Adonis/Core/Logger';
 import type {
-  ConnectionContract,
   ConnectionManagerContract,
   DatabaseContract,
   MongodbConfig,
 } from '@ioc:Zakodium/Mongodb/Database';
 
+import { Connection } from './Connection';
 import { ConnectionManager } from './ConnectionManager';
 
 export class Database implements DatabaseContract {
@@ -41,9 +43,15 @@ export class Database implements DatabaseContract {
     }
   }
 
-  public connection(
-    connectionName = this.primaryConnectionName,
-  ): ConnectionContract {
-    return this.manager.get(connectionName).connection;
+  public connection(connectionName = this.primaryConnectionName): Connection {
+    return this.manager.get(connectionName).connection as Connection;
+  }
+
+  public transaction<TResult>(
+    handler: (client: ClientSession, db: Db) => Promise<TResult>,
+    options?: TransactionOptions,
+  ): Promise<TResult> {
+    const client = this.connection();
+    return client.transaction(handler, options);
   }
 }

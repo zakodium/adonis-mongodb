@@ -550,6 +550,7 @@ export class BaseModel {
       $isDeleted: this.$isDeleted,
       $dirty: this.$dirty,
       $isDirty: this.$isDirty,
+      $isTransaction: Boolean(this.$trx),
     };
   }
 
@@ -691,6 +692,48 @@ export class BaseModel {
     };
     if (createdAt) this.$attributes.createdAt = createdAt;
     return this.merge(values);
+  }
+
+  public get $trx(): ClientSession | undefined {
+    return this.$options.session;
+  }
+
+  /**
+   * Assign client to model options for transactions use.
+   * Will throw an error if model instance already linked to a session
+   *
+   * It allows to use model init outside a transaction, but save it within a transaction.
+   *
+   * @param client
+   *
+   * @example
+   * ```ts
+   * const label = await Label.findOrFail(1);
+   * // edit some label props
+   *
+   * Database.transaction((client) => {
+   *  const documents = await Document.query({ labels: label._id }, { client }).all()
+   *  // remove label from documents when new label definition is incompatible
+   *  // call .save() for each changed documents (aware of transaction because is from query with client option)
+   *
+   *  label.useTransaction(client);
+   *  label.save();
+   * })
+   * ```
+   */
+  public useTransaction(client: ClientSession): this {
+    if (this.$trx) {
+      const model = this.constructor.name;
+      const id = String(this.id);
+      const message = this.$isNew
+        ? `This new instance ${model} is already linked to a transaction`
+        : `This instance ${id} ${model} is already linked to a transaction`;
+      throw new Error(message);
+    }
+
+    this.$options.session = client;
+
+    return this;
   }
 }
 

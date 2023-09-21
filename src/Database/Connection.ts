@@ -1,7 +1,14 @@
 import { EventEmitter } from 'node:events';
 
 import { Exception } from '@poppinss/utils';
-import { MongoClient, Db, Collection, ClientSession, Document } from 'mongodb';
+import {
+  MongoClient,
+  Db,
+  Collection,
+  ClientSession,
+  Document,
+  TransactionOptions,
+} from 'mongodb';
 
 import { LoggerContract } from '@ioc:Adonis/Core/Logger';
 import type {
@@ -125,13 +132,14 @@ export class Connection extends EventEmitter implements ConnectionContract {
 
   public async transaction<TResult>(
     handler: (session: ClientSession, db: Db) => Promise<TResult>,
+    options?: TransactionOptions,
   ): Promise<TResult> {
     const db = await this._ensureDb();
     let result: TResult;
     await this.client.withSession(async (session) => {
       return session.withTransaction(async (session) => {
         result = await handler(session, db);
-      });
+      }, options);
     });
     // @ts-expect-error The `await` ensures `result` has a value.
     return result;
