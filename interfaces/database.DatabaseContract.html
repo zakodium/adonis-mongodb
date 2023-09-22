@@ -24,7 +24,7 @@
 <ul class="tsd-hierarchy">
 <li><span class="target">DatabaseContract</span></li></ul></section><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/zakodium/adonis-mongodb/blob/7bd8953/adonis-typings/database.ts#L37">adonis-typings/database.ts:37</a></li></ul></aside>
+<li>Defined in <a href="https://github.com/zakodium/adonis-mongodb/blob/4cd5855/adonis-typings/database.ts#L38">adonis-typings/database.ts:38</a></li></ul></aside>
 <section class="tsd-panel-group tsd-index-group">
 <section class="tsd-panel tsd-index-panel">
 <details class="tsd-index-content tsd-index-accordion" open><summary class="tsd-accordion-summary tsd-index-summary">
@@ -38,6 +38,7 @@
 <section class="tsd-index-section">
 <h3 class="tsd-index-heading">Methods</h3>
 <div class="tsd-index-list"><a href="database.DatabaseContract.html#connection" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>connection</span></a>
+<a href="database.DatabaseContract.html#transaction" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>transaction</span></a>
 </div></section></div></details></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Properties</h2>
@@ -48,7 +49,7 @@
 </div>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/zakodium/adonis-mongodb/blob/7bd8953/adonis-typings/database.ts#L48">adonis-typings/database.ts:48</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/zakodium/adonis-mongodb/blob/4cd5855/adonis-typings/database.ts#L49">adonis-typings/database.ts:49</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member"><a id="primaryConnectionName" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>primary<wbr/>Connection<wbr/>Name</span><a href="#primaryConnectionName" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">primary<wbr/>Connection<wbr/>Name</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
@@ -56,7 +57,7 @@
 </div>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/zakodium/adonis-mongodb/blob/7bd8953/adonis-typings/database.ts#L43">adonis-typings/database.ts:43</a></li></ul></aside></section></section>
+<li>Defined in <a href="https://github.com/zakodium/adonis-mongodb/blob/4cd5855/adonis-typings/database.ts#L44">adonis-typings/database.ts:44</a></li></ul></aside></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Methods</h2>
 <section class="tsd-panel tsd-member"><a id="connection" class="tsd-anchor"></a>
@@ -71,7 +72,45 @@
 <h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-parameter">connectionName</span>: <span class="tsd-signature-type">string</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="database.ConnectionContract.html" class="tsd-signature-type tsd-kind-interface">ConnectionContract</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/zakodium/adonis-mongodb/blob/7bd8953/adonis-typings/database.ts#L38">adonis-typings/database.ts:38</a></li></ul></aside></li></ul></section></section></div>
+<li>Defined in <a href="https://github.com/zakodium/adonis-mongodb/blob/4cd5855/adonis-typings/database.ts#L39">adonis-typings/database.ts:39</a></li></ul></aside></li></ul></section>
+<section class="tsd-panel tsd-member"><a id="transaction" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>transaction</span><a href="#transaction" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="tsd-signature tsd-anchor-link" id="transaction.transaction-1"><span class="tsd-kind-call-signature">transaction</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type tsd-kind-type-parameter">TResult</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">handler</span>, <span class="tsd-kind-parameter">options</span><span class="tsd-signature-symbol">?</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type tsd-kind-type-parameter">TResult</span><span class="tsd-signature-symbol">&gt;</span><a href="#transaction.transaction-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Shortcut to <code>Database.connection().transaction()</code></p>
+</div>
+<section class="tsd-panel">
+<h4>Type Parameters</h4>
+<ul class="tsd-type-parameter-list">
+<li>
+<h4><span class="tsd-kind-type-parameter">TResult</span></h4></li></ul></section>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li>
+<h5><span class="tsd-kind-parameter">handler</span>: <span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">client</span>, <span class="tsd-kind-parameter">db</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type tsd-kind-type-parameter">TResult</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span></h5>
+<div class="tsd-comment tsd-typography"></div>
+<ul class="tsd-parameters">
+<li class="tsd-parameter-signature">
+<ul class="tsd-signatures">
+<li class="tsd-signature"><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">client</span>, <span class="tsd-kind-parameter">db</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type tsd-kind-type-parameter">TResult</span><span class="tsd-signature-symbol">&gt;</span></li>
+<li class="tsd-description">
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li>
+<h5><span class="tsd-kind-parameter">client</span>: <span class="tsd-signature-type ">ClientSession</span></h5></li>
+<li>
+<h5><span class="tsd-kind-parameter">db</span>: <span class="tsd-signature-type ">Db</span></h5></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type tsd-kind-type-parameter">TResult</span><span class="tsd-signature-symbol">&gt;</span></h4></li></ul></li></ul></li>
+<li>
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-parameter">options</span>: <span class="tsd-signature-type ">TransactionOptions</span></h5>
+<div class="tsd-comment tsd-typography"></div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type tsd-kind-type-parameter">TResult</span><span class="tsd-signature-symbol">&gt;</span></h4>
+<div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/zakodium/adonis-mongodb/blob/4cd5855/adonis-typings/database.ts#L57">adonis-typings/database.ts:57</a></li></ul></aside></li></ul></section></section></div>
 <div class="col-sidebar">
 <div class="page-menu">
 <div class="tsd-navigation settings">
@@ -92,7 +131,8 @@
 <ul>
 <li><a href="#manager" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>manager</span></a></li>
 <li><a href="#primaryConnectionName" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>primary<wbr/>Connection<wbr/>Name</span></a></li>
-<li><a href="#connection" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>connection</span></a></li></ul></div></details></div>
+<li><a href="#connection" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>connection</span></a></li>
+<li><a href="#transaction" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>transaction</span></a></li></ul></div></details></div>
 <div class="site-menu">
 <nav class="tsd-navigation"><a href="../index.html"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1"></use></svg><span>@zakodium/adonis-mongodb</span></a>
 <ul class="tsd-small-nested-navigation" id="tsd-nav-container" data-base="..">
