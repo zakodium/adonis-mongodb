@@ -1,3 +1,5 @@
+import { ClientSession, Db, TransactionOptions } from 'mongodb';
+
 import { LoggerContract } from '@ioc:Adonis/Core/Logger';
 import type {
   ConnectionContract,
@@ -45,5 +47,13 @@ export class Database implements DatabaseContract {
     connectionName = this.primaryConnectionName,
   ): ConnectionContract {
     return this.manager.get(connectionName).connection;
+  }
+
+  public transaction<TResult>(
+    handler: (client: ClientSession, db: Db) => Promise<TResult>,
+    options?: TransactionOptions,
+  ): Promise<TResult> {
+    const client = this.connection();
+    return client.transaction(handler, options);
   }
 }

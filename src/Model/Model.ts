@@ -550,6 +550,7 @@ export class BaseModel {
       $isDeleted: this.$isDeleted,
       $dirty: this.$dirty,
       $isDirty: this.$isDirty,
+      $isTransaction: this.$isTransaction,
     };
   }
 
@@ -691,6 +692,29 @@ export class BaseModel {
     };
     if (createdAt) this.$attributes.createdAt = createdAt;
     return this.merge(values);
+  }
+
+  public get $trx(): ClientSession | undefined {
+    return this.$options.session;
+  }
+
+  public get $isTransaction(): boolean {
+    return Boolean(this.$trx);
+  }
+
+  public useTransaction(client: ClientSession): this {
+    if (this.$isTransaction) {
+      const model = this.constructor.name;
+      const id = String(this.id);
+      const message = this.$isNew
+        ? `This new instance ${model} is already linked to a transaction`
+        : `This instance ${id} ${model} is already linked to a transaction`;
+      throw new Error(message);
+    }
+
+    this.$options.session = client;
+
+    return this;
   }
 }
 

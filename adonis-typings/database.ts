@@ -2,6 +2,7 @@ declare module '@ioc:Zakodium/Mongodb/Database' {
   import { EventEmitter } from 'node:events';
 
   import {
+    TransactionOptions,
     MongoClientOptions,
     Collection,
     Db,
@@ -46,6 +47,17 @@ declare module '@ioc:Zakodium/Mongodb/Database' {
      * Connection manager.
      */
     manager: ConnectionManagerContract;
+
+    /**
+     * Shortcut to `Database.connection().transaction()`
+     *
+     * @param handler
+     * @param options
+     */
+    transaction<TResult>(
+      handler: (client: ClientSession, db: Db) => Promise<TResult>,
+      options?: TransactionOptions,
+    ): Promise<TResult>;
   }
 
   /**
@@ -158,6 +170,7 @@ declare module '@ioc:Zakodium/Mongodb/Database' {
     ): Promise<Collection<TSchema>>;
     transaction<TResult>(
       handler: (client: ClientSession, db: Db) => Promise<TResult>,
+      options?: TransactionOptions,
     ): Promise<TResult>;
   }
 

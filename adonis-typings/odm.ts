@@ -255,6 +255,37 @@ declare module '@ioc:Zakodium/Mongodb/Odm' {
     readonly $isDirty: boolean;
 
     /**
+     * Return the client session of the transaction
+     */
+    readonly $trx: ClientSession | undefined;
+    readonly $isTransaction: boolean;
+
+    /**
+     * Assign client to model options for transactions use.
+     * Will throw an error if model instance already linked to a session
+     *
+     * It allows to use model init outside a transaction, but save it within a transaction.
+     *
+     * @param client
+     *
+     * @example
+     * ```ts
+     * const label = await Label.findOrFail(1);
+     * // edit some label props
+     *
+     * Database.transaction((client) => {
+     *  const documents = await Document.query({ labels: label._id }, { client }).all()
+     *  // remove label from documents when new label definition is incompatible
+     *  // call .save() for each changed documents (aware of transaction because is from query with client option)
+     *
+     *  label.useTransaction(client);
+     *  label.save();
+     * })
+     * ```
+     */
+    useTransaction(client: ClientSession): this;
+
+    /**
      * Returns the Model's current data
      */
     toJSON(): unknown;
