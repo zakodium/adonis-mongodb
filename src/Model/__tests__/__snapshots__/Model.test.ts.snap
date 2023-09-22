@@ -3,13 +3,14 @@
 exports[`custom inspect function 1`] = `
 "{
   Model: 'Post',
-  '$original': { _id: 4, title: 'post title 4', content: 'post content' },
-  '$attributes': { _id: 4, title: 'post title 4', content: 'new content' },
+  '$original': { _id: 1, title: 'post title 1', content: 'post content' },
+  '$attributes': { _id: 1, title: 'post title 1', content: 'new content' },
   '$isPersisted': true,
   '$isNew': false,
   '$isLocal': false,
   '$isDeleted': false,
   '$dirty': { content: 'new content' },
-  '$isDirty': true
+  '$isDirty': true,
+  '$isTransaction': false
 }"
 `;
