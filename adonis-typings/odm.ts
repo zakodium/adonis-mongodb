@@ -258,6 +258,7 @@ declare module '@ioc:Zakodium/Mongodb/Odm' {
      * Return the client session of the transaction
      */
     readonly $trx: ClientSession | undefined;
+    readonly $isTransaction: boolean;
 
     /**
      * Assign client to model options for transactions use.

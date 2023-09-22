@@ -550,7 +550,7 @@ export class BaseModel {
       $isDeleted: this.$isDeleted,
       $dirty: this.$dirty,
       $isDirty: this.$isDirty,
-      $isTransaction: Boolean(this.$trx),
+      $isTransaction: this.$isTransaction,
     };
   }
 
@@ -698,8 +698,12 @@ export class BaseModel {
     return this.$options.session;
   }
 
+  public get $isTransaction(): boolean {
+    return Boolean(this.$trx);
+  }
+
   public useTransaction(client: ClientSession): this {
-    if (this.$trx) {
+    if (this.$isTransaction) {
       const model = this.constructor.name;
       const id = String(this.id);
       const message = this.$isNew
