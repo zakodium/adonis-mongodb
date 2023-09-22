@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.17.0](https://github.com/zakodium/adonis-mongodb/compare/v0.16.0...v0.17.0) (2023-09-22)
+
+
+### Features
+
+* add `useTransaction` to BaseModel ([#151](https://github.com/zakodium/adonis-mongodb/issues/151)) ([92fa525](https://github.com/zakodium/adonis-mongodb/commit/92fa5250a445117f0d3d87bb825a6b42d4839bef))
+
 ## [0.16.0](https://github.com/zakodium/adonis-mongodb/compare/v0.15.0...v0.16.0) (2023-09-19)
 
 
