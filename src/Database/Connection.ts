@@ -135,13 +135,10 @@ export class Connection extends EventEmitter implements ConnectionContract {
     options?: TransactionOptions,
   ): Promise<TResult> {
     const db = await this._ensureDb();
-    let result: TResult;
-    await this.client.withSession(async (session) => {
+    return this.client.withSession(async (session) => {
       return session.withTransaction(async (session) => {
-        result = await handler(session, db);
+        return handler(session, db);
       }, options);
     });
-    // @ts-expect-error The `await` ensures `result` has a value.
-    return result;
   }
 }

@@ -526,3 +526,53 @@ describe('save', () => {
     expect(await post.save()).toBe(false);
   });
 });
+
+describe('transaction', () => {
+  it('should apply transaction and save', async () => {
+    const post = await Post.findOrFail(1);
+    post.title = 'transaction title';
+
+    await db.transaction(async (client) => {
+      post.useTransaction(client);
+      expect(post.$isTransaction).toBe(true);
+
+      return post.save();
+    });
+
+    const refreshPost = await Post.findOrFail(1);
+    expect(post.title).toBe(refreshPost.title);
+  });
+
+  it('should apply transaction, save, throw error so rollback', async () => {
+    const post = await Post.findOrFail(1);
+    post.title = 'transaction title v2';
+
+    await db
+      .transaction(async (client) => {
+        post.useTransaction(client);
+
+        await post.save();
+
+        throw new Error('Need to rollback transaction');
+      })
+      .catch(() => {
+        // ignore transaction failed
+      });
+
+    const refreshPost = await Post.findOrFail(1);
+    expect(post.title).not.toBe(refreshPost.title);
+  });
+
+  it('should return model instance', async () => {
+    const post = await db.transaction(async (client) => {
+      const post = await Post.findOrFail(1, { client });
+
+      post.title = 'transaction title v3';
+      await post.save();
+
+      return post;
+    });
+
+    expect(post.title).toBe('transaction title v3');
+  });
+});
