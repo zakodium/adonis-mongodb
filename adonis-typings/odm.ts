@@ -71,6 +71,16 @@ declare module '@ioc:Zakodium/Mongodb/Odm' {
     $getField(name: string): FieldOptions | undefined;
 
     /**
+     * Managing computed columns
+     */
+    $addComputed(
+      name: string,
+      options: Partial<ComputedOptions>,
+    ): ComputedOptions;
+    $hasComputed(name: string): boolean;
+    $getComputed(name: string): ComputedOptions | undefined;
+
+    /**
      * Custom database connection to use.
      */
     readonly connection?: string;

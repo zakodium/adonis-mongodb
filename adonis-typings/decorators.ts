@@ -25,7 +25,20 @@ declare module '@ioc:Zakodium/Mongodb/Odm' {
     // consume?: (value: any, attribute: string, model: LucidRow) => any
   }
 
+  /**
+   * Represents a computed property on the model
+   */
+  export interface ComputedOptions {
+    serializeAs: string | null;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    meta?: any;
+  }
+
   export type FieldDecorator = (options?: FieldOptions) => DecoratorFn;
+
+  export type ComputedDecorator = (
+    options?: Partial<ComputedOptions>,
+  ) => DecoratorFn;
 
   export const field: FieldDecorator;
 }

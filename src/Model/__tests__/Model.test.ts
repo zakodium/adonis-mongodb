@@ -3,7 +3,7 @@ import { inspect } from 'node:util';
 import { ObjectId } from 'mongodb';
 
 import { setupDatabase } from '../../../test-utils/TestUtils';
-import { field } from '../../Odm/decorators';
+import { computed, field } from '../../Odm/decorators';
 import { BaseModel, BaseAutoIncrementModel } from '../Model';
 
 const db = setupDatabase();
@@ -27,6 +27,11 @@ class Post extends BaseAutoIncrementModel {
   public content: string;
 
   public notAField?: string;
+
+  @computed()
+  public get titleUpperCase() {
+    return this.title.toUpperCase();
+  }
 }
 
 class Empty extends BaseAutoIncrementModel {}
@@ -574,5 +579,13 @@ describe('transaction', () => {
     });
 
     expect(post.title).toBe('transaction title v3');
+  });
+});
+
+describe('computed getter', () => {
+  it('should be able to access instance context', async () => {
+    const post = await Post.findOrFail(1);
+    post.title = 'test transaction uppercase';
+    expect(post.titleUpperCase).toBe('TEST TRANSACTION UPPERCASE');
   });
 });
