@@ -42,6 +42,7 @@ class Something extends BaseModel {
 
   public test: boolean;
 }
+Something.boot();
 
 let usernameCounter = 0;
 function nextUsername() {

@@ -1,17 +1,30 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { BaseModel } from './Model';
 
 export const proxyHandler: ProxyHandler<any> = {
   get(target: any, prop: string | symbol, receiver: any) {
+    const Model = target.constructor as BaseModel;
+    if (BaseModel.$hasComputed.call(Model, prop)) {
+      const property = Object.getOwnPropertyDescriptor(
+        Object.getPrototypeOf(target),
+        prop,
+      );
+      if (property?.get) {
+        return property.get.call(target.$attributes);
+      }
+    }
+
     if (target[prop] !== undefined) {
       return Reflect.get(target, prop, receiver);
     }
+
     return Reflect.get(target.$attributes, prop, receiver);
   },
-  set(target: any, prop: string | symbol, value: any, receiver: any) {
+  set(target: any, prop: string | symbol, value: any) {
     if (target[prop] !== undefined) {
-      return Reflect.set(target, prop, value, receiver);
+      return Reflect.set(target, prop, value);
     }
-    return Reflect.set(target.$attributes, prop, value, receiver);
+    return Reflect.set(target.$attributes, prop, value);
   },
   ownKeys() {
     throw new Error(
