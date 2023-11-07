@@ -3,8 +3,8 @@ import { BaseModel } from './Model';
 
 export const proxyHandler: ProxyHandler<any> = {
   get(target: any, prop: string | symbol, receiver: any) {
-    const Model = target.constructor as BaseModel;
-    if (BaseModel.$hasComputed.call(Model, prop)) {
+    const Model = target.constructor as typeof BaseModel;
+    if (Model.$hasComputed(prop as string)) {
       const property = Object.getOwnPropertyDescriptor(
         Object.getPrototypeOf(target),
         prop,

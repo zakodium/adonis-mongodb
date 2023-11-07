@@ -435,6 +435,8 @@ test('toJSON method', async () => {
     content: 'mycontent',
     createdAt: post.createdAt,
     updatedAt: post.updatedAt,
+    // computed prop
+    titleUpperCase: post.titleUpperCase,
   };
 
   expect(JSON.stringify(jsonPost)).toStrictEqual(JSON.stringify(expected));
@@ -584,6 +586,19 @@ describe('transaction', () => {
 });
 
 describe('computed getter', () => {
+  it('support Lucid standard $hasComputed', () => {
+    expect(Post.$hasComputed('titleUpperCase')).toBe(true);
+    expect(Post.$hasComputed('title')).toBe(false);
+  });
+
+  it('support Lucid standard $getComputed', () => {
+    expect(Post.$getComputed('titleUpperCase')).toStrictEqual({
+      serializeAs: 'titleUpperCase',
+      meta: undefined,
+    });
+    expect(Post.$getComputed('title')).toBe(undefined);
+  });
+
   it('should be able to access instance context', async () => {
     const post = await Post.findOrFail(1);
     post.title = 'test transaction uppercase';

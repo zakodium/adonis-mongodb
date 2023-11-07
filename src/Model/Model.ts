@@ -665,7 +665,18 @@ export class BaseModel {
   }
 
   public toJSON(): unknown {
-    return this.$attributes;
+    const Model = this.constructor as typeof BaseModel;
+
+    const computed: Record<string, unknown> = {};
+    for (const key of Model.$computedDefinitions.keys()) {
+      // @ts-expect-error polymorphic getter
+      computed[key] = this[key];
+    }
+
+    return {
+      ...this.$attributes,
+      ...computed,
+    };
   }
 
   public async save(
