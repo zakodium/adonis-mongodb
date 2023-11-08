@@ -5,13 +5,7 @@ export const proxyHandler: ProxyHandler<any> = {
   get(target: any, prop: string | symbol, receiver: any) {
     const Model = target.constructor as typeof BaseModel;
     if (Model.$hasComputed(prop as string)) {
-      const property = Object.getOwnPropertyDescriptor(
-        Object.getPrototypeOf(target),
-        prop,
-      );
-      if (property?.get) {
-        return property.get.call(target.$attributes);
-      }
+      return Reflect.get(target, prop, receiver);
     }
 
     if (target[prop] !== undefined) {
