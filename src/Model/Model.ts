@@ -331,7 +331,8 @@ export class BaseModel {
    */
   public static $addComputed(name: string, options: Partial<ComputedOptions>) {
     const computed: ComputedOptions = {
-      serializeAs: options.serializeAs || name,
+      serializeAs:
+        options.serializeAs === null ? null : options.serializeAs || name,
       meta: options.meta,
     };
     this.$computedDefinitions.set(name, computed);
@@ -668,9 +669,10 @@ export class BaseModel {
     const Model = this.constructor as typeof BaseModel;
 
     const computed: Record<string, unknown> = {};
-    for (const key of Model.$computedDefinitions.keys()) {
+    for (const [key, def] of Model.$computedDefinitions.entries()) {
+      if (def.serializeAs === null) continue;
       // @ts-expect-error polymorphic getter
-      computed[key] = this[key];
+      computed[def.serializeAs] = this[key];
     }
 
     return {

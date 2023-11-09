@@ -586,22 +586,63 @@ describe('transaction', () => {
 });
 
 describe('computed getter', () => {
+  class PostComputed extends BaseModel {
+    @field()
+    public title: string;
+
+    @field()
+    public body: string;
+
+    @computed({ serializeAs: null })
+    public get titleUpperCase() {
+      return this.title.toUpperCase();
+    }
+
+    @computed({ serializeAs: '__JSON_MARKDOWN' })
+    public get markdown() {
+      return `#${this.titleUpperCase}\n\n${this.body}`;
+    }
+
+    @computed()
+    public get html() {
+      return `<h1>${this.title}</h1><p>${this.body}</p>`;
+    }
+  }
+
+  const post = new PostComputed().merge({ title: 'Test', body: 'content' });
+
   it('support Lucid standard $hasComputed', () => {
-    expect(Post.$hasComputed('titleUpperCase')).toBe(true);
-    expect(Post.$hasComputed('title')).toBe(false);
+    expect(PostComputed.$hasComputed('titleUpperCase')).toBe(true);
+    expect(PostComputed.$hasComputed('title')).toBe(false);
   });
 
   it('support Lucid standard $getComputed', () => {
-    expect(Post.$getComputed('titleUpperCase')).toStrictEqual({
-      serializeAs: 'titleUpperCase',
+    expect(PostComputed.$getComputed('titleUpperCase')).toStrictEqual({
+      serializeAs: null,
       meta: undefined,
     });
-    expect(Post.$getComputed('title')).toBe(undefined);
+    expect(PostComputed.$getComputed('title')).toBe(undefined);
   });
 
-  it('should be able to access instance context', async () => {
-    const post = await Post.findOrFail(1);
-    post.title = 'test transaction uppercase';
-    expect(post.titleUpperCase).toBe('TEST TRANSACTION UPPERCASE');
+  it('should be able to access instance context', () => {
+    expect(post.titleUpperCase).toBe('TEST');
+  });
+
+  it('should support serializeAs fallback to getter name', () => {
+    const serialization = post.toJSON();
+    // @ts-expect-error polymorphic testing
+    expect(serialization.html).toBe(post.html);
+  });
+
+  it('should support serializeAs null', () => {
+    const serialization = post.toJSON();
+    // @ts-expect-error polymorphic testing
+    expect('titleUpperCase' in serialization).toBe(false);
+  });
+
+  it('should support serializeAs string', () => {
+    const serialization = post.toJSON();
+    // @ts-expect-error polymorphic testing
+    expect(serialization.__JSON_MARKDOWN).toBe(post.markdown);
   });
 });
