@@ -30,6 +30,7 @@ import {
   FieldOptions,
   QuerySortObject,
   ForbiddenQueryOptions,
+  ComputedOptions,
 } from '@ioc:Zakodium/Mongodb/Odm';
 
 import { proxyHandler } from './proxyHandler';
@@ -254,6 +255,13 @@ export class BaseModel {
   public static booted: boolean;
   public static readonly $fieldsDefinitions: Map<string, FieldOptions>;
 
+  /**
+   * A set of properties marked as computed. Computed properties are included in
+   * the `toJSON` result, else they behave the same way as any other instance
+   * property.
+   */
+  public static $computedDefinitions: Map<string, ComputedOptions>;
+
   public readonly _id: unknown;
   public readonly createdAt: Date;
   public readonly updatedAt: Date;
@@ -318,6 +326,33 @@ export class BaseModel {
     return this.$fieldsDefinitions.get(name);
   }
 
+  /**
+   * Adds a computed node
+   */
+  public static $addComputed(name: string, options: Partial<ComputedOptions>) {
+    const computed: ComputedOptions = {
+      serializeAs:
+        options.serializeAs === null ? null : options.serializeAs || name,
+      meta: options.meta,
+    };
+    this.$computedDefinitions.set(name, computed);
+    return computed;
+  }
+
+  /**
+   * Find if some property is marked as computed
+   */
+  public static $hasComputed(name: string): boolean {
+    return this.$computedDefinitions.has(name);
+  }
+
+  /**
+   * Get computed node
+   */
+  public static $getComputed(name: string): ComputedOptions | undefined {
+    return this.$computedDefinitions.get(name);
+  }
+
   public static boot(): void {
     /**
      * Define the property when not defined on self. This makes sure that all
@@ -344,6 +379,15 @@ export class BaseModel {
 
     defineStaticProperty(this, BaseModel, {
       propertyName: '$fieldsDefinitions',
+      defaultValue: new Map(),
+      strategy: 'inherit',
+    });
+
+    /**
+     * Define computed properties
+     */
+    defineStaticProperty(this, BaseModel, {
+      propertyName: '$computedDefinitions',
       defaultValue: new Map(),
       strategy: 'inherit',
     });
@@ -622,7 +666,19 @@ export class BaseModel {
   }
 
   public toJSON(): unknown {
-    return this.$attributes;
+    const Model = this.constructor as typeof BaseModel;
+
+    const computed: Record<string, unknown> = {};
+    for (const [key, def] of Model.$computedDefinitions.entries()) {
+      if (def.serializeAs === null) continue;
+      // @ts-expect-error polymorphic getter
+      computed[def.serializeAs] = this[key];
+    }
+
+    return {
+      ...this.$attributes,
+      ...computed,
+    };
   }
 
   public async save(

@@ -3,7 +3,7 @@ import { inspect } from 'node:util';
 import { ObjectId } from 'mongodb';
 
 import { setupDatabase } from '../../../test-utils/TestUtils';
-import { field } from '../../Odm/decorators';
+import { computed, field } from '../../Odm/decorators';
 import { BaseModel, BaseAutoIncrementModel } from '../Model';
 
 const db = setupDatabase();
@@ -27,6 +27,11 @@ class Post extends BaseAutoIncrementModel {
   public content: string;
 
   public notAField?: string;
+
+  @computed()
+  public get titleUpperCase() {
+    return this.title.toUpperCase();
+  }
 }
 
 class Empty extends BaseAutoIncrementModel {}
@@ -37,6 +42,7 @@ class Something extends BaseModel {
 
   public test: boolean;
 }
+Something.boot();
 
 let usernameCounter = 0;
 function nextUsername() {
@@ -429,6 +435,8 @@ test('toJSON method', async () => {
     content: 'mycontent',
     createdAt: post.createdAt,
     updatedAt: post.updatedAt,
+    // computed prop
+    titleUpperCase: post.titleUpperCase,
   };
 
   expect(JSON.stringify(jsonPost)).toStrictEqual(JSON.stringify(expected));
@@ -574,5 +582,67 @@ describe('transaction', () => {
     });
 
     expect(post.title).toBe('transaction title v3');
+  });
+});
+
+describe('computed getter', () => {
+  class PostComputed extends BaseModel {
+    @field()
+    public title: string;
+
+    @field()
+    public body: string;
+
+    @computed({ serializeAs: null })
+    public get titleUpperCase() {
+      return this.title.toUpperCase();
+    }
+
+    @computed({ serializeAs: '__JSON_MARKDOWN' })
+    public get markdown() {
+      return `#${this.titleUpperCase}\n\n${this.body}`;
+    }
+
+    @computed()
+    public get html() {
+      return `<h1>${this.title}</h1><p>${this.body}</p>`;
+    }
+  }
+
+  const post = new PostComputed().merge({ title: 'Test', body: 'content' });
+
+  it('support Lucid standard $hasComputed', () => {
+    expect(PostComputed.$hasComputed('titleUpperCase')).toBe(true);
+    expect(PostComputed.$hasComputed('title')).toBe(false);
+  });
+
+  it('support Lucid standard $getComputed', () => {
+    expect(PostComputed.$getComputed('titleUpperCase')).toStrictEqual({
+      serializeAs: null,
+      meta: undefined,
+    });
+    expect(PostComputed.$getComputed('title')).toBe(undefined);
+  });
+
+  it('should be able to access instance context', () => {
+    expect(post.titleUpperCase).toBe('TEST');
+  });
+
+  it('should support serializeAs fallback to getter name', () => {
+    const serialization = post.toJSON();
+    // @ts-expect-error polymorphic testing
+    expect(serialization.html).toBe(post.html);
+  });
+
+  it('should support serializeAs null', () => {
+    const serialization = post.toJSON();
+    // @ts-expect-error polymorphic testing
+    expect('titleUpperCase' in serialization).toBe(false);
+  });
+
+  it('should support serializeAs string', () => {
+    const serialization = post.toJSON();
+    // @ts-expect-error polymorphic testing
+    expect(serialization.__JSON_MARKDOWN).toBe(post.markdown);
   });
 });
