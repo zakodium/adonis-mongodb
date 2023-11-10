@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.18.0](https://github.com/zakodium/adonis-mongodb/compare/v0.17.0...v0.18.0) (2023-11-09)
+
+
+### Features
+
+* support [@computed](https://github.com/computed) decorator ([#153](https://github.com/zakodium/adonis-mongodb/issues/153)) ([412af03](https://github.com/zakodium/adonis-mongodb/commit/412af036b3251c0a115ff7f2264ad853a7552f03))
+
 ## [0.17.0](https://github.com/zakodium/adonis-mongodb/compare/v0.16.0...v0.17.0) (2023-09-22)
 
 
