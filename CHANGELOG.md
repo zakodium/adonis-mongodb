@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.18.1](https://github.com/zakodium/adonis-mongodb/compare/v0.18.0...v0.18.1) (2023-11-10)
+
+
+### Bug Fixes
+
+* export `[@computed](https://github.com/computed)` in typings and bound in Provider ([#155](https://github.com/zakodium/adonis-mongodb/issues/155)) ([3d136b9](https://github.com/zakodium/adonis-mongodb/commit/3d136b9c477d4cee9968e4a7f219573fbf60eb70))
+
 ## [0.18.0](https://github.com/zakodium/adonis-mongodb/compare/v0.17.0...v0.18.0) (2023-11-09)
 
 
