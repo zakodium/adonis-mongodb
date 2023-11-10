@@ -10,7 +10,7 @@ import { getMongodbModelAuthProvider } from '../src/Auth/MongodbModelAuthProvide
 import { Database } from '../src/Database/Database';
 import createMigration from '../src/Migration';
 import { BaseModel, BaseAutoIncrementModel } from '../src/Model/Model';
-import { field } from '../src/Odm/decorators';
+import { field, computed } from '../src/Odm/decorators';
 
 export default class MongodbProvider {
   public constructor(protected app: ApplicationContract) {}
@@ -30,6 +30,7 @@ export default class MongodbProvider {
         BaseAutoIncrementModel:
           BaseAutoIncrementModel as unknown as typeof BaseAutoIncrementModelType,
         field,
+        computed,
       };
     });
   }

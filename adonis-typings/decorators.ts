@@ -45,4 +45,5 @@ declare module '@ioc:Zakodium/Mongodb/Odm' {
   ) => DecoratorFn;
 
   export const field: FieldDecorator;
+  export const computed: ComputedDecorator;
 }
