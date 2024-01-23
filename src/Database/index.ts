@@ -1,22 +1,25 @@
+import type { Logger } from '@adonisjs/core/logger';
 import { ClientSession, Db, TransactionOptions } from 'mongodb';
 
-import { LoggerContract } from '@ioc:Adonis/Core/Logger';
-import type {
-  ConnectionContract,
-  ConnectionManagerContract,
-  DatabaseContract,
-  MongodbConfig,
-} from '@ioc:Zakodium/Mongodb/Database';
+import { MongodbConfig } from '../types/index.js';
 
-import { ConnectionManager } from './ConnectionManager';
+import { Connection } from './connection.js';
+import { ConnectionManager } from './connection_manager.js';
 
-export class Database implements DatabaseContract {
-  public readonly manager: ConnectionManagerContract;
+export class Database {
+  /**
+   * Connection manager.
+   */
+  public readonly manager: ConnectionManager;
+
+  /**
+   * Name of the primary connection defined inside `config/mongodb.ts`.
+   */
   public readonly primaryConnectionName: string;
 
   public constructor(
     private config: MongodbConfig,
-    private logger: LoggerContract,
+    private logger: Logger,
   ) {
     if (typeof config.connection !== 'string') {
       throw new TypeError('config.connection must be a string');
@@ -43,12 +46,16 @@ export class Database implements DatabaseContract {
     }
   }
 
-  public connection(
-    connectionName = this.primaryConnectionName,
-  ): ConnectionContract {
+  public connection(connectionName = this.primaryConnectionName): Connection {
     return this.manager.get(connectionName).connection;
   }
 
+  /**
+   * Shortcut to `Database.connection().transaction()`
+   *
+   * @param handler
+   * @param options
+   */
   public transaction<TResult>(
     handler: (client: ClientSession, db: Db) => Promise<TResult>,
     options?: TransactionOptions,

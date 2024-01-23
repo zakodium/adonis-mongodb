@@ -1,26 +1,19 @@
 {
+  "extends": "@adonisjs/tsconfig/tsconfig.package.json",
   "compilerOptions": {
-    "declaration": true,
-    "esModuleInterop": true,
-    "module": "commonjs",
-    "moduleResolution": "node",
-    "outDir": "./lib",
-    "inlineSourceMap": true,
+    "rootDir": "./",
+    "outDir": "./build",
     "strict": true,
-    "lib": ["ES2021"],
-    "target": "es2021",
     "strictFunctionTypes": false,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "strictPropertyInitialization": false,
-    "skipLibCheck": true,
-    "types": ["@adonisjs/auth", "@adonisjs/core", "@types/jest"]
   },
-  "include": [
-    "./adonis-typings/**/*",
-    "./commands/**/*",
-    "./src/**/*",
-    "./providers/**/*",
-    "./test-utils/*"
-  ]
+  // Temporary exclusion of non-migrated files.
+  "exclude": [
+    "./commands/**",
+    "./src/auth_old/*",
+    "./test/**",
+    "./test-utils/**",
+  ],
 }

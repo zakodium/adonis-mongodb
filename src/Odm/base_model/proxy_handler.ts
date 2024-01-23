@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { BaseModel } from './Model';
+import type { BaseModel } from './index.js';
 
 export const proxyHandler: ProxyHandler<any> = {
   get(target: any, prop: string | symbol, receiver: any) {

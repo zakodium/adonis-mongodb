@@ -10,7 +10,7 @@ afterAll(async () => {
 });
 
 test('try to connect with good config', async () => {
-  await connection.connect();
+  await connection.#connect();
   await sleep(500);
   expect(logger.logs.at(-1)).toBeUndefined();
 });

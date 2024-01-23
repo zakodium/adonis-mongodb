@@ -72,5 +72,5 @@ typings/
 # FuseBox cache
 .fusebox/
 
-lib
+build
 docs

@@ -1,4 +1,3 @@
 extends:
   - zakodium/ts
   - zakodium/unicorn
-  - zakodium/adonis-v5

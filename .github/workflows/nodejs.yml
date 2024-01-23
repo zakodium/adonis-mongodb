@@ -12,13 +12,13 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [16.x, 18.x, 20.x]
-        mongo-version: ['5.0', '6.0']
+        node-version: [20.x, 21.x]
+        mongo-version: ['5.0', '6.0', '7.0']
       fail-fast: false
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
       - name: Use MongoDB ${{ matrix.mongo-version }}
@@ -28,7 +28,7 @@ jobs:
       - name: Install dependencies
         run: npm install
       - name: Initialize MongoDB
-        run: node reset-dev.mjs
+        run: node reset-dev.js
       - name: Run tests
         run: npm run test-only
       - name: Send coverage report to Codecov

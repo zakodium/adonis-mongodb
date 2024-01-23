@@ -1,5 +1,6 @@
 import { EventEmitter } from 'node:events';
 
+import type { Logger } from '@adonisjs/core/logger';
 import { Exception } from '@poppinss/utils';
 import {
   MongoClient,
@@ -10,63 +11,60 @@ import {
   TransactionOptions,
 } from 'mongodb';
 
-import { LoggerContract } from '@ioc:Adonis/Core/Logger';
-import type {
-  MongodbConnectionConfig,
-  ConnectionContract,
-} from '@ioc:Zakodium/Mongodb/Database';
+import { MongodbConnectionConfig } from '../types/index.js';
 
-enum ConnectionStatus {
-  CONNECTED = 'CONNECTED',
-  DISCONNECTED = 'DISCONNECTED',
-}
+type ConnectionStatus = 'CONNECTED' | 'DISCONNECTED';
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
 export declare interface Connection {
-  on(
-    event: 'connect',
-    callback: (connection: ConnectionContract) => void,
-  ): this;
+  on(event: 'connect', callback: (connection: Connection) => void): this;
   on(
     event: 'error',
-    callback: (error: Error, connection: ConnectionContract) => void,
+    callback: (error: Error, connection: Connection) => void,
   ): this;
-  on(
-    event: 'disconnect',
-    callback: (connection: ConnectionContract) => void,
-  ): this;
+  on(event: 'disconnect', callback: (connection: Connection) => void): this;
   on(
     event: 'disconnect:start',
-    callback: (connection: ConnectionContract) => void,
+    callback: (connection: Connection) => void,
   ): this;
   on(
     event: 'disconnect:error',
-    callback: (error: Error, connection: ConnectionContract) => void,
+    callback: (error: Error, connection: Connection) => void,
   ): this;
 }
 
 // eslint-disable-next-line unicorn/prefer-event-target, @typescript-eslint/no-unsafe-declaration-merging
-export class Connection extends EventEmitter implements ConnectionContract {
+export class Connection extends EventEmitter {
+  /**
+   * Instance of the MongoDB client.
+   */
   public readonly client: MongoClient;
+
+  /**
+   * Name of the connection.
+   */
   public readonly name: string;
-  public ready: boolean;
+
+  /**
+   * Config of the connection.
+   */
   public readonly config: MongodbConnectionConfig;
 
-  private logger: LoggerContract;
+  private logger: Logger;
   private status: ConnectionStatus;
   private connectPromise: Promise<Db> | null;
 
   public constructor(
     name: string,
     config: MongodbConnectionConfig,
-    logger: LoggerContract,
+    logger: Logger,
   ) {
     super();
 
     this.name = name;
     this.config = config;
     this.logger = logger;
-    this.status = ConnectionStatus.DISCONNECTED;
+    this.status = 'DISCONNECTED';
     this.client = new MongoClient(this.config.url, {
       ...this.config.clientOptions,
     });
@@ -74,41 +72,45 @@ export class Connection extends EventEmitter implements ConnectionContract {
   }
 
   private async _ensureDb(): Promise<Db> {
-    void this.connect();
+    this.connect();
     if (!this.connectPromise) {
-      throw new Exception(
-        `unexpected MongoDB connection error`,
-        500,
-        'E_MONGODB_CONNECTION',
-      );
+      throw new Exception(`unexpected MongoDB connection error`, {
+        status: 500,
+        code: 'E_MONGODB_CONNECTION',
+      });
     }
     return this.connectPromise;
   }
 
-  public connect(): Promise<Db> {
-    if (this.status === ConnectionStatus.CONNECTED) {
-      return this.connectPromise as Promise<Db>;
+  /**
+   * Initiate the connection.
+   */
+  public connect(): void {
+    if (this.status === 'CONNECTED') {
+      return;
     }
-    this.status = ConnectionStatus.CONNECTED;
+    this.status = 'CONNECTED';
     this.connectPromise = this.client.connect().then((client) => {
       return client.db(this.config.database);
     });
     this.connectPromise.catch((error) => {
       this.connectPromise = null;
-      this.status = ConnectionStatus.DISCONNECTED;
+      this.status = 'DISCONNECTED';
       this.logger.fatal(`could not connect to database "${this.name}"`, error);
       this.emit('error', error, this);
     });
     this.emit('connect', this);
-    return this.connectPromise;
   }
 
+  /**
+   * Close the connection.
+   */
   public async disconnect(): Promise<void> {
-    if (this.status === ConnectionStatus.DISCONNECTED) {
+    if (this.status === 'DISCONNECTED') {
       return;
     }
     this.connectPromise = null;
-    this.status = ConnectionStatus.DISCONNECTED;
+    this.status = 'DISCONNECTED';
     this.emit('disconnect:start', this);
     try {
       await this.client.close();

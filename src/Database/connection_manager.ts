@@ -1,19 +1,27 @@
+import type { Logger } from '@adonisjs/core/logger';
 import { Exception } from '@poppinss/utils';
 
-import { LoggerContract } from '@ioc:Adonis/Core/Logger';
-import type {
-  ConnectionContract,
-  ConnectionManagerContract,
-  ConnectionNode,
-  MongodbConnectionConfig,
-} from '@ioc:Zakodium/Mongodb/Database';
+import { MongodbConnectionConfig } from '../types/index.js';
 
-import { Connection } from './Connection';
+import { Connection } from './connection.js';
 
-export class ConnectionManager implements ConnectionManagerContract {
-  public connections: ConnectionManagerContract['connections'] = new Map();
+interface ConnectionNode {
+  name: string;
+  config: MongodbConnectionConfig;
+  connection: Connection;
+  state: 'registered' | 'open' | 'closing' | 'closed';
+}
 
-  public constructor(private logger: LoggerContract) {}
+/**
+ * Connection manager to manage database connections.
+ */
+export class ConnectionManager {
+  /**
+   * List of registered connections.
+   */
+  public connections = new Map<string, ConnectionNode>();
+
+  public constructor(private logger: Logger) {}
 
   private validateConnection(connectionName: string): ConnectionNode {
     validateConnectionName(connectionName);
@@ -21,34 +29,39 @@ export class ConnectionManager implements ConnectionManagerContract {
     if (!connection) {
       throw new Exception(
         `no MongoDB connection registered with name "${connectionName}"`,
-        500,
-        'E_NO_MONGODB_CONNECTION',
+        {
+          status: 500,
+          code: 'E_NO_MONGODB_CONNECTION',
+        },
       );
     }
     return connection;
   }
 
-  private handleConnect(connection: ConnectionContract): void {
+  private handleConnect(connection: Connection): void {
     const connectionNode = this.connections.get(connection.name);
     if (connectionNode) {
       connectionNode.state = 'open';
     }
   }
 
-  private handleClose(connection: ConnectionContract): void {
+  private handleClose(connection: Connection): void {
     const connectionNode = this.connections.get(connection.name);
     if (connectionNode) {
       connectionNode.state = 'closed';
     }
   }
 
-  private handleClosing(connection: ConnectionContract): void {
+  private handleClosing(connection: Connection): void {
     const connectionNode = this.connections.get(connection.name);
     if (connectionNode) {
       connectionNode.state = 'closing';
     }
   }
 
+  /**
+   * Add a new connection.
+   */
   public add(connectionName: string, config: MongodbConnectionConfig): void {
     validateConnectionName(connectionName);
     if (this.connections.has(connectionName)) {
@@ -76,31 +89,49 @@ export class ConnectionManager implements ConnectionManagerContract {
     });
   }
 
+  /**
+   * Initiate a connection. It is a noop if the connection is already initiated.
+   */
   public connect(connectionName: string): void {
     const connection = this.validateConnection(connectionName);
     connection.connection.connect();
   }
 
+  /**
+   * Get a connection.
+   */
   public get(connectionName: string): ConnectionNode {
     const connection = this.validateConnection(connectionName);
     return connection;
   }
 
+  /**
+   * Returns whether the connection is managed by the manager.
+   */
   public has(connectionName: string): boolean {
     validateConnectionName(connectionName);
     return this.connections.has(connectionName);
   }
 
+  /**
+   * Returns whether the connection is connected.
+   */
   public isConnected(connectionName: string): boolean {
     const connection = this.validateConnection(connectionName);
     return connection.state === 'open';
   }
 
+  /**
+   * Close a connection.
+   */
   public async close(connectionName: string): Promise<void> {
     const connection = this.validateConnection(connectionName);
     return connection.connection.disconnect();
   }
 
+  /**
+   * Close all managed connections.
+   */
   public async closeAll(): Promise<void> {
     await Promise.all(
       [...this.connections.values()].map((connection) =>

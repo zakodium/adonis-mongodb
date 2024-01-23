@@ -1,10 +1,10 @@
 import {
-  ComputedDecorator,
-  ComputedOptions,
+  MongodbModel,
   FieldDecorator,
   FieldOptions,
-  MongodbModel,
-} from '@ioc:Zakodium/Mongodb/Odm';
+  ComputedDecorator,
+  ComputedOptions,
+} from '../../types/index.js';
 
 export const field: FieldDecorator = (options?: FieldOptions) => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -1,7 +1,8 @@
 import assert from 'node:assert';
 
 import { defineStaticProperty, Exception } from '@poppinss/utils';
-import { cloneDeep, isEqual, pickBy, snakeCase } from 'lodash';
+import string from '@poppinss/utils/string';
+import lodash from 'lodash';
 import {
   BulkWriteOptions,
   ClientSession,
@@ -17,23 +18,22 @@ import {
   InsertOneOptions,
   SortDirection,
 } from 'mongodb';
-import pluralize from 'pluralize';
 
-import { DatabaseContract } from '@ioc:Zakodium/Mongodb/Database';
+import type { Database } from '../../database/index.js';
 import {
-  MongodbDocument,
-  QueryContract,
-  NoExtraProperties,
-  ModelAttributes,
-  ModelAdapterOptions,
-  ModelDocumentOptions,
-  FieldOptions,
-  QuerySortObject,
-  ForbiddenQueryOptions,
   ComputedOptions,
-} from '@ioc:Zakodium/Mongodb/Odm';
+  FieldOptions,
+  ForbiddenQueryOptions,
+  ModelAdapterOptions,
+  ModelAttributes,
+  ModelDocumentOptions,
+  MongodbDocument,
+  NoExtraProperties,
+  QueryContract,
+  QuerySortObject,
+} from '../../types/index.js';
 
-import { proxyHandler } from './proxyHandler';
+import { proxyHandler } from './proxy_handler.js';
 
 function mergeDriverOptions<
   DriverOptionType extends { session?: ClientSession | undefined },
@@ -154,7 +154,10 @@ class Query<ModelType extends typeof BaseModel>
   public async firstOrFail(): Promise<InstanceType<ModelType>> {
     const result = await this.first();
     if (!result) {
-      throw new Exception('Document not found', 404, 'E_DOCUMENT_NOT_FOUND');
+      throw new Exception('Document not found', {
+        status: 404,
+        code: 'E_DOCUMENT_NOT_FOUND',
+      });
     }
     return result;
   }
@@ -224,7 +227,7 @@ class Query<ModelType extends typeof BaseModel>
 }
 
 function computeCollectionName(constructorName: string): string {
-  return snakeCase(pluralize(constructorName));
+  return string.pluralize(string.snakeCase(constructorName));
 }
 
 interface InternalModelConstructorOptions {
@@ -239,8 +242,8 @@ function ensureSort(options?: FindOptions): void {
   };
 }
 
-function hasOwn(object: unknown, key: string): boolean {
-  return Object.prototype.hasOwnProperty.call(object, key);
+function hasOwn(object: object, key: string): boolean {
+  return Object.hasOwn(object, key);
 }
 
 interface DataToSet {
@@ -284,7 +287,7 @@ export class BaseModel {
     alreadyExists = false,
   ) {
     if (dbObj) {
-      this.$original = alreadyExists ? cloneDeep(dbObj) : {};
+      this.$original = alreadyExists ? lodash.cloneDeep(dbObj) : {};
       this.$attributes = dbObj;
     } else {
       this.$original = {};
@@ -305,8 +308,8 @@ export class BaseModel {
     return new Proxy(this, proxyHandler);
   }
 
-  public static $database: DatabaseContract;
-  public static $setDatabase(database: DatabaseContract): void {
+  public static $database: Database;
+  public static $setDatabase(database: Database): void {
     this.$database = database;
   }
 
@@ -371,24 +374,21 @@ export class BaseModel {
 
     this.booted = true;
 
-    defineStaticProperty(this, BaseModel, {
-      propertyName: 'collectionName',
-      defaultValue: computeCollectionName(this.name),
+    defineStaticProperty(this, 'collectionName', {
+      initialValue: computeCollectionName(this.name),
       strategy: 'define',
     });
 
-    defineStaticProperty(this, BaseModel, {
-      propertyName: '$fieldsDefinitions',
-      defaultValue: new Map(),
+    defineStaticProperty(this, '$fieldsDefinitions', {
+      initialValue: new Map(),
       strategy: 'inherit',
     });
 
     /**
      * Define computed properties
      */
-    defineStaticProperty(this, BaseModel, {
-      propertyName: '$computedDefinitions',
-      defaultValue: new Map(),
+    defineStaticProperty(this, '$computedDefinitions', {
+      initialValue: new Map(),
       strategy: 'inherit',
     });
   }
@@ -435,6 +435,7 @@ export class BaseModel {
         }) as InstanceType<ModelType>,
     );
     for (const instance of instances) {
+      // eslint-disable-next-line no-await-in-loop
       await instance.save({ driverOptions });
     }
     return instances;
@@ -472,7 +473,10 @@ export class BaseModel {
   ): Promise<InstanceType<ModelType>> {
     const result = await this.find(id, options);
     if (!result) {
-      throw new Exception('Document not found', 404, 'E_DOCUMENT_NOT_FOUND');
+      throw new Exception('Document not found', {
+        status: 404,
+        code: 'E_DOCUMENT_NOT_FOUND',
+      });
     }
     return result;
   }
@@ -511,7 +515,10 @@ export class BaseModel {
   ): Promise<InstanceType<ModelType>> {
     const result = await this.findBy(key, value, options);
     if (!result) {
-      throw new Exception('Document not found', 404, 'E_DOCUMENT_NOT_FOUND');
+      throw new Exception('Document not found', {
+        status: 404,
+        code: 'E_DOCUMENT_NOT_FOUND',
+      });
     }
     return result;
   }
@@ -603,17 +610,20 @@ export class BaseModel {
   }
 
   public get $dirty(): Partial<ModelAttributes<this>> {
-    return pickBy(this.$attributes, (value, key) => {
+    return lodash.pickBy(this.$attributes, (value, key) => {
       return (
         this.$original[key] === undefined ||
-        !isEqual(this.$original[key], value)
+        !lodash.isEqual(this.$original[key], value)
       );
     }) as Partial<ModelAttributes<this>>;
   }
 
   public $ensureNotDeleted(): void {
     if (this.$isDeleted) {
-      throw new Exception('Document was deleted', 500, 'E_DOCUMENT_DELETED');
+      throw new Exception('Document was deleted', {
+        status: 500,
+        code: 'E_DOCUMENT_DELETED',
+      });
     }
   }
 
@@ -706,7 +716,7 @@ export class BaseModel {
         driverOptions,
       );
     }
-    this.$original = cloneDeep(this.$attributes);
+    this.$original = lodash.cloneDeep(this.$attributes);
     return true;
   }
 
@@ -775,6 +785,7 @@ export class BaseModel {
 }
 
 export class BaseAutoIncrementModel extends BaseModel {
+  // @ts-expect-error Unavoidable error.
   public readonly _id: number;
 
   public async save(
@@ -816,7 +827,7 @@ export class BaseAutoIncrementModel extends BaseModel {
         driverOptions,
       );
     }
-    this.$original = cloneDeep(this.$attributes);
+    this.$original = lodash.cloneDeep(this.$attributes);
     return true;
   }
 }
