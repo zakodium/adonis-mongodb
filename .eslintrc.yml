@@ -2,3 +2,6 @@ extends:
   - zakodium/ts
   - zakodium/unicorn
   - zakodium/adonis-v5
+rules:
+  no-await-in-loop: off
+  '@typescript-eslint/use-unknown-in-catch-callback-variable': off

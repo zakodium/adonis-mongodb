@@ -10,7 +10,7 @@ const db = setupDatabase();
 
 class User extends BaseModel {
   @field()
-  public _id: ObjectId | string;
+  public declare _id: ObjectId | string;
 
   @field()
   public username: string;
