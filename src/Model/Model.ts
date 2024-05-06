@@ -239,10 +239,6 @@ function ensureSort(options?: FindOptions): void {
   };
 }
 
-function hasOwn(object: unknown, key: string): boolean {
-  return Object.prototype.hasOwnProperty.call(object, key);
-}
-
 interface DataToSet {
   [key: string]: unknown;
   createdAt: Date;
@@ -358,7 +354,7 @@ export class BaseModel {
      * Define the property when not defined on self. This makes sure that all
      * subclasses boot on their own.
      */
-    if (!hasOwn(this, 'booted')) {
+    if (!Object.hasOwn(this, 'booted')) {
       this.booted = false;
     }
 
@@ -775,7 +771,7 @@ export class BaseModel {
 }
 
 export class BaseAutoIncrementModel extends BaseModel {
-  public readonly _id: number;
+  public declare readonly _id: number;
 
   public async save(
     options?: ModelDocumentOptions<InsertOneOptions>,
