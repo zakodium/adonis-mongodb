@@ -607,6 +607,11 @@ describe('computed getter', () => {
     public get html() {
       return `<h1>${this.title}</h1><p>${this.body}</p>`;
     }
+
+    @computed()
+    public get chainedHtml() {
+      return `${this.html}<footer>Chained</footer>`;
+    }
   }
 
   const post = new PostComputed().merge({ title: 'Test', body: 'content' });
@@ -644,5 +649,11 @@ describe('computed getter', () => {
     const serialization = post.toJSON();
     // @ts-expect-error polymorphic testing
     expect(serialization.__JSON_MARKDOWN).toBe(post.markdown);
+  });
+
+  it('should support chained computed', () => {
+    expect(post.chainedHtml).toBe(
+      `<h1>${post.title}</h1><p>${post.body}</p><footer>Chained</footer>`,
+    );
   });
 });
