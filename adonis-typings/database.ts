@@ -11,6 +11,8 @@ declare module '@ioc:Zakodium/Mongodb/Database' {
     Document,
   } from 'mongodb';
 
+  import { TransactionEventEmitter } from '@ioc:Zakodium/Mongodb/Database/Transaction';
+
   /**
    * Shape of the configuration in `config/mongodb.ts`.
    */
@@ -169,7 +171,11 @@ declare module '@ioc:Zakodium/Mongodb/Database' {
       collectionName: string,
     ): Promise<Collection<TSchema>>;
     transaction<TResult>(
-      handler: (client: ClientSession, db: Db) => Promise<TResult>,
+      handler: (
+        client: ClientSession,
+        db: Db,
+        tx: TransactionEventEmitter,
+      ) => Promise<TResult>,
       options?: TransactionOptions,
     ): Promise<TResult>;
   }

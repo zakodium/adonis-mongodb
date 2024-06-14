@@ -8,6 +8,7 @@ import {
 
 import { getMongodbModelAuthProvider } from '../src/Auth/MongodbModelAuthProvider';
 import { Database } from '../src/Database/Database';
+import { TransactionEventEmitter } from '../src/Database/TransactionEventEmitter';
 import createMigration from '../src/Migration';
 import { BaseModel, BaseAutoIncrementModel } from '../src/Model/Model';
 import { field, computed } from '../src/Odm/decorators';
@@ -42,6 +43,17 @@ export default class MongodbProvider {
     });
   }
 
+  private registerTransactionEvent(): void {
+    this.app.container.singleton(
+      'Zakodium/Mongodb/Database/Transaction',
+      () => {
+        return {
+          TransactionEventEmitter,
+        };
+      },
+    );
+  }
+
   private registerMigration(): void {
     this.app.container.singleton('Zakodium/Mongodb/Migration', () => {
       return createMigration(
@@ -52,6 +64,7 @@ export default class MongodbProvider {
 
   public register(): void {
     this.registerOdm();
+    this.registerTransactionEvent();
     this.registerDatabase();
     this.registerMigration();
   }
