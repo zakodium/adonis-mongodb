@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.19.0](https://github.com/zakodium/adonis-mongodb/compare/v0.18.1...v0.19.0) (2024-06-17)
+
+
+### Features
+
+* **Connection:** add an observer api on transaction ([#160](https://github.com/zakodium/adonis-mongodb/issues/160)) ([721fe35](https://github.com/zakodium/adonis-mongodb/commit/721fe354103fc53277d9fef1c92e5835fd3a22b8))
+
 ## [0.18.1](https://github.com/zakodium/adonis-mongodb/compare/v0.18.0...v0.18.1) (2023-11-10)
 
 
