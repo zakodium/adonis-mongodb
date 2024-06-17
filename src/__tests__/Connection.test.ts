@@ -44,7 +44,7 @@ describe('transactions', () => {
   });
 
   test('commit event', async () => {
-    const txCommitController = promiseController<number | null>();
+    const txCommitController = promiseWithResolvers<number | null>();
 
     const [txResult, count] = await Promise.all([
       connection.transaction(async (session, db, tx) => {
@@ -74,7 +74,7 @@ describe('transactions', () => {
   });
 
   test('abort manual event', async () => {
-    const txAbortController = promiseController<number | null>();
+    const txAbortController = promiseWithResolvers<number | null>();
 
     const [txResult, count] = await Promise.all([
       connection.transaction(async (session, db, tx) => {
@@ -107,7 +107,7 @@ describe('transactions', () => {
   });
 
   test('abort error event', async () => {
-    const txAbortController = promiseController<number | null>();
+    const txAbortController = promiseWithResolvers<number | null>();
     const error = new Error('Unexpected error');
 
     const [txResult, count] = await Promise.allSettled([
@@ -141,7 +141,11 @@ describe('transactions', () => {
   });
 });
 
-function promiseController<R>() {
+/**
+ * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/withResolvers#browser_compatibility
+ * TODO: use ES api when this project target Node.js >=v22
+ */
+function promiseWithResolvers<R>() {
   let resolve: (value: R | PromiseLike<R>) => void;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let reject: (reason: any) => void;
