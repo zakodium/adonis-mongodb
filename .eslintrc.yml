@@ -5,3 +5,5 @@ extends:
 rules:
   no-await-in-loop: off
   '@typescript-eslint/use-unknown-in-catch-callback-variable': off
+  # issues with EventTarget typing (seems not in node types, and should not use dom types)
+  unicorn/prefer-event-target: off

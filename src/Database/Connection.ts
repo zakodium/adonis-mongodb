@@ -16,6 +16,8 @@ import type {
   ConnectionContract,
 } from '@ioc:Zakodium/Mongodb/Database';
 
+import { TransactionEventEmitter } from './TransactionEventEmitter';
+
 enum ConnectionStatus {
   CONNECTED = 'CONNECTED',
   DISCONNECTED = 'DISCONNECTED',
@@ -45,7 +47,7 @@ export declare interface Connection {
   ): this;
 }
 
-// eslint-disable-next-line unicorn/prefer-event-target, @typescript-eslint/no-unsafe-declaration-merging
+// eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
 export class Connection extends EventEmitter implements ConnectionContract {
   public readonly client: MongoClient;
   public readonly name: string;
@@ -131,17 +133,51 @@ export class Connection extends EventEmitter implements ConnectionContract {
   }
 
   public async transaction<TResult>(
-    handler: (session: ClientSession, db: Db) => Promise<TResult>,
+    handler: (
+      session: ClientSession,
+      db: Db,
+      transactionEventEmitter: TransactionEventEmitter,
+    ) => Promise<TResult>,
     options?: TransactionOptions,
   ): Promise<TResult> {
     const db = await this._ensureDb();
-    let result: TResult;
-    await this.client.withSession(async (session) => {
-      return session.withTransaction(async (session) => {
-        result = await handler(session, db);
-      }, options);
-    });
-    // @ts-expect-error The `await` ensures `result` has a value.
-    return result;
+
+    let session: ClientSession;
+    const emitter = new TransactionEventEmitter();
+
+    return this.client
+      .withSession((_session) =>
+        _session.withTransaction(async (_session) => {
+          session = _session;
+          return handler(session, db, emitter);
+        }, options),
+      )
+      .then(
+        (result) => {
+          // https://github.com/mongodb/node-mongodb-native/blob/v6.7.0/src/transactions.ts#L147
+          // https://github.com/mongodb/node-mongodb-native/blob/v6.7.0/src/transactions.ts#L54
+          // session.transaction.isCommitted is not a sufficient indicator,
+          // because it's true if transaction commits or aborts.
+          const isCommitted = session.transaction.isCommitted;
+          const isAborted =
+            // https://github.com/mongodb/node-mongodb-native/blob/v6.7.0/src/transactions.ts#L11
+            Reflect.get(session.transaction, 'state') === 'TRANSACTION_ABORTED';
+
+          emitter.emit(
+            isCommitted && isAborted ? 'abort' : 'commit',
+            session,
+            db,
+          );
+
+          return result;
+          // If an error occurs in this scope,
+          // it will not be caught by this then's error handler, but by the caller's catch.
+          // This is what we want, as an error in this scope should not trigger the abort event.
+        },
+        (error) => {
+          emitter.emit('abort', session, db, error);
+          throw error;
+        },
+      );
   }
 }
