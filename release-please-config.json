@@ -1,0 +1,6 @@
+{
+  "bump-minor-pre-major": true,
+  "packages": {
+    ".": {}
+  }
+}
