@@ -1,16 +1,16 @@
 import { EventEmitter } from 'node:events';
 
 import { Exception } from '@poppinss/utils';
-import {
-  MongoClient,
+import type {
   Db,
   Collection,
   ClientSession,
   Document,
   TransactionOptions,
 } from 'mongodb';
+import { MongoClient } from 'mongodb';
 
-import { LoggerContract } from '@ioc:Adonis/Core/Logger';
+import type { LoggerContract } from '@ioc:Adonis/Core/Logger';
 import type {
   MongodbConnectionConfig,
   ConnectionContract,

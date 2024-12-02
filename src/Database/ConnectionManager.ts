@@ -1,6 +1,6 @@
 import { Exception } from '@poppinss/utils';
 
-import { LoggerContract } from '@ioc:Adonis/Core/Logger';
+import type { LoggerContract } from '@ioc:Adonis/Core/Logger';
 import type {
   ConnectionContract,
   ConnectionManagerContract,
@@ -78,6 +78,8 @@ export class ConnectionManager implements ConnectionManagerContract {
 
   public connect(connectionName: string): void {
     const connection = this.validateConnection(connectionName);
+    // Connection error is handled by the `error` event listener.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     connection.connection.connect();
   }
 

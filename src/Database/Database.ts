@@ -1,6 +1,6 @@
-import { ClientSession, Db, TransactionOptions } from 'mongodb';
+import type { ClientSession, Db, TransactionOptions } from 'mongodb';
 
-import { LoggerContract } from '@ioc:Adonis/Core/Logger';
+import type { LoggerContract } from '@ioc:Adonis/Core/Logger';
 import type {
   ConnectionContract,
   ConnectionManagerContract,

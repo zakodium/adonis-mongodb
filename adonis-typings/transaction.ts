@@ -1,7 +1,7 @@
 declare module '@ioc:Zakodium/Mongodb/Database/Transaction' {
   import { EventEmitter } from 'node:events';
 
-  import { ClientSession, Db } from 'mongodb';
+  import type { ClientSession, Db } from 'mongodb';
 
   export interface TransactionEvents {
     /**

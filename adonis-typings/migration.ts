@@ -1,5 +1,5 @@
 declare module '@ioc:Zakodium/Mongodb/Migration' {
-  import {
+  import type {
     Db,
     ClientSession,
     IndexSpecification,

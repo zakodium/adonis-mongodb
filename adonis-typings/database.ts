@@ -1,17 +1,17 @@
 declare module '@ioc:Zakodium/Mongodb/Database' {
-  import { EventEmitter } from 'node:events';
+  import type { EventEmitter } from 'node:events';
 
-  import {
-    TransactionOptions,
-    MongoClientOptions,
+  import type {
+    ClientSession,
     Collection,
     Db,
-    ClientSession,
-    MongoClient,
     Document,
+    MongoClient,
+    MongoClientOptions,
+    TransactionOptions,
   } from 'mongodb';
 
-  import { TransactionEventEmitter } from '@ioc:Zakodium/Mongodb/Database/Transaction';
+  import type { TransactionEventEmitter } from '@ioc:Zakodium/Mongodb/Database/Transaction';
 
   /**
    * Shape of the configuration in `config/mongodb.ts`.
@@ -138,7 +138,7 @@ declare module '@ioc:Zakodium/Mongodb/Database' {
     /**
      * Initiate the connection.
      */
-    connect(): void;
+    connect(): Promise<Db>;
 
     /**
      * Close the connection.

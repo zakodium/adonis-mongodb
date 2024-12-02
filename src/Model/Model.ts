@@ -2,7 +2,7 @@ import assert from 'node:assert';
 
 import { defineStaticProperty, Exception } from '@poppinss/utils';
 import { cloneDeep, isEqual, pickBy, snakeCase } from 'lodash';
-import {
+import type {
   BulkWriteOptions,
   ClientSession,
   Collection,
@@ -19,18 +19,18 @@ import {
 } from 'mongodb';
 import pluralize from 'pluralize';
 
-import { DatabaseContract } from '@ioc:Zakodium/Mongodb/Database';
-import {
-  MongodbDocument,
-  QueryContract,
-  NoExtraProperties,
-  ModelAttributes,
-  ModelAdapterOptions,
-  ModelDocumentOptions,
-  FieldOptions,
-  QuerySortObject,
-  ForbiddenQueryOptions,
+import type { DatabaseContract } from '@ioc:Zakodium/Mongodb/Database';
+import type {
   ComputedOptions,
+  FieldOptions,
+  ForbiddenQueryOptions,
+  ModelAdapterOptions,
+  ModelAttributes,
+  ModelDocumentOptions,
+  MongodbDocument,
+  NoExtraProperties,
+  QueryContract,
+  QuerySortObject,
 } from '@ioc:Zakodium/Mongodb/Odm';
 
 import { proxyHandler } from './proxyHandler';
@@ -200,7 +200,9 @@ class Query<ModelType extends typeof BaseModel>
   public async explain(verbosity?: ExplainVerbosityLike): Promise<Document> {
     const collection = await this.ModelConstructor.getCollection();
     const driverOptions = this.getDriverOptions();
-    return collection.find(this.filter, driverOptions).explain(verbosity);
+    return collection
+      .find(this.filter, driverOptions)
+      .explain(verbosity as ExplainVerbosityLike);
   }
 
   public async *[Symbol.asyncIterator](): AsyncIterableIterator<
@@ -771,7 +773,7 @@ export class BaseModel {
 }
 
 export class BaseAutoIncrementModel extends BaseModel {
-  public declare readonly _id: number;
+  declare public readonly _id: number;
 
   public async save(
     options?: ModelDocumentOptions<InsertOneOptions>,

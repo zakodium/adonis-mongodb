@@ -1,7 +1,7 @@
 declare module '@ioc:Adonis/Core/Application' {
-  import { DatabaseContract } from '@ioc:Zakodium/Mongodb/Database';
-  import Migration from '@ioc:Zakodium/Mongodb/Migration';
-  import * as Odm from '@ioc:Zakodium/Mongodb/Odm';
+  import type { DatabaseContract } from '@ioc:Zakodium/Mongodb/Database';
+  import type Migration from '@ioc:Zakodium/Mongodb/Migration';
+  import type * as Odm from '@ioc:Zakodium/Mongodb/Odm';
 
   export interface ContainerBindings {
     /* eslint-disable @typescript-eslint/naming-convention */

@@ -1,5 +1,5 @@
-import { Logger } from '@poppinss/cliui/build/src/Logger';
-import {
+import type { Logger } from '@poppinss/cliui/build/src/Logger';
+import type {
   CreateIndexesOptions,
   ClientSession,
   Db,
