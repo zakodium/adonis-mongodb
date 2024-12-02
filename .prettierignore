@@ -2,3 +2,4 @@
 /lib
 /CHANGELOG.md
 /coverage
+/.release-please-manifest.json
