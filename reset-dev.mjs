@@ -5,8 +5,9 @@ import childProcess from 'node:child_process';
 
 try {
   childProcess.execFileSync(
-    'docker-compose',
+    'docker',
     [
+      'compose',
       'exec',
       // Do not try to allocate a TTY so it works in GitHub actions too.
       '-T',

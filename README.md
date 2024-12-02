@@ -96,10 +96,10 @@ export default authConfig;
 To run tests locally:
 
 ```bash
-docker-compose up -d
+docker compose up -d
 node reset-dev.mjs
 npm test
-docker-compose down
+docker compose down
 ```
 
 ## License
