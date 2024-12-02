@@ -1,7 +1,7 @@
 import { ObjectId } from 'mongodb';
 
-import { ApplicationContract } from '@ioc:Adonis/Core/Application';
-import {
+import type { ApplicationContract } from '@ioc:Adonis/Core/Application';
+import type {
   BaseModel as BaseModelType,
   BaseAutoIncrementModel as BaseAutoIncrementModelType,
 } from '@ioc:Zakodium/Mongodb/Odm';

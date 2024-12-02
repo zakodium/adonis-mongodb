@@ -1,6 +1,7 @@
 declare module '@ioc:Zakodium/Mongodb/Odm' {
   export type DecoratorFn = (target: unknown, property: unknown) => void;
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   export interface FieldOptions {
     // TODO: Enable options.
     /**

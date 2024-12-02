@@ -1,6 +1,6 @@
 import path from 'node:path';
 
-import { Logger } from '@poppinss/cliui/build/src/Logger';
+import type { Logger } from '@poppinss/cliui/build/src/Logger';
 
 const matchTimestamp = /^(?<timestamp>\d+)_.*$/;
 

@@ -1,12 +1,12 @@
 import { esmResolver } from '@poppinss/utils';
 import { ObjectId } from 'mongodb';
 
-import {
+import type {
   AuthManagerContract,
   ProviderUserContract,
   UserProviderContract,
 } from '@ioc:Adonis/Addons/Auth';
-import { HashDriverContract } from '@ioc:Adonis/Core/Hash';
+import type { HashDriverContract } from '@ioc:Adonis/Core/Hash';
 import type {
   MongodbDocument,
   MongodbModel,

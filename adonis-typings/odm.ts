@@ -1,24 +1,24 @@
 declare module '@ioc:Zakodium/Mongodb/Odm' {
-  import {
+  import type {
+    BulkWriteOptions,
+    ClientSession,
     Collection,
+    CountDocumentsOptions,
+    DeleteOptions,
     Document,
+    ExplainVerbosityLike,
     Filter,
     FindOptions,
     InsertOneOptions,
-    DeleteOptions,
-    CountDocumentsOptions,
-    BulkWriteOptions,
-    ClientSession,
     SortDirection,
-    ExplainVerbosityLike,
   } from 'mongodb';
 
-  import { UserProviderContract } from '@ioc:Adonis/Addons/Auth';
-  import { HashersList } from '@ioc:Adonis/Core/Hash';
+  import type { UserProviderContract } from '@ioc:Adonis/Addons/Auth';
+  import type { HashersList } from '@ioc:Adonis/Core/Hash';
 
   type DollarProperties<T> = Extract<keyof T, `$${string}`>;
   type FunctionProperties<T> = {
-    // eslint-disable-next-line @typescript-eslint/ban-types
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
     [K in keyof T]: T[K] extends Function ? K : never;
   }[keyof T];
   type ModelSpecial = 'id';
@@ -394,9 +394,7 @@ declare module '@ioc:Zakodium/Mongodb/Odm' {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  type Impossible<K extends keyof any> = {
-    [P in K]: never;
-  };
+  type Impossible<K extends keyof any> = Record<K, never>;
 
   type NoExtraProperties<T, U extends T = T> = U &
     Impossible<Exclude<keyof U, keyof T>>;
@@ -404,6 +402,7 @@ declare module '@ioc:Zakodium/Mongodb/Odm' {
   export const BaseModel: MongodbModel<unknown>;
   export const BaseAutoIncrementModel: MongodbModel<number>;
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   export interface MongodbModelAuthProviderContract<
     User extends MongodbModel<unknown>,
   > extends UserProviderContract<InstanceType<User>> {}
