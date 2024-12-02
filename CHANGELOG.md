@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.20.0](https://github.com/zakodium/adonis-mongodb/compare/v0.19.0...v0.20.0) (2024-12-02)
+
+
+### ⚠ BREAKING CHANGES
+
+* remove support for EoL Node.js 16
+
+### Miscellaneous Chores
+
+* remove support for EoL Node.js 16 ([d3bcf9b](https://github.com/zakodium/adonis-mongodb/commit/d3bcf9b2155e1bee88f063ae50b83ae208d6c5ad))
+
 ## [0.19.0](https://github.com/zakodium/adonis-mongodb/compare/v0.18.1...v0.19.0) (2024-06-17)
 
 
