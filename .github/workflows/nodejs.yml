@@ -24,7 +24,7 @@ jobs:
       - name: Use MongoDB ${{ matrix.mongo-version }}
         run: echo "MONGO_VERSION=${{ matrix.mongo-version }}" > .env
       - name: Init docker
-        run: docker-compose up -d
+        run: docker compose up -d
       - name: Install dependencies
         run: npm install
       - name: Initialize MongoDB
@@ -34,4 +34,4 @@ jobs:
       - name: Send coverage report to Codecov
         uses: codecov/codecov-action@v4
       - name: Teardown docker
-        run: docker-compose down
+        run: docker compose down
