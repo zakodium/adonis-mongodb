@@ -21,7 +21,7 @@ try {
       stdio: 'inherit',
     },
   );
-} catch (error) {
-  process.stderr.write(error.stderr);
+} catch {
+  // Ignore error, it is already piped to the console.
   process.exit(1);
 }

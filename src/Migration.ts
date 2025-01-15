@@ -1,10 +1,10 @@
 import type { Logger } from '@poppinss/cliui/build/src/Logger';
 import type {
-  CreateIndexesOptions,
   ClientSession,
+  CreateIndexesOptions,
   Db,
-  IndexSpecification,
   DropIndexesOptions,
+  IndexSpecification,
 } from 'mongodb';
 
 import type {
@@ -13,10 +13,16 @@ import type {
 } from '@ioc:Zakodium/Mongodb/Database';
 
 enum MigrationType {
+  DropCollection = 'DropCollection',
   CreateCollection = 'CreateCollection',
   DropIndex = 'DropIndex',
   CreateIndex = 'CreateIndex',
   Custom = 'Custom',
+}
+
+interface DropCollectionOperation {
+  type: MigrationType.DropCollection;
+  collectionName: string;
 }
 
 interface CreateCollectionOperation {
@@ -44,6 +50,7 @@ interface CustomOperation {
 }
 
 type MigrationOperation =
+  | DropCollectionOperation
   | CreateCollectionOperation
   | DropIndexOperation
   | CreateIndexOperation
@@ -66,6 +73,13 @@ export default function createMigration(Database: DatabaseContract): any {
       for (const collectionName of collectionNames) {
         this.createCollection(collectionName);
       }
+    }
+
+    public dropCollection(collectionName: string): void {
+      this.$operations.push({
+        type: MigrationType.DropCollection,
+        collectionName,
+      });
     }
 
     public createCollection(collectionName: string): void {
@@ -114,6 +128,7 @@ export default function createMigration(Database: DatabaseContract): any {
       await this._dropIndexes(session);
       await this._createIndexes(session);
       await this._executeDeferred(session);
+      await this._dropCollections();
     }
 
     private async _listCollections() {
@@ -126,6 +141,14 @@ export default function createMigration(Database: DatabaseContract): any {
         .toArray();
       this.$collectionList = list.map((element) => element.name);
       return this.$collectionList;
+    }
+
+    private async _dropCollections(): Promise<void> {
+      const db = await this.$connection.database();
+      for (const op of this.$operations.filter(isDropCollection)) {
+        this.$logger.info(`Dropping collection ${op.collectionName}`);
+        await db.dropCollection(op.collectionName);
+      }
     }
 
     private async _createCollections(session: ClientSession): Promise<void> {
@@ -177,6 +200,12 @@ export default function createMigration(Database: DatabaseContract): any {
   }
 
   return Migration;
+}
+
+function isDropCollection(
+  op: MigrationOperation,
+): op is DropCollectionOperation {
+  return op.type === MigrationType.DropCollection;
 }
 
 function isCreateCollection(
