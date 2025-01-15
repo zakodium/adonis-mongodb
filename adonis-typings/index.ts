@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/triple-slash-reference */
 
-/// <reference path="./container.ts" />
-/// <reference path="./database.ts" />
-/// <reference path="./decorators.ts" />
-/// <reference path="./migration.ts" />
-/// <reference path="./objectid.ts" />
-/// <reference path="./odm.ts" />
+/// <reference path="./container.ts" preserve="true" />
+/// <reference path="./database.ts" preserve="true" />
+/// <reference path="./decorators.ts" preserve="true" />
+/// <reference path="./migration.ts" preserve="true" />
+/// <reference path="./objectid.ts" preserve="true" />
+/// <reference path="./odm.ts" preserve="true" />
