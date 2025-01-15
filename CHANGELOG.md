@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.20.1](https://github.com/zakodium/adonis-mongodb/compare/v0.20.0...v0.20.1) (2025-01-15)
+
+
+### Bug Fixes
+
+* preserve TS triple-slash references ([#169](https://github.com/zakodium/adonis-mongodb/issues/169)) ([5c01a0e](https://github.com/zakodium/adonis-mongodb/commit/5c01a0e1118d3d7f035d59f676c02855be896dca))
+
 ## [0.20.0](https://github.com/zakodium/adonis-mongodb/compare/v0.19.0...v0.20.0) (2025-01-15)
 
 
