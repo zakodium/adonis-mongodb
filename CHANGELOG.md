@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.20.0](https://github.com/zakodium/adonis-mongodb/compare/v0.19.0...v0.20.0) (2025-01-15)
+
+
+### ⚠ BREAKING CHANGES
+
+* remove support for EoL Node.js 16
+
+### Features
+
+* add `dropCollection` migration method ([#168](https://github.com/zakodium/adonis-mongodb/issues/168)) ([2928b95](https://github.com/zakodium/adonis-mongodb/commit/2928b95fd84dcb956e91a2520bcefd76279a5836))
+
+
+### Miscellaneous Chores
+
+* remove support for EoL Node.js 16 ([d3bcf9b](https://github.com/zakodium/adonis-mongodb/commit/d3bcf9b2155e1bee88f063ae50b83ae208d6c5ad))
+
 ## [0.19.0](https://github.com/zakodium/adonis-mongodb/compare/v0.18.1...v0.19.0) (2024-06-17)
 
 
