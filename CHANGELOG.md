@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.20.2](https://github.com/zakodium/adonis-mongodb/compare/v0.20.1...v0.20.2) (2025-01-15)
+
+
+### Bug Fixes
+
+* add missing triple-slash reference for transaction types ([#171](https://github.com/zakodium/adonis-mongodb/issues/171)) ([640eb39](https://github.com/zakodium/adonis-mongodb/commit/640eb39e2c75c4a68992dc36537e667b17680a14))
+
 ## [0.20.1](https://github.com/zakodium/adonis-mongodb/compare/v0.20.0...v0.20.1) (2025-01-15)
 
 
