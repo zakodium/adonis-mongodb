@@ -6,3 +6,4 @@
 /// <reference path="./migration.ts" preserve="true" />
 /// <reference path="./objectid.ts" preserve="true" />
 /// <reference path="./odm.ts" preserve="true" />
+/// <reference path="./transaction.ts" preserve="true" />
