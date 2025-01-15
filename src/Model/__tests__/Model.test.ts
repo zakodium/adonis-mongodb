@@ -4,7 +4,7 @@ import { ObjectId } from 'mongodb';
 
 import { setupDatabase } from '../../../test-utils/TestUtils';
 import { computed, field } from '../../Odm/decorators';
-import { BaseModel, BaseAutoIncrementModel } from '../Model';
+import { BaseAutoIncrementModel, BaseModel } from '../Model';
 
 const db = setupDatabase();
 
@@ -444,6 +444,7 @@ test('toJSON method', async () => {
 
 test('spreading a model should throw', async () => {
   const post = await Post.query().firstOrFail();
+  // eslint-disable-next-line @typescript-eslint/no-misused-spread
   expect(() => ({ ...post })).toThrow(/Getting model keys is disallowed/);
 });
 

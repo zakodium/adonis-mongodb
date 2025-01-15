@@ -1,14 +1,22 @@
 declare module '@ioc:Zakodium/Mongodb/Migration' {
   import type {
-    Db,
     ClientSession,
-    IndexSpecification,
     CreateIndexesOptions,
+    Db,
     DropIndexesOptions,
+    IndexSpecification,
   } from 'mongodb';
 
   export default abstract class Migration {
     public createCollections(collectionNames: string[]): void;
+
+    /**
+     * Drop a collection.
+     * This operation will be done last in the migration.
+     * It cannot be run in a transaction, so we recommend doing it in a separate migration file.
+     * @param collectionName
+     */
+    public dropCollection(collectionName: string): void;
     public createCollection(collectionName: string): void;
     public createIndex(
       collectionName: string,
