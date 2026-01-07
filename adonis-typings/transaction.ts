@@ -1,15 +1,13 @@
 declare module '@ioc:Zakodium/Mongodb/Database/Transaction' {
   import { EventEmitter } from 'node:events';
 
-  import type { ClientSession, Db } from 'mongodb';
-
   export interface TransactionEvents {
     /**
      * The transaction commits successfully.
      *
      * @example
-     * Consider you have a collection of items storing metadata of file is filesystem.
-     * Consider when you delete an item from this collection, you must delete associated file.
+     * Consider you have a collection of items storing metadata of files from the filesystem.
+     * Consider when you delete an item from this collection, you must delete the associated file.
      *
      * ```ts
      * const item = await connection.transaction((session, db, tx) => {
@@ -27,7 +25,7 @@ declare module '@ioc:Zakodium/Mongodb/Database/Transaction' {
      * })
      * ```
      */
-    commit: [session: ClientSession, db: Db];
+    commit: [];
 
     /**
      * The transaction aborted (optional error).
@@ -35,7 +33,7 @@ declare module '@ioc:Zakodium/Mongodb/Database/Transaction' {
      * - if from `session.abortTransaction()`, no error
      * - if from a throw, error is set
      */
-    abort: [session: ClientSession, db: Db, error?: Error];
+    abort: [error?: Error];
   }
 
   export class TransactionEventEmitter extends EventEmitter<TransactionEvents> {}

@@ -133,9 +133,7 @@ declare module '@ioc:Zakodium/Mongodb/Odm' {
     find<ModelType extends MongodbModel<IdType>>(
       this: ModelType,
       id: InstanceType<ModelType>['_id'],
-      options?: ModelAdapterOptions<
-        FindOptions<ModelAttributes<InstanceType<ModelType>>>
-      >,
+      options?: ModelAdapterOptions<FindOptions>,
     ): Promise<InstanceType<ModelType> | null>;
 
     /**
@@ -144,9 +142,7 @@ declare module '@ioc:Zakodium/Mongodb/Odm' {
     findOrFail<ModelType extends MongodbModel<IdType>>(
       this: ModelType,
       id: InstanceType<ModelType>['_id'],
-      options?: ModelAdapterOptions<
-        FindOptions<ModelAttributes<InstanceType<ModelType>>>
-      >,
+      options?: ModelAdapterOptions<FindOptions>,
     ): Promise<InstanceType<ModelType>>;
 
     /**
@@ -156,9 +152,7 @@ declare module '@ioc:Zakodium/Mongodb/Odm' {
       this: ModelType,
       key: string,
       value: unknown,
-      options?: ModelAdapterOptions<
-        FindOptions<ModelAttributes<InstanceType<ModelType>>>
-      >,
+      options?: ModelAdapterOptions<FindOptions>,
     ): Promise<InstanceType<ModelType> | null>;
 
     /**
@@ -168,9 +162,7 @@ declare module '@ioc:Zakodium/Mongodb/Odm' {
       this: ModelType,
       key: string,
       value: unknown,
-      options?: ModelAdapterOptions<
-        FindOptions<ModelAttributes<InstanceType<ModelType>>>
-      >,
+      options?: ModelAdapterOptions<FindOptions>,
     ): Promise<InstanceType<ModelType>>;
 
     /**
@@ -179,9 +171,7 @@ declare module '@ioc:Zakodium/Mongodb/Odm' {
     findMany<ModelType extends MongodbModel<IdType>>(
       this: ModelType,
       ids: Array<InstanceType<ModelType>['_id']>,
-      options?: ModelAdapterOptions<
-        FindOptions<ModelAttributes<InstanceType<ModelType>>>
-      >,
+      options?: ModelAdapterOptions<FindOptions>,
     ): Promise<Array<InstanceType<ModelType>>>;
 
     /**
@@ -189,9 +179,7 @@ declare module '@ioc:Zakodium/Mongodb/Odm' {
      */
     all<ModelType extends MongodbModel<IdType>>(
       this: ModelType,
-      options?: ModelAdapterOptions<
-        FindOptions<ModelAttributes<InstanceType<ModelType>>>
-      >,
+      options?: ModelAdapterOptions<FindOptions>,
     ): Promise<Array<InstanceType<ModelType>>>;
 
     /**
@@ -200,12 +188,7 @@ declare module '@ioc:Zakodium/Mongodb/Odm' {
     query<ModelType extends MongodbModel<IdType>>(
       this: ModelType,
       filter?: Filter<ModelAttributes<InstanceType<ModelType>>>,
-      options?: ModelAdapterOptions<
-        Omit<
-          FindOptions<ModelAttributes<InstanceType<ModelType>>>,
-          ForbiddenQueryOptions
-        >
-      >,
+      options?: ModelAdapterOptions<Omit<FindOptions, ForbiddenQueryOptions>>,
     ): QueryContract<InstanceType<ModelType>>;
 
     /**

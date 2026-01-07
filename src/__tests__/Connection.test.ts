@@ -50,9 +50,7 @@ describe('transactions', () => {
       connection.transaction(async (session, db, tx) => {
         await db.collection('test').findOneAndDelete({ id }, { session });
 
-        tx.on('commit', (session, db) => {
-          expect(session.transaction.isCommitted).toBe(true);
-
+        tx.on('commit', () => {
           let count: number | null = null;
           db.collection('test')
             .countDocuments({})
@@ -81,11 +79,7 @@ describe('transactions', () => {
         await db.collection('test').deleteOne({ id }, { session });
         await session.abortTransaction();
 
-        tx.on('abort', (session, db) => {
-          expect(Reflect.get(session.transaction, 'state')).toBe(
-            'TRANSACTION_ABORTED',
-          );
-
+        tx.on('abort', () => {
           let count: number | null = null;
           db.collection('test')
             .countDocuments({})
@@ -114,10 +108,7 @@ describe('transactions', () => {
       connection.transaction(async (session, db, tx) => {
         await db.collection('test').deleteOne({ id }, { session });
 
-        tx.on('abort', (session, db, err) => {
-          expect(Reflect.get(session.transaction, 'state')).toBe(
-            'TRANSACTION_ABORTED',
-          );
+        tx.on('abort', (err) => {
           expect(err).toBe(error);
 
           let count: number | null = null;

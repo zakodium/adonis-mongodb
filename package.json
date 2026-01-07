@@ -80,7 +80,7 @@
     "@poppinss/utils": "^5.0.0",
     "cli-table3": "^0.6.5",
     "lodash": "^4.17.21",
-    "mongodb": "^6.21.0",
+    "mongodb": "^7.0.0",
     "pluralize": "^8.0.0"
   }
 }

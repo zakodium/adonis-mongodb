@@ -18,10 +18,12 @@ import type {
 
 import { TransactionEventEmitter } from './TransactionEventEmitter';
 
-enum ConnectionStatus {
-  CONNECTED = 'CONNECTED',
-  DISCONNECTED = 'DISCONNECTED',
-}
+const ConnectionStatus = {
+  CONNECTED: 'CONNECTED',
+  DISCONNECTED: 'DISCONNECTED',
+} as const;
+type ConnectionStatus =
+  (typeof ConnectionStatus)[keyof typeof ConnectionStatus];
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
 export declare interface Connection {
@@ -154,20 +156,13 @@ export class Connection extends EventEmitter implements ConnectionContract {
       )
       .then(
         (result) => {
-          // https://github.com/mongodb/node-mongodb-native/blob/v6.7.0/src/transactions.ts#L147
-          // https://github.com/mongodb/node-mongodb-native/blob/v6.7.0/src/transactions.ts#L54
-          // session.transaction.isCommitted is not a sufficient indicator,
-          // because it's true if transaction commits or aborts.
-          const isCommitted = session.transaction.isCommitted;
+          // Unfortunately, aborting a transaction with `session.abortTransaction` cannot be
+          // detected with the public API, as it is considered a committed state.
+          // https://github.com/mongodb/node-mongodb-native/blob/v7.0.0/src/transactions.ts#L53-L57
           const isAborted =
-            // https://github.com/mongodb/node-mongodb-native/blob/v6.7.0/src/transactions.ts#L11
-            Reflect.get(session.transaction, 'state') === 'TRANSACTION_ABORTED';
+            Reflect.get(session, 'transaction').state === 'TRANSACTION_ABORTED';
 
-          emitter.emit(
-            isCommitted && isAborted ? 'abort' : 'commit',
-            session,
-            db,
-          );
+          emitter.emit(isAborted ? 'abort' : 'commit');
 
           return result;
           // If an error occurs in this scope,
@@ -175,7 +170,7 @@ export class Connection extends EventEmitter implements ConnectionContract {
           // This is what we want, as an error in this scope should not trigger the abort event.
         },
         (error) => {
-          emitter.emit('abort', session, db, error);
+          emitter.emit('abort', error);
           throw error;
         },
       );
