@@ -68,21 +68,14 @@ class Query<ModelType extends typeof BaseModel> implements QueryContract<
     },
   };
 
-  private getDriverOptions(): FindOptions<
-    ModelAttributes<InstanceType<ModelType>>
-  > {
+  private getDriverOptions(): FindOptions {
     return { ...mergeDriverOptions(this.options), ...this.localOptions };
   }
 
   public constructor(
     private filter: Filter<ModelAttributes<InstanceType<ModelType>>>,
     private options:
-      | ModelAdapterOptions<
-          Omit<
-            FindOptions<ModelAttributes<InstanceType<ModelType>>>,
-            ForbiddenQueryOptions
-          >
-        >
+      | ModelAdapterOptions<Omit<FindOptions, ForbiddenQueryOptions>>
       | undefined,
     // eslint-disable-next-line @typescript-eslint/naming-convention
     private ModelConstructor: ModelType,
@@ -442,9 +435,7 @@ export class BaseModel {
   public static async find<ModelType extends typeof BaseModel>(
     this: ModelType,
     id: InstanceType<ModelType>['_id'],
-    options?: ModelAdapterOptions<
-      FindOptions<ModelAttributes<InstanceType<ModelType>>>
-    >,
+    options?: ModelAdapterOptions<FindOptions>,
   ): Promise<InstanceType<ModelType> | null> {
     const collection = await this.getCollection();
     const driverOptions = mergeDriverOptions(options);
@@ -465,9 +456,7 @@ export class BaseModel {
   public static async findOrFail<ModelType extends typeof BaseModel>(
     this: ModelType,
     id: InstanceType<ModelType>['_id'],
-    options?: ModelAdapterOptions<
-      FindOptions<ModelAttributes<InstanceType<ModelType>>>
-    >,
+    options?: ModelAdapterOptions<FindOptions>,
   ): Promise<InstanceType<ModelType>> {
     const result = await this.find(id, options);
     if (!result) {
@@ -480,9 +469,7 @@ export class BaseModel {
     this: ModelType,
     key: string,
     value: unknown,
-    options?: ModelAdapterOptions<
-      FindOptions<ModelAttributes<InstanceType<ModelType>>>
-    >,
+    options?: ModelAdapterOptions<FindOptions>,
   ): Promise<InstanceType<ModelType> | null> {
     const collection = await this.getCollection();
     const driverOptions = mergeDriverOptions(options);
@@ -504,9 +491,7 @@ export class BaseModel {
     this: ModelType,
     key: string,
     value: unknown,
-    options?: ModelAdapterOptions<
-      FindOptions<ModelAttributes<InstanceType<ModelType>>>
-    >,
+    options?: ModelAdapterOptions<FindOptions>,
   ): Promise<InstanceType<ModelType>> {
     const result = await this.findBy(key, value, options);
     if (!result) {
@@ -518,9 +503,7 @@ export class BaseModel {
   public static async findMany<ModelType extends typeof BaseModel>(
     this: ModelType,
     ids: Array<InstanceType<ModelType>['_id']>,
-    options?: ModelAdapterOptions<
-      FindOptions<ModelAttributes<InstanceType<ModelType>>>
-    >,
+    options?: ModelAdapterOptions<FindOptions>,
   ): Promise<Array<InstanceType<ModelType>>> {
     const collection = await this.getCollection();
     const driverOptions = mergeDriverOptions(options);
@@ -541,9 +524,7 @@ export class BaseModel {
 
   public static async all<ModelType extends typeof BaseModel>(
     this: ModelType,
-    options?: ModelAdapterOptions<
-      FindOptions<ModelAttributes<InstanceType<ModelType>>>
-    >,
+    options?: ModelAdapterOptions<FindOptions>,
   ): Promise<Array<InstanceType<ModelType>>> {
     const collection = await this.getCollection();
     const driverOptions = mergeDriverOptions(options);
@@ -563,12 +544,7 @@ export class BaseModel {
   public static query<ModelType extends typeof BaseModel>(
     this: ModelType,
     filter: Filter<ModelAttributes<InstanceType<ModelType>>> = {},
-    options?: ModelAdapterOptions<
-      Omit<
-        FindOptions<ModelAttributes<InstanceType<ModelType>>>,
-        ForbiddenQueryOptions
-      >
-    >,
+    options?: ModelAdapterOptions<Omit<FindOptions, ForbiddenQueryOptions>>,
   ): Query<ModelType> {
     return new Query(filter, options, this);
   }

@@ -12,40 +12,32 @@ import type {
   DatabaseContract,
 } from '@ioc:Zakodium/Mongodb/Database';
 
-enum MigrationType {
-  DropCollection = 'DropCollection',
-  CreateCollection = 'CreateCollection',
-  DropIndex = 'DropIndex',
-  CreateIndex = 'CreateIndex',
-  Custom = 'Custom',
-}
-
 interface DropCollectionOperation {
-  type: MigrationType.DropCollection;
+  type: 'DropCollection';
   collectionName: string;
 }
 
 interface CreateCollectionOperation {
-  type: MigrationType.CreateCollection;
+  type: 'CreateCollection';
   collectionName: string;
 }
 
 interface DropIndexOperation {
-  type: MigrationType.DropIndex;
+  type: 'DropIndex';
   collectionName: string;
   indexName: string;
   options?: DropIndexesOptions;
 }
 
 interface CreateIndexOperation {
-  type: MigrationType.CreateIndex;
+  type: 'CreateIndex';
   collectionName: string;
   index: IndexSpecification;
   options?: CreateIndexesOptions;
 }
 
 interface CustomOperation {
-  type: MigrationType.Custom;
+  type: 'Custom';
   callback: (db: Db, session: ClientSession) => Promise<void>;
 }
 
@@ -77,14 +69,14 @@ export default function createMigration(Database: DatabaseContract): any {
 
     public dropCollection(collectionName: string): void {
       this.$operations.push({
-        type: MigrationType.DropCollection,
+        type: 'DropCollection',
         collectionName,
       });
     }
 
     public createCollection(collectionName: string): void {
       this.$operations.push({
-        type: MigrationType.CreateCollection,
+        type: 'CreateCollection',
         collectionName,
       });
     }
@@ -95,7 +87,7 @@ export default function createMigration(Database: DatabaseContract): any {
       options?: DropIndexesOptions,
     ): void {
       this.$operations.push({
-        type: MigrationType.DropIndex,
+        type: 'DropIndex',
         collectionName,
         indexName,
         options,
@@ -108,7 +100,7 @@ export default function createMigration(Database: DatabaseContract): any {
       options?: CreateIndexesOptions,
     ): void {
       this.$operations.push({
-        type: MigrationType.CreateIndex,
+        type: 'CreateIndex',
         collectionName,
         index,
         options,
@@ -117,7 +109,7 @@ export default function createMigration(Database: DatabaseContract): any {
 
     public defer(callback: (db: Db, session: ClientSession) => Promise<void>) {
       this.$operations.push({
-        type: MigrationType.Custom,
+        type: 'Custom',
         callback,
       });
     }
@@ -205,23 +197,23 @@ export default function createMigration(Database: DatabaseContract): any {
 function isDropCollection(
   op: MigrationOperation,
 ): op is DropCollectionOperation {
-  return op.type === MigrationType.DropCollection;
+  return op.type === 'DropCollection';
 }
 
 function isCreateCollection(
   op: MigrationOperation,
 ): op is CreateCollectionOperation {
-  return op.type === MigrationType.CreateCollection;
+  return op.type === 'CreateCollection';
 }
 
 function isCreateIndex(op: MigrationOperation): op is CreateIndexOperation {
-  return op.type === MigrationType.CreateIndex;
+  return op.type === 'CreateIndex';
 }
 
 function isDropIndex(op: MigrationOperation): op is DropIndexOperation {
-  return op.type === MigrationType.DropIndex;
+  return op.type === 'DropIndex';
 }
 
 function isCustom(op: MigrationOperation): op is CustomOperation {
-  return op.type === MigrationType.Custom;
+  return op.type === 'Custom';
 }

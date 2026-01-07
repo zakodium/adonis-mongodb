@@ -114,7 +114,7 @@ class MongodbModelAuthUserProvider implements UserProviderContract<
     const Model = await this.getModel();
     const user = await Model.findByOrFail(
       this.identifierKey,
-      this.identifierKeyType === 'objectid' ? new ObjectId(id) : id,
+      this.identifierKeyType === 'objectid' ? new ObjectId(id as string) : id,
     );
     return new MongodbModelAuthProviderUser(
       user,
