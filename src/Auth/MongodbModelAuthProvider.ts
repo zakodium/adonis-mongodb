@@ -13,9 +13,9 @@ import type {
   MongodbModelAuthProviderConfig,
 } from '@ioc:Zakodium/Mongodb/Odm';
 
-class MongodbModelAuthProviderUser
-  implements ProviderUserContract<MongodbDocument<unknown>>
-{
+class MongodbModelAuthProviderUser implements ProviderUserContract<
+  MongodbDocument<unknown>
+> {
   public constructor(
     // `this.user` can be any Model, so we use `any` to avoid indexing issues later.
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -55,9 +55,9 @@ class MongodbModelAuthProviderUser
   }
 }
 
-class MongodbModelAuthUserProvider
-  implements UserProviderContract<MongodbDocument<unknown>>
-{
+class MongodbModelAuthUserProvider implements UserProviderContract<
+  MongodbDocument<unknown>
+> {
   private uids = ['email'];
   private identifierKey = '_id';
   private identifierKeyType: 'objectid' | 'string' | 'number' = 'objectid';

@@ -7,7 +7,7 @@
     "outDir": "./lib",
     "inlineSourceMap": true,
     "strict": true,
-    "lib": ["ES2022"],
+    "lib": ["ES2023"],
     "target": "es2022",
     "strictFunctionTypes": false,
     "experimentalDecorators": true,

@@ -2,16 +2,16 @@ import { ObjectId } from 'mongodb';
 
 import type { ApplicationContract } from '@ioc:Adonis/Core/Application';
 import type {
-  BaseModel as BaseModelType,
   BaseAutoIncrementModel as BaseAutoIncrementModelType,
+  BaseModel as BaseModelType,
 } from '@ioc:Zakodium/Mongodb/Odm';
 
 import { getMongodbModelAuthProvider } from '../src/Auth/MongodbModelAuthProvider';
 import { Database } from '../src/Database/Database';
 import { TransactionEventEmitter } from '../src/Database/TransactionEventEmitter';
 import createMigration from '../src/Migration';
-import { BaseModel, BaseAutoIncrementModel } from '../src/Model/Model';
-import { field, computed } from '../src/Odm/decorators';
+import { BaseAutoIncrementModel, BaseModel } from '../src/Model/Model';
+import { computed, field } from '../src/Odm/decorators';
 
 export default class MongodbProvider {
   public constructor(protected app: ApplicationContract) {}

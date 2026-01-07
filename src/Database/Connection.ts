@@ -2,9 +2,9 @@ import { EventEmitter } from 'node:events';
 
 import { Exception } from '@poppinss/utils';
 import type {
-  Db,
-  Collection,
   ClientSession,
+  Collection,
+  Db,
   Document,
   TransactionOptions,
 } from 'mongodb';
@@ -12,8 +12,8 @@ import { MongoClient } from 'mongodb';
 
 import type { LoggerContract } from '@ioc:Adonis/Core/Logger';
 import type {
-  MongodbConnectionConfig,
   ConnectionContract,
+  MongodbConnectionConfig,
 } from '@ioc:Zakodium/Mongodb/Database';
 
 import { TransactionEventEmitter } from './TransactionEventEmitter';
