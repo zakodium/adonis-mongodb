@@ -40,7 +40,7 @@ describe('running migrations correctly changes database', () => {
     });
     const database = await db.connection('mongo').database();
     const collections = await database.listCollections().map(getName).toArray();
-    expect(collections.sort()).toStrictEqual([
+    expect(collections.toSorted()).toStrictEqual([
       'migration1',
       'migration2',
       'migration3',
@@ -54,7 +54,7 @@ describe('running migrations correctly changes database', () => {
     });
     const database = await db.connection('mongo').database();
     const collections = await database.listCollections().map(getName).toArray();
-    expect(collections.sort()).toStrictEqual(['migration1', 'migration3']);
+    expect(collections.toSorted()).toStrictEqual(['migration1', 'migration3']);
   });
 });
 

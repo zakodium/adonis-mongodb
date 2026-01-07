@@ -108,7 +108,7 @@ describe('query.sort', () => {
 
   it('should sort by custom field with sort()', async () => {
     const result = await TestModel.query()
-      .sort({ numberField: 1 })
+      .sort({ numberField: 1 }) // eslint-disable-line unicorn/no-array-sort
       .firstOrFail();
     expect(result._id).toBe(1);
   });
@@ -123,7 +123,7 @@ describe('query.sort', () => {
   it('should sort by combination of fields', async () => {
     const result = await TestModel.query()
       .sortBy('numberField', 1)
-      .sort({ _id: 'desc' })
+      .sort({ _id: 'desc' }) // eslint-disable-line unicorn/no-array-sort
       .firstOrFail();
     expect(result._id).toBe(3);
   });
@@ -196,7 +196,7 @@ describe('query.limit', () => {
 
 test('query.sort/skip/limit', async () => {
   const result = await TestModel.query()
-    .sort({ _id: 'desc' })
+    .sort({ _id: 'desc' }) // eslint-disable-line unicorn/no-array-sort
     .skip(1)
     .limit(2)
     .all();

@@ -16,6 +16,7 @@ export default function transformMigrations(
   // Separate name and file fields
   const migrations: MigrationDescription[] = rawMigrations
     .flat()
+    // eslint-disable-next-line unicorn/no-array-sort
     .sort((a, b) =>
       path
         .basename(a, path.extname(a))

@@ -1,6 +1,6 @@
 import assert from 'node:assert';
 
-import { defineStaticProperty, Exception } from '@poppinss/utils';
+import { Exception, defineStaticProperty } from '@poppinss/utils';
 import { cloneDeep, isEqual, pickBy, snakeCase } from 'lodash';
 import type {
   BulkWriteOptions,
@@ -58,9 +58,9 @@ const forbiddenQueryOptions: ForbiddenQueryOptions[] = [
   'explain',
 ];
 
-class Query<ModelType extends typeof BaseModel>
-  implements QueryContract<InstanceType<ModelType>>
-{
+class Query<ModelType extends typeof BaseModel> implements QueryContract<
+  InstanceType<ModelType>
+> {
   private localCustomSort = false;
   private localOptions: QueryLocalOptions = {
     sort: {
@@ -107,6 +107,7 @@ class Query<ModelType extends typeof BaseModel>
   }
 
   public sortBy(field: string, direction: SortDirection = 'ascending'): this {
+    // eslint-disable-next-line unicorn/no-array-sort
     return this.sort({ [field]: direction });
   }
 
@@ -576,7 +577,10 @@ export class BaseModel {
     this: ModelType,
     connection = this.connection,
   ): Promise<Collection<ModelAttributes<InstanceType<ModelType>>>> {
-    assert(this.$database, 'Model should only be accessed from IoC container');
+    assert.ok(
+      this.$database,
+      'Model should only be accessed from IoC container',
+    );
     const connectionInstance = this.$database.connection(connection);
     return connectionInstance.collection(this.collectionName);
   }
@@ -800,7 +804,7 @@ export class BaseAutoIncrementModel extends BaseModel {
         { $inc: { count: 1 } },
         { ...driverOptions, upsert: true, returnDocument: 'after' },
       );
-      assert(doc, 'upsert should always create a document');
+      assert.ok(doc, 'upsert should always create a document');
       toSet._id = doc.count;
       // @ts-expect-error Unavoidable error, as _id is unknown here.
       await collection.insertOne(toSet, driverOptions);
