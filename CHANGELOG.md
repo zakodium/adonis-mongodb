@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.21.0](https://github.com/zakodium/adonis-mongodb/compare/v0.20.2...v0.21.0) (2026-01-07)
+
+
+### ⚠ BREAKING CHANGES
+
+* `FindOptions` is no longer a generic type. Transaction events no longer receive the `session` and `db` objects. They are already available from the transaction executor callback.
+* Drop support for Node.js 18.x
+
+### Features
+
+* update mongodb driver to v7 ([dd64531](https://github.com/zakodium/adonis-mongodb/commit/dd64531744d26738190378d34ae6cc2b1a69fe76))
+
+
+### Miscellaneous Chores
+
+* update dependencies ([62b167d](https://github.com/zakodium/adonis-mongodb/commit/62b167de4f9075c626a93b2e84613de0e373a2b2))
+
 ## [0.20.2](https://github.com/zakodium/adonis-mongodb/compare/v0.20.1...v0.20.2) (2025-01-15)
 
 
