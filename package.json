@@ -61,8 +61,8 @@
   },
   "homepage": "https://github.com/zakodium/adonis-mongodb#readme",
   "devDependencies": {
-    "@adonisjs/auth": "^8.2.3",
-    "@adonisjs/core": "^5.9.0",
+    "@adonisjs/auth": "^10.0.0",
+    "@adonisjs/core": "^7.0.0",
     "@adonisjs/logger": "^4.1.6",
     "@poppinss/cliui": "^3.0.5",
     "@types/jest": "^30.0.0",
