@@ -449,9 +449,7 @@ test('spreading a model should throw', async () => {
 });
 
 test('custom inspect function', async () => {
-  const post = await Post.query()
-    .sort({ id: 1 }) // eslint-disable-line unicorn/no-array-sort
-    .firstOrFail();
+  const post = await Post.query().sort({ id: 1 }).firstOrFail();
   post.content = 'new content';
 
   // Delete dates to have a reproducible snapshot.

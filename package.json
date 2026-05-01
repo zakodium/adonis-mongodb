@@ -47,7 +47,7 @@
     "prepack": "npm run tsc",
     "prettier": "prettier --check .",
     "prettier-write": "prettier --write .",
-    "test": "npm run test-only && npm run eslint && npm run prettier && npm run check-types",
+    "test": "npm run test-only && npm run check-types && npm run eslint && npm run prettier",
     "test-only": "jest --coverage",
     "tsc": "npm run clean && npm run tsc-cjs",
     "tsc-cjs": "tsc --project tsconfig.prod.json"
@@ -66,21 +66,21 @@
     "@adonisjs/logger": "^4.1.6",
     "@poppinss/cliui": "^3.0.5",
     "@types/jest": "^30.0.0",
-    "@types/lodash": "^4.17.21",
+    "@types/lodash": "^4.17.24",
     "@types/pluralize": "0.0.29",
     "eslint": "^9.39.2",
-    "eslint-config-zakodium": "^19.0.0",
-    "jest": "^30.2.0",
-    "prettier": "^3.7.4",
-    "rimraf": "^6.1.2",
-    "ts-jest": "^29.4.6",
-    "typescript": "^5.9.3"
+    "eslint-config-zakodium": "^20.0.0",
+    "jest": "^30.3.0",
+    "prettier": "^3.8.3",
+    "rimraf": "^6.1.3",
+    "ts-jest": "^29.4.9",
+    "typescript": "^6.0.3"
   },
   "dependencies": {
     "@poppinss/utils": "^5.0.0",
     "cli-table3": "^0.6.5",
-    "lodash": "^4.17.21",
-    "mongodb": "^7.0.0",
+    "lodash": "^4.18.1",
+    "mongodb": "^7.2.0",
     "pluralize": "^8.0.0"
   }
 }
