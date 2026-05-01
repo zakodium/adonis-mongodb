@@ -7,7 +7,6 @@ import type {
   ClientSession,
   Collection,
   CountDocumentsOptions,
-  CountOptions,
   DeleteOptions,
   DistinctOptions,
   Document,
@@ -100,7 +99,6 @@ class Query<ModelType extends typeof BaseModel> implements QueryContract<
   }
 
   public sortBy(field: string, direction: SortDirection = 'ascending'): this {
-    // eslint-disable-next-line unicorn/no-array-sort
     return this.sort({ [field]: direction });
   }
 
@@ -174,10 +172,7 @@ class Query<ModelType extends typeof BaseModel> implements QueryContract<
   public async count(): Promise<number> {
     const collection = await this.ModelConstructor.getCollection();
     const driverOptions = this.getDriverOptions();
-    return collection.countDocuments(
-      this.filter,
-      driverOptions as CountOptions,
-    );
+    return collection.countDocuments(this.filter, driverOptions);
   }
 
   public async distinct<T = unknown>(key: string): Promise<T[]> {
@@ -603,10 +598,7 @@ export class BaseModel {
     }
 
     const constructor = this.constructor as typeof BaseModel;
-    this.$collection =
-      (await constructor.getCollection()) as unknown as Collection<
-        ModelAttributes<MongodbDocument<unknown>>
-      >;
+    this.$collection = await constructor.getCollection();
     return this.$collection;
   }
 

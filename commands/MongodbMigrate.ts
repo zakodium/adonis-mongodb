@@ -72,7 +72,7 @@ export default class MongodbMigrate extends MigrationCommand {
     // Get the next incremental batch value
     const value = await migrationColl
       .find({})
-      .sort({ batch: -1 }) // eslint-disable-line unicorn/no-array-sort
+      .sort({ batch: -1 })
       .project<{ batch: number }>({ batch: 1 })
       .limit(1)
       .toArray();

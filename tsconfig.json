@@ -3,6 +3,7 @@
     "declaration": true,
     "esModuleInterop": true,
     "module": "commonjs",
+    "ignoreDeprecations": "6.0",
     "moduleResolution": "node",
     "outDir": "./lib",
     "inlineSourceMap": true,

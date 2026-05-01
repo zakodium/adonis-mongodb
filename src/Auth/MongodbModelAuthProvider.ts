@@ -71,11 +71,11 @@ class MongodbModelAuthUserProvider implements UserProviderContract<
       if (config.uids.length === 0) {
         throw new Error('config.uids must have at least one element');
       }
-      this.uids = config.uids as string[];
+      this.uids = config.uids;
     }
 
     if (config.identifierKey) {
-      this.identifierKey = config.identifierKey as string;
+      this.identifierKey = config.identifierKey;
     }
 
     if (config.identifierKeyType) {
